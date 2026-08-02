@@ -1,25 +1,27 @@
-import type { Metadata } from "next";
-import { Vazirmatn } from "next/font/google";
-import "./globals.css";
+import type { Metadata, Viewport } from 'next';
+import { Lalezar, Vazirmatn } from 'next/font/google'; // ← ADD
+import './globals.css';
 
-const vazirmatn = Vazirmatn({
-  subsets: ["arabic"],
-  display: "swap",
-});
+// ← ADD: display face (wordmark/headings/FAB) + body face
+const vazirmatn = Vazirmatn({ subsets: ['arabic'], variable: '--font-sans', display: 'swap' });
+const lalezar = Lalezar({ subsets: ['arabic'], weight: '400', variable: '--font-display', display: 'swap' });
 
+// ← REPLACE metadata
 export const metadata: Metadata = {
-  title: "نظرمن | نظر مردم، قبل از تصمیم شما",
-  description: "نظرمن؛ نظر مردم، قبل از تصمیم شما.",
+  title: 'نظرمن | دنبال هر چیزی می‌گردید؟',
+  description: 'نظرمن — نظر واقعی مردم دربارهٔ هر چیزی؛ جا، آدم، محصول، وب‌سایت و… بخوانید و ثبت کنید.',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+// ← ADD
+export const viewport: Viewport = {
+  themeColor: '#f6f9f8',
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fa" dir="rtl" className={vazirmatn.className}>
-      <body className="bg-white text-neutral-900 antialiased">{children}</body>
+    // ← MODIFY: lang, dir, font variables
+    <html lang="fa" dir="rtl" className={`${vazirmatn.variable} ${lalezar.variable}`}>
+      <body>{children}</body>
     </html>
   );
 }

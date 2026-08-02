@@ -1,26 +1,170 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/* Fonts come from next/font (see layout.tsx) */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@theme {
+  /* ——— Palette: فیروزه و زعفران ——— */
+  --color-paper: #f6f9f8;
+
+  --color-turquoise-50: #f0faf8;
+  --color-turquoise-100: #d9f2ee;
+  --color-turquoise-200: #b0e3dc;
+  --color-turquoise-300: #7fcdc4;
+  --color-turquoise-400: #4fb0a5;
+  --color-turquoise-500: #2f948a;
+  --color-turquoise-600: #1f7a72;
+  --color-turquoise-700: #1a635d;
+  --color-turquoise-800: #17504b;
+  --color-turquoise-900: #15433f;
+  --color-turquoise-950: #0a2724;
+
+  --color-saffron-50: #fef9ec;
+  --color-saffron-100: #fcefd0;
+  --color-saffron-200: #f8dda0;
+  --color-saffron-300: #f4c669;
+  --color-saffron-400: #efab3d;
+  --color-saffron-500: #e99322;
+  --color-saffron-600: #d47618;
+  --color-saffron-700: #b05a17;
+
+  --color-ink-50: #f2f7f5;
+  --color-ink-100: #e0ebe7;
+  --color-ink-200: #c4d8d1;
+  --color-ink-300: #9dbbb2;
+  --color-ink-400: #6f9a90;
+  --color-ink-500: #4b7f74;
+  --color-ink-600: #33665c;
+  --color-ink-700: #245249;
+  --color-ink-800: #1a403b;
+  --color-ink-900: #12302c;
+  --color-ink-950: #0b1f1d;
+
+  /* ——— Motion ——— */
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pop-in: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-float: float 9s ease-in-out infinite;
+  --animate-breathe: breathe 11s ease-in-out infinite;
+  --animate-halo: halo 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  --animate-draw: draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.7s both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.7) translateY(6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-12px) rotate(4deg); }
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%      { opacity: 1; transform: scale(1.06); }
+  }
+  @keyframes halo {
+    0%        { transform: scale(0.8); opacity: 0.8; }
+    70%, 100% { transform: scale(1.55); opacity: 0; }
+  }
+  @keyframes draw {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  body {
+    @apply bg-paper font-sans text-ink-900 antialiased;
+  }
+  ::selection {
+    @apply bg-turquoise-700 text-white;
+  }
+}
+
+@theme inline {
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
+}
+
+@theme {
+  --color-paper: #f6f9f8;
+
+  --color-turquoise-50: #f0faf8;
+  --color-turquoise-100: #d9f2ee;
+  --color-turquoise-200: #b0e3dc;
+  --color-turquoise-300: #7fcdc4;
+  --color-turquoise-400: #4fb0a5;
+  --color-turquoise-500: #2f948a;
+  --color-turquoise-600: #1f7a72;
+  --color-turquoise-700: #1a635d;
+  --color-turquoise-800: #17504b;
+  --color-turquoise-900: #15433f;
+  --color-turquoise-950: #0a2724;
+
+  --color-saffron-50: #fef9ec;
+  --color-saffron-100: #fcefd0;
+  --color-saffron-200: #f8dda0;
+  --color-saffron-300: #f4c669;
+  --color-saffron-400: #efab3d;
+  --color-saffron-500: #e99322;
+  --color-saffron-600: #d47618;
+  --color-saffron-700: #b05a17;
+
+  --color-ink-50: #f2f7f5;
+  --color-ink-100: #e0ebe7;
+  --color-ink-200: #c4d8d1;
+  --color-ink-300: #9dbbb2;
+  --color-ink-400: #6f9a90;
+  --color-ink-500: #4b7f74;
+  --color-ink-600: #33665c;
+  --color-ink-700: #245249;
+  --color-ink-800: #1a403b;
+  --color-ink-900: #12302c;
+  --color-ink-950: #0b1f1d;
+
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-pop-in: pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-float: float 9s ease-in-out infinite;
+  --animate-breathe: breathe 11s ease-in-out infinite;
+  --animate-halo: halo 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  --animate-draw: draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) 0.7s both;
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: scale(0.7) translateY(6px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-12px) rotate(4deg); }
+  }
+  @keyframes breathe {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50%      { opacity: 1; transform: scale(1.06); }
+  }
+  @keyframes halo {
+    0%        { transform: scale(0.8); opacity: 0.8; }
+    70%, 100% { transform: scale(1.55); opacity: 0; }
+  }
+  @keyframes draw {
+    from { stroke-dashoffset: 1; }
+    to   { stroke-dashoffset: 0; }
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-paper font-sans text-ink-900 antialiased;
+  }
+  ::selection {
+    @apply bg-turquoise-700 text-white;
+  }
 }
