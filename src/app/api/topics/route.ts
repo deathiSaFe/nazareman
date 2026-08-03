@@ -129,6 +129,7 @@ export async function GET(request: NextRequest) {
     const totalPages = Math.ceil(total / limit);
 
     return NextResponse.json({
+      topics,
       data: topics,
       pagination: {
         page,
