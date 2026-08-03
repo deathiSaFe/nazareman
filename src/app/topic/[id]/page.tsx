@@ -1,16 +1,213 @@
-import TopicPageClient from '@/components/topic/TopicPageClient';
-import type { Metadata } from 'next';
+import { headers } from 'next/headers';
+import { notFound } from 'next/navigation';
+import Link from 'next/link';
+import { TOPIC_TYPES } from '@/types/topic';
 
-export const metadata: Metadata = {
-  title: 'موضوع - نظرمن',
+export const dynamic = 'force-dynamic';
+
+type TopicProvince = {
+  name: string;
+  slug: string;
 };
 
-export default async function TopicPage({
+type TopicCity = {
+  name: string;
+  slug: string;
+  province: TopicProvince;
+};
+
+type TopicComment = {
+  id: string;
+  body: string;
+  createdAt: string;
+  authorName: string | null;
+};
+
+type TopicDetail = {
+  id: string;
+  slug: string;
+  name: string;
+  type: string;
+  description: string;
+  imageUrl: string | null;
+  city: TopicCity | null;
+  comments: TopicComment[];
+};
+
+function getTypeLabel(type: string): string {
+  const found = TOPIC_TYPES.find((topicType) => {
+    return (topicType.id as string) === type;
+  });
+
+  return found?.label ?? type;
+}
+
+function getCityLabel(city: TopicCity | null): string {
+  if (!city) {
+    return 'بدون شهر';
+  }
+
+  const parts = [city.name, city.province.name].filter(Boolean);
+
+  if (parts.length === 0) {
+    return 'بدون شهر';
+  }
+
+  return parts.join(' · ');
+}
+
+function formatPersianDate(value: string): string {
+  try {
+    return new Date(value).toLocaleDateString('fa-IR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch {
+    return '';
+  }
+}
+
+export default async function TopicDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
 
-  return <TopicPageClient topicId={id} />;
+  const headersList = await headers();
+  const host = headersList.get('host') ?? 'localhost:3000';
+  const protocol = headersList.get('x-forwarded-proto') ?? 'http';
+  const baseUrl = `${protocol}://${host}`;
+
+  let response: Response;
+
+  try {
+    response = await fetch(
+      `${baseUrl}/api/topics/${encodeURIComponent(id)}`,
+      {
+        cache: 'no-store',
+      }
+    );
+  } catch {
+    return (
+      <main className="min-h-screen bg-paper">
+        <div className="mx-auto w-full max-w-3xl px-5 py-10">
+          <div className="rounded-3xl bg-white p-8 text-center text-ink-600 ring-1 ring-ink-900/[0.06]">
+            دریافت موضوع ممکن نشد.
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (response.status === 404) {
+    notFound();
+  }
+
+  if (!response.ok) {
+    return (
+      <main className="min-h-screen bg-paper">
+        <div className="mx-auto w-full max-w-3xl px-5 py-10">
+          <div className="rounded-3xl bg-white p-8 text-center text-ink-600 ring-1 ring-ink-900/[0.06]">
+            دریافت موضوع ممکن نشد.
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  let topic: TopicDetail;
+
+  try {
+    topic = await response.json();
+  } catch {
+    return (
+      <main className="min-h-screen bg-paper">
+        <div className="mx-auto w-full max-w-3xl px-5 py-10">
+          <div className="rounded-3xl bg-white p-8 text-center text-ink-600 ring-1 ring-ink-900/[0.06]">
+            دریافت موضوع ممکن نشد.
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-paper pb-16">
+      <div className="mx-auto w-full max-w-3xl px-5 py-10">
+        <Link
+          href="/topics"
+          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-turquoise-700 transition-colors hover:bg-turquoise-600/10"
+        >
+          بازگشت به موضوعات
+        </Link>
+
+        <article className="mt-6 overflow-hidden rounded-3xl bg-white ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)]">
+          {topic.imageUrl ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={topic.imageUrl}
+                alt={topic.name}
+                className="h-56 w-full object-cover md:h-72"
+              />
+            </>
+          ) : (
+            <div className="flex h-56 w-full items-center justify-center bg-turquoise-50 text-sm font-medium text-turquoise-700 md:h-72">
+              تصویر ندارد
+            </div>
+          )}
+
+          <div className="p-6 md:p-8">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <h1 className="font-display text-3xl text-ink-900">
+                {topic.name}
+              </h1>
+
+              <span className="rounded-full bg-turquoise-600/10 px-4 py-1.5 text-xs font-bold text-turquoise-700">
+                {getTypeLabel(topic.type)}
+              </span>
+            </div>
+
+            <p className="mt-3 text-sm text-ink-500">
+              {getCityLabel(topic.city)}
+            </p>
+
+            <p className="mt-6 whitespace-pre-line text-[15px] leading-7 text-ink-700">
+              {topic.description}
+            </p>
+          </div>
+        </article>
+
+        <section aria-label="نظرات موضوع" className="mt-10">
+          <h2 className="font-display text-2xl text-ink-900">نظرات</h2>
+
+          {topic.comments.length === 0 ? (
+            <div className="mt-4 rounded-3xl bg-white p-6 text-sm text-ink-600 ring-1 ring-ink-900/[0.06]">
+              هنوز نظری برای این موضوع ثبت نشده است.
+            </div>
+          ) : (
+            <div className="mt-4 space-y-4">
+              {topic.comments.map((comment) => (
+                <article
+                  key={comment.id}
+                  className="rounded-3xl bg-white p-5 ring-1 ring-ink-900/[0.06]"
+                >
+                  <p className="whitespace-pre-line text-[15px] leading-7 text-ink-800">
+                    {comment.body}
+                  </p>
+
+                  <footer className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-500">
+                    <span>{comment.authorName ?? 'ناشناس'}</span>
+                    <span>{formatPersianDate(comment.createdAt)}</span>
+                  </footer>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </main>
+  );
 }

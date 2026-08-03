@@ -1,5 +1,6 @@
+import Link from 'next/link';
 import { headers } from 'next/headers';
-import { TOPIC_TYPES } from '@/types/topic';
+import { TOPIC_TYPES, topicHref } from '@/types/topic';
 
 export const dynamic = 'force-dynamic';
 
@@ -94,9 +95,10 @@ export default async function TopicsPage() {
         ) : (
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {topics.map((topic) => (
-              <article
+              <Link
                 key={topic.id}
-                className="overflow-hidden rounded-3xl bg-white ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)]"
+                href={topicHref(topic)}
+                className="block overflow-hidden rounded-3xl bg-white ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-16px_rgba(26,99,93,0.45)]"
               >
                 {topic.imageUrl ? (
                   <>
@@ -133,7 +135,7 @@ export default async function TopicsPage() {
                     {topic.description}
                   </p>
                 </div>
-              </article>
+              </Link>
             ))}
           </div>
         )}
