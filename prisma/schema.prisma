@@ -1,0 +1,165 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum TopicType {
+  person
+  business
+  place
+  product
+  education
+  medical
+  organization
+  other
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ModerationAction {
+  APPROVE
+  REJECT
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  role        UserRole @default(USER)
+  phone       String?  @unique
+  displayName String?
+  createdAt   DateTime @default(now())
+
+  topics         Topic[]
+  comments       Comment[]
+  submissions    Submission[]
+  moderationLogs ModerationLog[]
+}
+
+model Province {
+  id   String @id @default(uuid()) @db.Uuid
+  name String @unique
+  slug String @unique
+
+  cities City[]
+
+  @@index([name])
+  @@index([slug])
+}
+
+model City {
+  id         String @id @default(uuid()) @db.Uuid
+  provinceId String @db.Uuid
+  name       String
+  slug       String
+
+  province Province @relation(fields: [provinceId], references: [id], onDelete: Restrict)
+  topics   Topic[]
+
+  @@unique([provinceId, name])
+  @@unique([provinceId, slug])
+  @@index([provinceId])
+  @@index([name])
+  @@index([slug])
+  @@index([provinceId, name])
+}
+
+model Topic {
+  id            String           @id @default(uuid()) @db.Uuid
+  slug          String           @unique
+  name          String
+  type          TopicType
+  description   String
+  imageUrl      String?
+  cityId        String?          @db.Uuid
+  status        ModerationStatus @default(PENDING)
+  submittedById String?          @db.Uuid
+  createdAt     DateTime         @default(now())
+  approvedAt    DateTime?
+
+  city        City? @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  submittedBy User? @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+
+  comments       Comment[]
+  submission     Submission?
+  moderationLogs ModerationLog[]
+
+  @@index([status, createdAt])
+  @@index([cityId, type, status])
+  @@index([type, name, cityId])
+  @@index([name])
+  @@index([createdAt])
+  @@index([submittedById])
+}
+
+model Comment {
+  id           String           @id @default(uuid()) @db.Uuid
+  topicId      String           @db.Uuid
+  body         String
+  status       ModerationStatus @default(PENDING)
+  authorId     String?          @db.Uuid
+  submissionId String?          @unique @db.Uuid
+  createdAt    DateTime         @default(now())
+
+  topic      Topic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  author     User?       @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  submission Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+
+  moderationLogs ModerationLog[]
+
+  @@index([topicId, status, createdAt])
+  @@index([status, createdAt])
+}
+
+model Submission {
+  id            String           @id @default(uuid()) @db.Uuid
+  status        ModerationStatus @default(PENDING)
+  topicId       String           @unique @db.Uuid
+  submittedById String?          @db.Uuid
+  createdAt     DateTime         @default(now())
+  decidedAt     DateTime?
+
+  topic       Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  submittedBy User? @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+
+  firstComment   Comment?
+  moderationLogs ModerationLog[]
+
+  @@index([status, createdAt])
+  @@index([submittedById])
+}
+
+model ModerationLog {
+  id           String           @id @default(uuid()) @db.Uuid
+  action       ModerationAction
+  reason       String?
+  adminId      String?          @db.Uuid
+  submissionId String?          @db.Uuid
+  topicId      String?          @db.Uuid
+  commentId    String?          @db.Uuid
+  createdAt    DateTime         @default(now())
+
+  admin      User?       @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  submission Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+  topic      Topic?      @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  comment    Comment?    @relation(fields: [commentId], references: [id], onDelete: SetNull)
+
+  @@index([submissionId])
+  @@index([topicId])
+  @@index([commentId])
+  @@index([adminId, createdAt])
+  @@index([action, createdAt])
+  @@index([createdAt])
+}
