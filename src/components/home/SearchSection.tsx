@@ -51,7 +51,7 @@ export function SearchSection() {
           />
         </div>
 
-        <div className="mt-9 flex justify-center md:mt-10">
+        <div className="mt-12 flex justify-center md:mt-14">
           <AddTopicButton />
         </div>
       </div>
