@@ -2,6 +2,7 @@ import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { TOPIC_TYPES } from '@/types/topic';
+import { CommentForm } from '@/components/topic/CommentForm';
 
 export const dynamic = 'force-dynamic';
 
@@ -179,6 +180,8 @@ export default async function TopicDetailPage({
             </p>
           </div>
         </article>
+
+        <CommentForm topicId={topic.id} />
 
         <section aria-label="نظرات موضوع" className="mt-10">
           <h2 className="font-display text-2xl text-ink-900">نظرات</h2>
