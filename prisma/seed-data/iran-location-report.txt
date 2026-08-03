@@ -1,0 +1,62 @@
+Generated at: 2026-08-03
+Source: GeoNames
+License: CC BY 4.0
+
+Provinces: 31
+Cities: 414
+Provincial capitals: 31
+
+Province city counts:
+tehran | تهران | cities: 45
+alborz | البرز | cities: 10
+qom | قم | cities: 2
+semnan | سمنان | cities: 6
+qazvin | قزوین | cities: 10
+markazi | مرکزی | cities: 11
+zanjan | زنجان | cities: 4
+ardabil | اردبیل | cities: 5
+east-azerbaijan | آذربایجان شرقی | cities: 19
+west-azerbaijan | آذربایجان غربی | cities: 17
+kurdistan | کردستان | cities: 8
+kermanshah | کرمانشاه | cities: 11
+hamadan | همدان | cities: 7
+lorestan | لرستان | cities: 9
+ilam | ایلام | cities: 5
+khuzestan | خوزستان | cities: 31
+chaharmahal-and-bakhtiari | چهارمحال و بختیاری | cities: 6
+kohgiluyeh-and-boyer-ahmad | کهگیلویه و بویراحمد | cities: 5
+fars | فارس | cities: 29
+bushehr | بوشهر | cities: 14
+hormozgan | هرمزگان | cities: 11
+sistan-and-baluchestan | سیستان و بلوچستان | cities: 10
+kerman | کرمان | cities: 17
+yazd | یزد | cities: 9
+isfahan | اصفهان | cities: 34
+south-khorasan | خراسان جنوبی | cities: 5
+razavi-khorasan | خراسان رضوی | cities: 18
+north-khorasan | خراسان شمالی | cities: 5
+golestan | گلستان | cities: 14
+mazandaran | مازندران | cities: 20
+gilan | گیلان | cities: 17
+
+Missing capitals:
+none
+
+Duplicate name resolutions:
+Province "mazandaran" city "گلوگاه": kept geonameId 134255, dropped geonameId 134256
+Province "lorestan" city "ازنا": kept geonameId 142497, dropped geonameId 142496
+Province "fars" city "آباده": kept geonameId 48918, dropped geonameId 145449
+Province "razavi-khorasan" city "مشهد": kept geonameId 124665, dropped geonameId 6678247
+Province "tehran" city "تهران": kept geonameId 112931, dropped geonameId 6683528
+Province "isfahan" city "کاشان": kept geonameId 128476, dropped geonameId 6861211
+Province "kerman" city "کرمان": kept geonameId 128234, dropped geonameId 7103618
+Province "tehran" city "وحیدیه": kept geonameId 404592, dropped geonameId 8420881
+
+Duplicate slug resolutions:
+Province "mazandaran" base slug "sari" became "sari-2" for geonameId 116996
+Province "tehran" base slug "kahrizak" became "kahrizak-2" for geonameId 11980175
+
+Warnings:
+6 candidate cities were skipped because they had no reliable Persian fa alternate name.
+8 duplicate city-name resolutions were applied.
+2 duplicate city-slug resolutions were applied.

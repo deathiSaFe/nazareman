@@ -1,0 +1,2619 @@
+{
+  "metadata": {
+    "source": "GeoNames",
+    "license": "CC BY 4.0",
+    "generatedAt": "2026-08-03"
+  },
+  "provinces": [
+    {
+      "name": "تهران",
+      "slug": "tehran"
+    },
+    {
+      "name": "البرز",
+      "slug": "alborz"
+    },
+    {
+      "name": "قم",
+      "slug": "qom"
+    },
+    {
+      "name": "سمنان",
+      "slug": "semnan"
+    },
+    {
+      "name": "قزوین",
+      "slug": "qazvin"
+    },
+    {
+      "name": "مرکزی",
+      "slug": "markazi"
+    },
+    {
+      "name": "زنجان",
+      "slug": "zanjan"
+    },
+    {
+      "name": "اردبیل",
+      "slug": "ardabil"
+    },
+    {
+      "name": "آذربایجان شرقی",
+      "slug": "east-azerbaijan"
+    },
+    {
+      "name": "آذربایجان غربی",
+      "slug": "west-azerbaijan"
+    },
+    {
+      "name": "کردستان",
+      "slug": "kurdistan"
+    },
+    {
+      "name": "کرمانشاه",
+      "slug": "kermanshah"
+    },
+    {
+      "name": "همدان",
+      "slug": "hamadan"
+    },
+    {
+      "name": "لرستان",
+      "slug": "lorestan"
+    },
+    {
+      "name": "ایلام",
+      "slug": "ilam"
+    },
+    {
+      "name": "خوزستان",
+      "slug": "khuzestan"
+    },
+    {
+      "name": "چهارمحال و بختیاری",
+      "slug": "chaharmahal-and-bakhtiari"
+    },
+    {
+      "name": "کهگیلویه و بویراحمد",
+      "slug": "kohgiluyeh-and-boyer-ahmad"
+    },
+    {
+      "name": "فارس",
+      "slug": "fars"
+    },
+    {
+      "name": "بوشهر",
+      "slug": "bushehr"
+    },
+    {
+      "name": "هرمزگان",
+      "slug": "hormozgan"
+    },
+    {
+      "name": "سیستان و بلوچستان",
+      "slug": "sistan-and-baluchestan"
+    },
+    {
+      "name": "کرمان",
+      "slug": "kerman"
+    },
+    {
+      "name": "یزد",
+      "slug": "yazd"
+    },
+    {
+      "name": "اصفهان",
+      "slug": "isfahan"
+    },
+    {
+      "name": "خراسان جنوبی",
+      "slug": "south-khorasan"
+    },
+    {
+      "name": "خراسان رضوی",
+      "slug": "razavi-khorasan"
+    },
+    {
+      "name": "خراسان شمالی",
+      "slug": "north-khorasan"
+    },
+    {
+      "name": "گلستان",
+      "slug": "golestan"
+    },
+    {
+      "name": "مازندران",
+      "slug": "mazandaran"
+    },
+    {
+      "name": "گیلان",
+      "slug": "gilan"
+    }
+  ],
+  "cities": [
+    {
+      "name": "چهار دانگه",
+      "slug": "chaharbagh",
+      "provinceSlug": "alborz",
+      "geonameId": 41672
+    },
+    {
+      "name": "اشتهارد",
+      "slug": "eshtehard",
+      "provinceSlug": "alborz",
+      "geonameId": 135205
+    },
+    {
+      "name": "گرمدره",
+      "slug": "garmdarreh",
+      "provinceSlug": "alborz",
+      "geonameId": 400773
+    },
+    {
+      "name": "هشتگرد",
+      "slug": "hashtgerd",
+      "provinceSlug": "alborz",
+      "geonameId": 131691
+    },
+    {
+      "name": "قَرَنطینِۀ کَمال آباد",
+      "slug": "kamalshahr",
+      "provinceSlug": "alborz",
+      "geonameId": 41548
+    },
+    {
+      "name": "کرج",
+      "slug": "karaj",
+      "provinceSlug": "alborz",
+      "geonameId": 128747
+    },
+    {
+      "name": "شهر جدید مهستان",
+      "slug": "mehestan",
+      "provinceSlug": "alborz",
+      "geonameId": 8535197
+    },
+    {
+      "name": "محمد شهر",
+      "slug": "mohammad-shahr",
+      "provinceSlug": "alborz",
+      "geonameId": 400771
+    },
+    {
+      "name": "نظر آباد",
+      "slug": "nazarabad",
+      "provinceSlug": "alborz",
+      "geonameId": 122438
+    },
+    {
+      "name": "شهرک مهندسی زِراعی",
+      "slug": "shahrak-e-mohandesi-ye-zera-i",
+      "provinceSlug": "alborz",
+      "geonameId": 41589
+    },
+    {
+      "name": "اردبیل",
+      "slug": "ardabil",
+      "provinceSlug": "ardabil",
+      "geonameId": 143083
+    },
+    {
+      "name": "گرمی",
+      "slug": "germi",
+      "provinceSlug": "ardabil",
+      "geonameId": 133972
+    },
+    {
+      "name": "خلخال",
+      "slug": "khalkhal",
+      "provinceSlug": "ardabil",
+      "geonameId": 128008
+    },
+    {
+      "name": "مشگین شهر",
+      "slug": "meshgin-shahr",
+      "provinceSlug": "ardabil",
+      "geonameId": 124210
+    },
+    {
+      "name": "پارس آباد",
+      "slug": "parsabad",
+      "provinceSlug": "ardabil",
+      "geonameId": 121380
+    },
+    {
+      "name": "آب پخش",
+      "slug": "ab-pakhsh",
+      "provinceSlug": "bushehr",
+      "geonameId": 44172
+    },
+    {
+      "name": "اهرم",
+      "slug": "ahram",
+      "provinceSlug": "bushehr",
+      "geonameId": 144484
+    },
+    {
+      "name": "عالی شهر",
+      "slug": "ali-shahr",
+      "provinceSlug": "bushehr",
+      "geonameId": 8522943
+    },
+    {
+      "name": "بندر دیلم",
+      "slug": "bandar-e-deylam",
+      "provinceSlug": "bushehr",
+      "geonameId": 141676
+    },
+    {
+      "name": "قَلئِه دیر",
+      "slug": "bandar-e-deyr",
+      "provinceSlug": "bushehr",
+      "geonameId": 136280
+    },
+    {
+      "name": "بندر گناوه",
+      "slug": "bandar-e-genaveh",
+      "provinceSlug": "bushehr",
+      "geonameId": 134217
+    },
+    {
+      "name": "بندرِ کنگان",
+      "slug": "bandar-e-kangan",
+      "provinceSlug": "bushehr",
+      "geonameId": 128847
+    },
+    {
+      "name": "بُرَزدجَن",
+      "slug": "borazjan",
+      "provinceSlug": "bushehr",
+      "geonameId": 140097
+    },
+    {
+      "name": "بوشِهر",
+      "slug": "bushehr",
+      "provinceSlug": "bushehr",
+      "geonameId": 139817
+    },
+    {
+      "name": "چُقادَک",
+      "slug": "choghadak",
+      "provinceSlug": "bushehr",
+      "geonameId": 138381
+    },
+    {
+      "name": "جم",
+      "slug": "jam",
+      "provinceSlug": "bushehr",
+      "geonameId": 130451
+    },
+    {
+      "name": "خورموج",
+      "slug": "khurmuj",
+      "provinceSlug": "bushehr",
+      "geonameId": 127014
+    },
+    {
+      "name": "مکو",
+      "slug": "maku",
+      "provinceSlug": "bushehr",
+      "geonameId": 125206
+    },
+    {
+      "name": "نخل تقی",
+      "slug": "nakhl-e-taqi",
+      "provinceSlug": "bushehr",
+      "geonameId": 122787
+    },
+    {
+      "name": "اَمروجان",
+      "slug": "borujen",
+      "provinceSlug": "chaharmahal-and-bakhtiari",
+      "geonameId": 140046
+    },
+    {
+      "name": "فرّخ شهر",
+      "slug": "farrokh-shahr",
+      "provinceSlug": "chaharmahal-and-bakhtiari",
+      "geonameId": 120678
+    },
+    {
+      "name": "فارسان",
+      "slug": "farsan",
+      "provinceSlug": "chaharmahal-and-bakhtiari",
+      "geonameId": 134762
+    },
+    {
+      "name": "هفشجان",
+      "slug": "hafshejan",
+      "provinceSlug": "chaharmahal-and-bakhtiari",
+      "geonameId": 132458
+    },
+    {
+      "name": "لُرد جَن",
+      "slug": "lordegan",
+      "provinceSlug": "chaharmahal-and-bakhtiari",
+      "geonameId": 125609
+    },
+    {
+      "name": "شهر کرد",
+      "slug": "shahr-e-kord",
+      "provinceSlug": "chaharmahal-and-bakhtiari",
+      "geonameId": 115770
+    },
+    {
+      "name": "اهر",
+      "slug": "ahar",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 144616
+    },
+    {
+      "name": "اَجَبشَهر",
+      "slug": "ajab-shir",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 144443
+    },
+    {
+      "name": "آذرشهر",
+      "slug": "azarshahr",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 6686970
+    },
+    {
+      "name": "بناب",
+      "slug": "bonab",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 140889
+    },
+    {
+      "name": "بستان آباد",
+      "slug": "bostanabad",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 23290
+    },
+    {
+      "name": "هادیشهر",
+      "slug": "hadishahr",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 35017
+    },
+    {
+      "name": "هشترود",
+      "slug": "hashtrud",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 142554
+    },
+    {
+      "name": "ایلخچی",
+      "slug": "ilkhchi",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 6686961
+    },
+    {
+      "name": "خسرو شهر",
+      "slug": "khosrowshahr",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 127219
+    },
+    {
+      "name": "مَلِک کَندی",
+      "slug": "malekan",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 125112
+    },
+    {
+      "name": "مراغه",
+      "slug": "maragheh",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 124877
+    },
+    {
+      "name": "مرند",
+      "slug": "marand",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 124862
+    },
+    {
+      "name": "میانه",
+      "slug": "mianeh",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 124082
+    },
+    {
+      "name": "اسکو",
+      "slug": "osku",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 121781
+    },
+    {
+      "name": "سهند",
+      "slug": "sahand",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 13631338
+    },
+    {
+      "name": "سراب",
+      "slug": "sarab",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 117368
+    },
+    {
+      "name": "سردرود",
+      "slug": "sardrud",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 117096
+    },
+    {
+      "name": "شبستر",
+      "slug": "shabestar",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 116126
+    },
+    {
+      "name": "تبریز",
+      "slug": "tabriz",
+      "provinceSlug": "east-azerbaijan",
+      "geonameId": 113646
+    },
+    {
+      "name": "آباده",
+      "slug": "abadeh",
+      "provinceSlug": "fars",
+      "geonameId": 48918
+    },
+    {
+      "name": "ارسنجان",
+      "slug": "arsanjan",
+      "provinceSlug": "fars",
+      "geonameId": 142958
+    },
+    {
+      "name": "داراب",
+      "slug": "darab",
+      "provinceSlug": "fars",
+      "geonameId": 137956
+    },
+    {
+      "name": "اقلید",
+      "slug": "eqlid",
+      "provinceSlug": "fars",
+      "geonameId": 135355
+    },
+    {
+      "name": "استهبان",
+      "slug": "estahban",
+      "provinceSlug": "fars",
+      "geonameId": 135094
+    },
+    {
+      "name": "اوز",
+      "slug": "evaz",
+      "provinceSlug": "fars",
+      "geonameId": 135053
+    },
+    {
+      "name": "فراشبند",
+      "slug": "farrashband",
+      "provinceSlug": "fars",
+      "geonameId": 134781
+    },
+    {
+      "name": "فسا",
+      "slug": "fasa",
+      "provinceSlug": "fars",
+      "geonameId": 134721
+    },
+    {
+      "name": "فیروز آباد",
+      "slug": "firuzabad",
+      "provinceSlug": "fars",
+      "geonameId": 134518
+    },
+    {
+      "name": "گراش",
+      "slug": "gerash",
+      "provinceSlug": "fars",
+      "geonameId": 133595
+    },
+    {
+      "name": "حاجی آباد",
+      "slug": "hajjiabad",
+      "provinceSlug": "fars",
+      "geonameId": 132380
+    },
+    {
+      "name": "جهرم",
+      "slug": "jahrom",
+      "provinceSlug": "fars",
+      "geonameId": 130531
+    },
+    {
+      "name": "کوار",
+      "slug": "kavar",
+      "provinceSlug": "fars",
+      "geonameId": 44439
+    },
+    {
+      "name": "کازرون",
+      "slug": "kazerun",
+      "provinceSlug": "fars",
+      "geonameId": 128321
+    },
+    {
+      "name": "خنج",
+      "slug": "khonj",
+      "provinceSlug": "fars",
+      "geonameId": 127382
+    },
+    {
+      "name": "لامرد",
+      "slug": "lamerd",
+      "provinceSlug": "fars",
+      "geonameId": 125926
+    },
+    {
+      "name": "لار",
+      "slug": "lar",
+      "provinceSlug": "fars",
+      "geonameId": 125877
+    },
+    {
+      "name": "مرودشت",
+      "slug": "marvdasht",
+      "provinceSlug": "fars",
+      "geonameId": 124721
+    },
+    {
+      "name": "نیریز",
+      "slug": "neyriz",
+      "provinceSlug": "fars",
+      "geonameId": 122289
+    },
+    {
+      "name": "نور آباد",
+      "slug": "nurabad",
+      "provinceSlug": "fars",
+      "geonameId": 121925
+    },
+    {
+      "name": "قائمیه",
+      "slug": "qa-emiyeh",
+      "provinceSlug": "fars",
+      "geonameId": 7451195
+    },
+    {
+      "name": "قیر",
+      "slug": "qir",
+      "provinceSlug": "fars",
+      "geonameId": 119264
+    },
+    {
+      "name": "سعادت شهر",
+      "slug": "sa-adat-shahr",
+      "provinceSlug": "fars",
+      "geonameId": 118123
+    },
+    {
+      "name": "صفاشهر",
+      "slug": "safashahr",
+      "provinceSlug": "fars",
+      "geonameId": 137025
+    },
+    {
+      "name": "سروستان",
+      "slug": "sarvestan",
+      "provinceSlug": "fars",
+      "geonameId": 116725
+    },
+    {
+      "name": "صدرا شیراز",
+      "slug": "shahr-e-sadra",
+      "provinceSlug": "fars",
+      "geonameId": 6653052
+    },
+    {
+      "name": "شیراز",
+      "slug": "shiraz",
+      "provinceSlug": "fars",
+      "geonameId": 115019
+    },
+    {
+      "name": "سوریان",
+      "slug": "surian",
+      "provinceSlug": "fars",
+      "geonameId": 113723
+    },
+    {
+      "name": "زرقان",
+      "slug": "zarqan",
+      "provinceSlug": "fars",
+      "geonameId": 111327
+    },
+    {
+      "name": "املش",
+      "slug": "amlash",
+      "provinceSlug": "gilan",
+      "geonameId": 143539
+    },
+    {
+      "name": "آستانه اشرفیه",
+      "slug": "astaneh-ye-ashrafiyeh",
+      "provinceSlug": "gilan",
+      "geonameId": 142679
+    },
+    {
+      "name": "آستارا",
+      "slug": "astara",
+      "provinceSlug": "gilan",
+      "geonameId": 142676
+    },
+    {
+      "name": "بندر انزلی",
+      "slug": "bandar-e-anzali",
+      "provinceSlug": "gilan",
+      "geonameId": 141679
+    },
+    {
+      "name": "فومن",
+      "slug": "fuman",
+      "provinceSlug": "gilan",
+      "geonameId": 134441
+    },
+    {
+      "name": "هشتپر",
+      "slug": "hashtpar",
+      "provinceSlug": "gilan",
+      "geonameId": 113343
+    },
+    {
+      "name": "خمام",
+      "slug": "khomam",
+      "provinceSlug": "gilan",
+      "geonameId": 127415
+    },
+    {
+      "name": "لاهیجان",
+      "slug": "lahijan",
+      "provinceSlug": "gilan",
+      "geonameId": 126015
+    },
+    {
+      "name": "لنگرود",
+      "slug": "langarud",
+      "provinceSlug": "gilan",
+      "geonameId": 125897
+    },
+    {
+      "name": "منجیل",
+      "slug": "manjil",
+      "provinceSlug": "gilan",
+      "geonameId": 124967
+    },
+    {
+      "name": "بازار ماسال",
+      "slug": "masal",
+      "provinceSlug": "gilan",
+      "geonameId": 141015
+    },
+    {
+      "name": "پادگان منجیل",
+      "slug": "padegan-e-manjil",
+      "provinceSlug": "gilan",
+      "geonameId": 41428
+    },
+    {
+      "name": "رشت",
+      "slug": "rasht",
+      "provinceSlug": "gilan",
+      "geonameId": 118743
+    },
+    {
+      "name": "رضوانده",
+      "slug": "rezvanshahr",
+      "provinceSlug": "gilan",
+      "geonameId": 118532
+    },
+    {
+      "name": "رودسر",
+      "slug": "rudsar",
+      "provinceSlug": "gilan",
+      "geonameId": 118191
+    },
+    {
+      "name": "سیاهکل",
+      "slug": "siahkal",
+      "provinceSlug": "gilan",
+      "geonameId": 114489
+    },
+    {
+      "name": "صومعه سرا",
+      "slug": "sowme-eh-sara",
+      "provinceSlug": "gilan",
+      "geonameId": 113860
+    },
+    {
+      "name": "علی آباد",
+      "slug": "ali-abad-e-katul",
+      "provinceSlug": "golestan",
+      "geonameId": 144038
+    },
+    {
+      "name": "آق قلا",
+      "slug": "aq-qala",
+      "provinceSlug": "golestan",
+      "geonameId": 7329809
+    },
+    {
+      "name": "شاه پسند",
+      "slug": "azadshahr",
+      "provinceSlug": "golestan",
+      "geonameId": 110831
+    },
+    {
+      "name": "بندر گز",
+      "slug": "bandar-e-gaz",
+      "provinceSlug": "golestan",
+      "geonameId": 141673
+    },
+    {
+      "name": "بَندَرِ تُرکمَن",
+      "slug": "bandar-e-torkaman",
+      "provinceSlug": "golestan",
+      "geonameId": 141653
+    },
+    {
+      "name": "فاضل آباد",
+      "slug": "fazelabad",
+      "provinceSlug": "golestan",
+      "geonameId": 134636
+    },
+    {
+      "name": "گالیکش",
+      "slug": "galikesh",
+      "provinceSlug": "golestan",
+      "geonameId": 134282
+    },
+    {
+      "name": "گمیشان",
+      "slug": "gomishan",
+      "provinceSlug": "golestan",
+      "geonameId": 40047
+    },
+    {
+      "name": "گنبد کاووس",
+      "slug": "gonbad-e-kavus",
+      "provinceSlug": "golestan",
+      "geonameId": 132938
+    },
+    {
+      "name": "اَستِر آباد",
+      "slug": "gorgan",
+      "provinceSlug": "golestan",
+      "geonameId": 132892
+    },
+    {
+      "name": "کلاله",
+      "slug": "kalaleh",
+      "provinceSlug": "golestan",
+      "geonameId": 129512
+    },
+    {
+      "name": "کردکوی",
+      "slug": "kord-kuy",
+      "provinceSlug": "golestan",
+      "geonameId": 126572
+    },
+    {
+      "name": "مینودشت",
+      "slug": "minudasht",
+      "provinceSlug": "golestan",
+      "geonameId": 123927
+    },
+    {
+      "name": "کتوک",
+      "slug": "simin-shahr",
+      "provinceSlug": "golestan",
+      "geonameId": 128392
+    },
+    {
+      "name": "اسد آباد",
+      "slug": "asadabad",
+      "provinceSlug": "hamadan",
+      "geonameId": 142872
+    },
+    {
+      "name": "بهار",
+      "slug": "bahar",
+      "provinceSlug": "hamadan",
+      "geonameId": 142000
+    },
+    {
+      "name": "همدان",
+      "slug": "hamadan",
+      "provinceSlug": "hamadan",
+      "geonameId": 132144
+    },
+    {
+      "name": "کبودر آهنگ",
+      "slug": "kabudarahang",
+      "provinceSlug": "hamadan",
+      "geonameId": 129904
+    },
+    {
+      "name": "ملایر",
+      "slug": "malayer",
+      "provinceSlug": "hamadan",
+      "geonameId": 125185
+    },
+    {
+      "name": "نهاوند",
+      "slug": "nahavand",
+      "provinceSlug": "hamadan",
+      "geonameId": 122915
+    },
+    {
+      "name": "تُّیسِرکَن",
+      "slug": "tuyserkan",
+      "provinceSlug": "hamadan",
+      "geonameId": 112422
+    },
+    {
+      "name": "بندر عباس",
+      "slug": "bandar-abbas",
+      "provinceSlug": "hormozgan",
+      "geonameId": 141681
+    },
+    {
+      "name": "خَمیر",
+      "slug": "bandar-e-khamir",
+      "provinceSlug": "hormozgan",
+      "geonameId": 127992
+    },
+    {
+      "name": "بندر گنگ",
+      "slug": "bandar-e-kong",
+      "provinceSlug": "hormozgan",
+      "geonameId": 141666
+    },
+    {
+      "name": "بندر لنگه",
+      "slug": "bandar-e-lengeh",
+      "provinceSlug": "hormozgan",
+      "geonameId": 141665
+    },
+    {
+      "name": "حاجی آباد",
+      "slug": "hajjiabad",
+      "provinceSlug": "hormozgan",
+      "geonameId": 132382
+    },
+    {
+      "name": "جاسک",
+      "slug": "jask",
+      "provinceSlug": "hormozgan",
+      "geonameId": 130276
+    },
+    {
+      "name": "کیش",
+      "slug": "kish",
+      "provinceSlug": "hormozgan",
+      "geonameId": 126914
+    },
+    {
+      "name": "میناب",
+      "slug": "minab",
+      "provinceSlug": "hormozgan",
+      "geonameId": 123941
+    },
+    {
+      "name": "گاوبندی",
+      "slug": "parsian",
+      "provinceSlug": "hormozgan",
+      "geonameId": 133852
+    },
+    {
+      "name": "قشم",
+      "slug": "qeshm",
+      "provinceSlug": "hormozgan",
+      "geonameId": 119374
+    },
+    {
+      "name": "دهبارز",
+      "slug": "rudan",
+      "provinceSlug": "hormozgan",
+      "geonameId": 120351
+    },
+    {
+      "name": "قَلعِۀ آب دانان",
+      "slug": "abdanan",
+      "provinceSlug": "ilam",
+      "geonameId": 145233
+    },
+    {
+      "name": "دره شهر",
+      "slug": "darreh-shahr",
+      "provinceSlug": "ilam",
+      "geonameId": 137436
+    },
+    {
+      "name": "دهلران",
+      "slug": "dehloran",
+      "provinceSlug": "ilam",
+      "geonameId": 136702
+    },
+    {
+      "name": "باغِ شاه",
+      "slug": "eyvan",
+      "provinceSlug": "ilam",
+      "geonameId": 129929
+    },
+    {
+      "name": "ایلام",
+      "slug": "ilam",
+      "provinceSlug": "ilam",
+      "geonameId": 130802
+    },
+    {
+      "name": "باغ ابریشم",
+      "slug": "abrisham",
+      "provinceSlug": "isfahan",
+      "geonameId": 418950
+    },
+    {
+      "name": "آران",
+      "slug": "aran-bidgol",
+      "provinceSlug": "isfahan",
+      "geonameId": 143122
+    },
+    {
+      "name": "اردستان",
+      "slug": "ardestan",
+      "provinceSlug": "isfahan",
+      "geonameId": 143052
+    },
+    {
+      "name": "بهارستان",
+      "slug": "baharestan",
+      "provinceSlug": "isfahan",
+      "geonameId": 418943
+    },
+    {
+      "name": "چمگردان",
+      "slug": "chamgordan",
+      "provinceSlug": "isfahan",
+      "geonameId": 418911
+    },
+    {
+      "name": "داران",
+      "slug": "daran",
+      "provinceSlug": "isfahan",
+      "geonameId": 137929
+    },
+    {
+      "name": "دستگرد",
+      "slug": "dastgerd",
+      "provinceSlug": "isfahan",
+      "geonameId": 418886
+    },
+    {
+      "name": "دهاقان",
+      "slug": "dehaqan",
+      "provinceSlug": "isfahan",
+      "geonameId": 137057
+    },
+    {
+      "name": "دیزیچه",
+      "slug": "dizicheh",
+      "provinceSlug": "isfahan",
+      "geonameId": 418875
+    },
+    {
+      "name": "دولت آباد",
+      "slug": "dowlatabad",
+      "provinceSlug": "isfahan",
+      "geonameId": 418868
+    },
+    {
+      "name": "ملاورجان",
+      "slug": "falavarjan",
+      "provinceSlug": "isfahan",
+      "geonameId": 418851
+    },
+    {
+      "name": "فولاد شهر",
+      "slug": "fulad-shahr",
+      "provinceSlug": "isfahan",
+      "geonameId": 418838
+    },
+    {
+      "name": "گز",
+      "slug": "gaz-e-borkhar",
+      "provinceSlug": "isfahan",
+      "geonameId": 418830
+    },
+    {
+      "name": "گلدشت",
+      "slug": "goldasht",
+      "provinceSlug": "isfahan",
+      "geonameId": 418556
+    },
+    {
+      "name": "گلپایگان",
+      "slug": "golpayegan",
+      "provinceSlug": "isfahan",
+      "geonameId": 133037
+    },
+    {
+      "name": "اصفهان",
+      "slug": "isfahan",
+      "provinceSlug": "isfahan",
+      "geonameId": 418863
+    },
+    {
+      "name": "کاشان",
+      "slug": "kashan",
+      "provinceSlug": "isfahan",
+      "geonameId": 128476
+    },
+    {
+      "name": "کلیشاد",
+      "slug": "kelishad-va-sudarjan",
+      "provinceSlug": "isfahan",
+      "geonameId": 418723
+    },
+    {
+      "name": "خوانسار",
+      "slug": "khansar",
+      "provinceSlug": "isfahan",
+      "geonameId": 127033
+    },
+    {
+      "name": "خمینی شهر",
+      "slug": "khomeyni-shahr",
+      "provinceSlug": "isfahan",
+      "geonameId": 418710
+    },
+    {
+      "name": "خورزوق",
+      "slug": "khowrzuq",
+      "provinceSlug": "isfahan",
+      "geonameId": 418699
+    },
+    {
+      "name": "مبارکه",
+      "slug": "mobarakeh",
+      "provinceSlug": "isfahan",
+      "geonameId": 418625
+    },
+    {
+      "name": "نائین",
+      "slug": "na-in",
+      "provinceSlug": "isfahan",
+      "geonameId": 122869
+    },
+    {
+      "name": "نجف آباد",
+      "slug": "najafabad",
+      "provinceSlug": "isfahan",
+      "geonameId": 418606
+    },
+    {
+      "name": "نطنز",
+      "slug": "natanz",
+      "provinceSlug": "isfahan",
+      "geonameId": 122491
+    },
+    {
+      "name": "قهدریجان",
+      "slug": "qahderijan",
+      "provinceSlug": "isfahan",
+      "geonameId": 418571
+    },
+    {
+      "name": "رهنان",
+      "slug": "rehnan",
+      "provinceSlug": "isfahan",
+      "geonameId": 418521
+    },
+    {
+      "name": "سده لنجان",
+      "slug": "sedeh-lanjan",
+      "provinceSlug": "isfahan",
+      "geonameId": 418503
+    },
+    {
+      "name": "سمیرم",
+      "slug": "semirom",
+      "provinceSlug": "isfahan",
+      "geonameId": 116406
+    },
+    {
+      "name": "شاهین شهر",
+      "slug": "shahin-shahr",
+      "provinceSlug": "isfahan",
+      "geonameId": 417472
+    },
+    {
+      "name": "شهرضا",
+      "slug": "shahreza",
+      "provinceSlug": "isfahan",
+      "geonameId": 418533
+    },
+    {
+      "name": "تیران",
+      "slug": "tiran",
+      "provinceSlug": "isfahan",
+      "geonameId": 418446
+    },
+    {
+      "name": "ورنامخواست",
+      "slug": "varnamkhvast",
+      "provinceSlug": "isfahan",
+      "geonameId": 418444
+    },
+    {
+      "name": "زرّین شهر",
+      "slug": "zarrin-shahr",
+      "provinceSlug": "isfahan",
+      "geonameId": 418418
+    },
+    {
+      "name": "انار",
+      "slug": "anar",
+      "provinceSlug": "kerman",
+      "geonameId": 143499
+    },
+    {
+      "name": "عنبر آباد",
+      "slug": "anbarabad",
+      "provinceSlug": "kerman",
+      "geonameId": 143471
+    },
+    {
+      "name": "بافت",
+      "slug": "baft",
+      "provinceSlug": "kerman",
+      "geonameId": 142247
+    },
+    {
+      "name": "بم",
+      "slug": "bam",
+      "provinceSlug": "kerman",
+      "geonameId": 141736
+    },
+    {
+      "name": "بروات",
+      "slug": "baravat",
+      "provinceSlug": "kerman",
+      "geonameId": 141407
+    },
+    {
+      "name": "بردسیر",
+      "slug": "bardsir",
+      "provinceSlug": "kerman",
+      "geonameId": 124647
+    },
+    {
+      "name": "جیرفت",
+      "slug": "jiroft",
+      "provinceSlug": "kerman",
+      "geonameId": 6925362
+    },
+    {
+      "name": "کهنوج",
+      "slug": "kahnuj",
+      "provinceSlug": "kerman",
+      "geonameId": 6961608
+    },
+    {
+      "name": "کرمان",
+      "slug": "kerman",
+      "provinceSlug": "kerman",
+      "geonameId": 128234
+    },
+    {
+      "name": "ماهان",
+      "slug": "mahan",
+      "provinceSlug": "kerman",
+      "geonameId": 125427
+    },
+    {
+      "name": "منوجان",
+      "slug": "manujan",
+      "provinceSlug": "kerman",
+      "geonameId": 124914
+    },
+    {
+      "name": "نجف آباد",
+      "slug": "najafshahr",
+      "provinceSlug": "kerman",
+      "geonameId": 122864
+    },
+    {
+      "name": "رفسنجان",
+      "slug": "rafsanjan",
+      "provinceSlug": "kerman",
+      "geonameId": 118994
+    },
+    {
+      "name": "راور",
+      "slug": "ravar",
+      "provinceSlug": "kerman",
+      "geonameId": 118704
+    },
+    {
+      "name": "شهر بابک",
+      "slug": "shahr-e-babak",
+      "provinceSlug": "kerman",
+      "geonameId": 115781
+    },
+    {
+      "name": "سیرجان",
+      "slug": "sirjan",
+      "provinceSlug": "kerman",
+      "geonameId": 114259
+    },
+    {
+      "name": "زرند",
+      "slug": "zarand",
+      "provinceSlug": "kerman",
+      "geonameId": 111421
+    },
+    {
+      "name": "اسلام آباد غرب",
+      "slug": "eslamabad-e-gharb",
+      "provinceSlug": "kermanshah",
+      "geonameId": 135175
+    },
+    {
+      "name": "هرسین",
+      "slug": "harsin",
+      "provinceSlug": "kermanshah",
+      "geonameId": 131962
+    },
+    {
+      "name": "جوانرود",
+      "slug": "javanrud",
+      "provinceSlug": "kermanshah",
+      "geonameId": 25883
+    },
+    {
+      "name": "کنگاور",
+      "slug": "kangavar",
+      "provinceSlug": "kermanshah",
+      "geonameId": 128831
+    },
+    {
+      "name": "استان کرمانشاه",
+      "slug": "kermanshah",
+      "provinceSlug": "kermanshah",
+      "geonameId": 128226
+    },
+    {
+      "name": "پاوه",
+      "slug": "paveh",
+      "provinceSlug": "kermanshah",
+      "geonameId": 121240
+    },
+    {
+      "name": "قصر شیرین",
+      "slug": "qasr-e-shirin",
+      "provinceSlug": "kermanshah",
+      "geonameId": 119586
+    },
+    {
+      "name": "روانسر",
+      "slug": "ravansar",
+      "provinceSlug": "kermanshah",
+      "geonameId": 118705
+    },
+    {
+      "name": "صحنه",
+      "slug": "sahneh",
+      "provinceSlug": "kermanshah",
+      "geonameId": 117835
+    },
+    {
+      "name": "سر پل ذهاب",
+      "slug": "sarpol-e-zahab",
+      "provinceSlug": "kermanshah",
+      "geonameId": 120931
+    },
+    {
+      "name": "سنقر",
+      "slug": "sonqor",
+      "provinceSlug": "kermanshah",
+      "geonameId": 114049
+    },
+    {
+      "name": "آبادان",
+      "slug": "abadan",
+      "provinceSlug": "khuzestan",
+      "geonameId": 145459
+    },
+    {
+      "name": "آغاجاری",
+      "slug": "aghajari",
+      "provinceSlug": "khuzestan",
+      "geonameId": 144696
+    },
+    {
+      "name": "اهواز",
+      "slug": "ahvaz",
+      "provinceSlug": "khuzestan",
+      "geonameId": 144448
+    },
+    {
+      "name": "اندیمشک",
+      "slug": "andimeshk",
+      "provinceSlug": "khuzestan",
+      "geonameId": 143420
+    },
+    {
+      "name": "باغ ملک",
+      "slug": "bagh-e-malek",
+      "provinceSlug": "khuzestan",
+      "geonameId": 142114
+    },
+    {
+      "name": "بندرامام خمینی",
+      "slug": "bandar-e-emam-khomeyni",
+      "provinceSlug": "khuzestan",
+      "geonameId": 8521444
+    },
+    {
+      "name": "بندر ماهشهر",
+      "slug": "bandar-e-mahshahr",
+      "provinceSlug": "khuzestan",
+      "geonameId": 141663
+    },
+    {
+      "name": "بهبهان",
+      "slug": "behbahan",
+      "provinceSlug": "khuzestan",
+      "geonameId": 140951
+    },
+    {
+      "name": "شهرک شهید چمران",
+      "slug": "chamran",
+      "provinceSlug": "khuzestan",
+      "geonameId": 6648117
+    },
+    {
+      "name": "دزفول",
+      "slug": "dezful",
+      "provinceSlug": "khuzestan",
+      "geonameId": 136256
+    },
+    {
+      "name": "عین دو",
+      "slug": "eyn-e-do",
+      "provinceSlug": "khuzestan",
+      "geonameId": 42517
+    },
+    {
+      "name": "گتوند",
+      "slug": "gotvand",
+      "provinceSlug": "khuzestan",
+      "geonameId": 133884
+    },
+    {
+      "name": "هفتگل",
+      "slug": "haftkel",
+      "provinceSlug": "khuzestan",
+      "geonameId": 132428
+    },
+    {
+      "name": "حمیدیه",
+      "slug": "hamidiyeh",
+      "provinceSlug": "khuzestan",
+      "geonameId": 132105
+    },
+    {
+      "name": "هندیجان",
+      "slug": "hendijan",
+      "provinceSlug": "khuzestan",
+      "geonameId": 131559
+    },
+    {
+      "name": "هویزه",
+      "slug": "hoveyzeh",
+      "provinceSlug": "khuzestan",
+      "geonameId": 130821
+    },
+    {
+      "name": "ایذه",
+      "slug": "izeh",
+      "provinceSlug": "khuzestan",
+      "geonameId": 130697
+    },
+    {
+      "name": "بندر خرمشهر",
+      "slug": "khorramshahr",
+      "provinceSlug": "khuzestan",
+      "geonameId": 127319
+    },
+    {
+      "name": "کوت عبدالله",
+      "slug": "kut-e-abdollah",
+      "provinceSlug": "khuzestan",
+      "geonameId": 126082
+    },
+    {
+      "name": "دشت لالی",
+      "slug": "lali",
+      "provinceSlug": "khuzestan",
+      "geonameId": 125938
+    },
+    {
+      "name": "مسجد سلیمان",
+      "slug": "masjed-soleyman",
+      "provinceSlug": "khuzestan",
+      "geonameId": 124620
+    },
+    {
+      "name": "امیدیه",
+      "slug": "omidiyeh",
+      "provinceSlug": "khuzestan",
+      "geonameId": 121861
+    },
+    {
+      "name": "رامهرمز",
+      "slug": "ramhormoz",
+      "provinceSlug": "khuzestan",
+      "geonameId": 118826
+    },
+    {
+      "name": "رامشیر",
+      "slug": "ramshir",
+      "provinceSlug": "khuzestan",
+      "geonameId": 118805
+    },
+    {
+      "name": "شادگان",
+      "slug": "shadegan",
+      "provinceSlug": "khuzestan",
+      "geonameId": 116102
+    },
+    {
+      "name": "شهرک طالقانی",
+      "slug": "shahrak-e-taleqani",
+      "provinceSlug": "khuzestan",
+      "geonameId": 45628
+    },
+    {
+      "name": "شیبان",
+      "slug": "sheyban",
+      "provinceSlug": "khuzestan",
+      "geonameId": 6648621
+    },
+    {
+      "name": "شوش",
+      "slug": "shush",
+      "provinceSlug": "khuzestan",
+      "geonameId": 114593
+    },
+    {
+      "name": "شوشتر",
+      "slug": "shushtar",
+      "provinceSlug": "khuzestan",
+      "geonameId": 114584
+    },
+    {
+      "name": "سوسنگرد",
+      "slug": "susangerd",
+      "provinceSlug": "khuzestan",
+      "geonameId": 137268
+    },
+    {
+      "name": "ویس",
+      "slug": "veys",
+      "provinceSlug": "khuzestan",
+      "geonameId": 112029
+    },
+    {
+      "name": "تَل گَرد",
+      "slug": "charam",
+      "provinceSlug": "kohgiluyeh-and-boyer-ahmad",
+      "geonameId": 138989
+    },
+    {
+      "name": "دِهدَست",
+      "slug": "dehdasht",
+      "provinceSlug": "kohgiluyeh-and-boyer-ahmad",
+      "geonameId": 136987
+    },
+    {
+      "name": "دُو گُنبَدان",
+      "slug": "dogonbadan",
+      "provinceSlug": "kohgiluyeh-and-boyer-ahmad",
+      "geonameId": 136014
+    },
+    {
+      "name": "لیکک",
+      "slug": "likak",
+      "provinceSlug": "kohgiluyeh-and-boyer-ahmad",
+      "geonameId": 125688
+    },
+    {
+      "name": "یاسوج",
+      "slug": "yasuj",
+      "provinceSlug": "kohgiluyeh-and-boyer-ahmad",
+      "geonameId": 66093
+    },
+    {
+      "name": "بَنِ",
+      "slug": "baneh",
+      "provinceSlug": "kurdistan",
+      "geonameId": 141584
+    },
+    {
+      "name": "بیجار",
+      "slug": "bijar",
+      "provinceSlug": "kurdistan",
+      "geonameId": 140521
+    },
+    {
+      "name": "دیواندره",
+      "slug": "divandarreh",
+      "provinceSlug": "kurdistan",
+      "geonameId": 136156
+    },
+    {
+      "name": "کامیاران",
+      "slug": "kamyaran",
+      "provinceSlug": "kurdistan",
+      "geonameId": 128905
+    },
+    {
+      "name": "قَلعِۀ مَریوان",
+      "slug": "marivan",
+      "provinceSlug": "kurdistan",
+      "geonameId": 124778
+    },
+    {
+      "name": "قروه",
+      "slug": "qorveh",
+      "provinceSlug": "kurdistan",
+      "geonameId": 119161
+    },
+    {
+      "name": "سِنَّ",
+      "slug": "sanandaj",
+      "provinceSlug": "kurdistan",
+      "geonameId": 117574
+    },
+    {
+      "name": "سقز",
+      "slug": "saqqez",
+      "provinceSlug": "kurdistan",
+      "geonameId": 117392
+    },
+    {
+      "name": "الشتر",
+      "slug": "aleshtar",
+      "provinceSlug": "lorestan",
+      "geonameId": 144269
+    },
+    {
+      "name": "الیگودرز",
+      "slug": "aligudarz",
+      "provinceSlug": "lorestan",
+      "geonameId": 143921
+    },
+    {
+      "name": "ازنا",
+      "slug": "azna",
+      "provinceSlug": "lorestan",
+      "geonameId": 142497
+    },
+    {
+      "name": "بروجرد",
+      "slug": "borujerd",
+      "provinceSlug": "lorestan",
+      "geonameId": 140044
+    },
+    {
+      "name": "دورود",
+      "slug": "dorud",
+      "provinceSlug": "lorestan",
+      "geonameId": 135878
+    },
+    {
+      "name": "خرم آباد",
+      "slug": "khorramabad",
+      "provinceSlug": "lorestan",
+      "geonameId": 127349
+    },
+    {
+      "name": "کوهدشت",
+      "slug": "kuhdasht",
+      "provinceSlug": "lorestan",
+      "geonameId": 126409
+    },
+    {
+      "name": "نور آباد",
+      "slug": "nurabad",
+      "provinceSlug": "lorestan",
+      "geonameId": 24851
+    },
+    {
+      "name": "پل دختر",
+      "slug": "poldokhtar",
+      "provinceSlug": "lorestan",
+      "geonameId": 120949
+    },
+    {
+      "name": "آبیِک",
+      "slug": "abyek",
+      "provinceSlug": "markazi",
+      "geonameId": 144794
+    },
+    {
+      "name": "اراک",
+      "slug": "arak",
+      "provinceSlug": "markazi",
+      "geonameId": 143127
+    },
+    {
+      "name": "دلیجان",
+      "slug": "delijan",
+      "provinceSlug": "markazi",
+      "geonameId": 136399
+    },
+    {
+      "name": "کرهرود",
+      "slug": "karahrud",
+      "provinceSlug": "markazi",
+      "geonameId": 128748
+    },
+    {
+      "name": "خمین",
+      "slug": "khomeyn",
+      "provinceSlug": "markazi",
+      "geonameId": 127403
+    },
+    {
+      "name": "محدوده شهر جدید مهاجران",
+      "slug": "mahajeran",
+      "provinceSlug": "markazi",
+      "geonameId": 6746932
+    },
+    {
+      "name": "محلات",
+      "slug": "mahallat",
+      "provinceSlug": "markazi",
+      "geonameId": 125438
+    },
+    {
+      "name": "مامونیه",
+      "slug": "mamuniyeh",
+      "provinceSlug": "markazi",
+      "geonameId": 6657461
+    },
+    {
+      "name": "ساوه",
+      "slug": "saveh",
+      "provinceSlug": "markazi",
+      "geonameId": 116667
+    },
+    {
+      "name": "شازند",
+      "slug": "shazand",
+      "provinceSlug": "markazi",
+      "geonameId": 142567
+    },
+    {
+      "name": "تفرش",
+      "slug": "tafresh",
+      "provinceSlug": "markazi",
+      "geonameId": 113636
+    },
+    {
+      "name": "امیر کلا",
+      "slug": "amir-kola",
+      "provinceSlug": "mazandaran",
+      "geonameId": 143561
+    },
+    {
+      "name": "آمل",
+      "slug": "amol",
+      "provinceSlug": "mazandaran",
+      "geonameId": 143534
+    },
+    {
+      "name": "بابل",
+      "slug": "babol",
+      "provinceSlug": "mazandaran",
+      "geonameId": 142363
+    },
+    {
+      "name": "بابلسر",
+      "slug": "babolsar",
+      "provinceSlug": "mazandaran",
+      "geonameId": 142358
+    },
+    {
+      "name": "اَشرَف",
+      "slug": "behshahr",
+      "provinceSlug": "mazandaran",
+      "geonameId": 140918
+    },
+    {
+      "name": "چالوس",
+      "slug": "chalus",
+      "provinceSlug": "mazandaran",
+      "geonameId": 139223
+    },
+    {
+      "name": "فریدونکنار",
+      "slug": "fereydun-kenar",
+      "provinceSlug": "mazandaran",
+      "geonameId": 134602
+    },
+    {
+      "name": "گلوگاه",
+      "slug": "galugah",
+      "provinceSlug": "mazandaran",
+      "geonameId": 134255
+    },
+    {
+      "name": "جویبار",
+      "slug": "juybar",
+      "provinceSlug": "mazandaran",
+      "geonameId": 129933
+    },
+    {
+      "name": "سادات محله",
+      "slug": "katalem-va-sadat-shahr",
+      "provinceSlug": "mazandaran",
+      "geonameId": 118024
+    },
+    {
+      "name": "محمود آباد",
+      "slug": "mahmudabad",
+      "provinceSlug": "mazandaran",
+      "geonameId": 125328
+    },
+    {
+      "name": "نکا",
+      "slug": "neka",
+      "provinceSlug": "mazandaran",
+      "geonameId": 122397
+    },
+    {
+      "name": "نوشهر",
+      "slug": "nowshahr",
+      "provinceSlug": "mazandaran",
+      "geonameId": 121959
+    },
+    {
+      "name": "نور",
+      "slug": "nur",
+      "provinceSlug": "mazandaran",
+      "geonameId": 113797
+    },
+    {
+      "name": "قائم شهر",
+      "slug": "qa-em-shahr",
+      "provinceSlug": "mazandaran",
+      "geonameId": 120695
+    },
+    {
+      "name": "رامسر",
+      "slug": "ramsar",
+      "provinceSlug": "mazandaran",
+      "geonameId": 117773
+    },
+    {
+      "name": "سَری",
+      "slug": "sari",
+      "provinceSlug": "mazandaran",
+      "geonameId": 1669
+    },
+    {
+      "name": "ساری",
+      "slug": "sari-2",
+      "provinceSlug": "mazandaran",
+      "geonameId": 116996
+    },
+    {
+      "name": "تنکابن",
+      "slug": "tonekabon",
+      "provinceSlug": "mazandaran",
+      "geonameId": 112656
+    },
+    {
+      "name": "بالا زیراب",
+      "slug": "zir-ab",
+      "provinceSlug": "mazandaran",
+      "geonameId": 11725
+    },
+    {
+      "name": "آشخانه",
+      "slug": "ashkhaneh",
+      "provinceSlug": "north-khorasan",
+      "geonameId": 142768
+    },
+    {
+      "name": "بجنورد",
+      "slug": "bojnurd",
+      "provinceSlug": "north-khorasan",
+      "geonameId": 140380
+    },
+    {
+      "name": "اسفراین",
+      "slug": "esfarayen",
+      "provinceSlug": "north-khorasan",
+      "geonameId": 135298
+    },
+    {
+      "name": "جاجرم",
+      "slug": "jajarm",
+      "provinceSlug": "north-khorasan",
+      "geonameId": 130524
+    },
+    {
+      "name": "شیروان",
+      "slug": "shirvan",
+      "provinceSlug": "north-khorasan",
+      "geonameId": 114930
+    },
+    {
+      "name": "آبیِکِ پائین",
+      "slug": "abyek",
+      "provinceSlug": "qazvin",
+      "geonameId": 144795
+    },
+    {
+      "name": "الوند",
+      "slug": "alvand",
+      "provinceSlug": "qazvin",
+      "geonameId": 10570
+    },
+    {
+      "name": "بیدستان",
+      "slug": "bidestan",
+      "provinceSlug": "qazvin",
+      "geonameId": 6659958
+    },
+    {
+      "name": "سلطان آباد اقبالیه",
+      "slug": "eqbaliyeh",
+      "provinceSlug": "qazvin",
+      "geonameId": 114106
+    },
+    {
+      "name": "محمود آباد نمونه",
+      "slug": "mahmudabad-nemuneh",
+      "provinceSlug": "qazvin",
+      "geonameId": 125330
+    },
+    {
+      "name": "شهرک محمدیه",
+      "slug": "mohammadiyeh",
+      "provinceSlug": "qazvin",
+      "geonameId": 6659981
+    },
+    {
+      "name": "قزوین",
+      "slug": "qazvin",
+      "provinceSlug": "qazvin",
+      "geonameId": 119505
+    },
+    {
+      "name": "شال",
+      "slug": "shal",
+      "provinceSlug": "qazvin",
+      "geonameId": 115615
+    },
+    {
+      "name": "شریف آباد",
+      "slug": "sharifabad",
+      "provinceSlug": "qazvin",
+      "geonameId": 115382
+    },
+    {
+      "name": "تاکستان",
+      "slug": "takestan",
+      "provinceSlug": "qazvin",
+      "geonameId": 113491
+    },
+    {
+      "name": "قم",
+      "slug": "qom",
+      "provinceSlug": "qom",
+      "geonameId": 119208
+    },
+    {
+      "name": "شهرک الهیه",
+      "slug": "shahrak-e-pardisan",
+      "provinceSlug": "qom",
+      "geonameId": 6663569
+    },
+    {
+      "name": "بردسکن",
+      "slug": "bardaskan",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 141349
+    },
+    {
+      "name": "چناران",
+      "slug": "chenaran",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 138742
+    },
+    {
+      "name": "دره گز",
+      "slug": "dargaz",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 137585
+    },
+    {
+      "name": "سایبان گلی",
+      "slug": "golbahar",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 7082152
+    },
+    {
+      "name": "گناباد",
+      "slug": "gonabad",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 132961
+    },
+    {
+      "name": "گرجی سفلی",
+      "slug": "gorji-ye-sofla",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 13664979
+    },
+    {
+      "name": "کاشمر",
+      "slug": "kashmar",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 128447
+    },
+    {
+      "name": "خواف",
+      "slug": "khvaf",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 1160544
+    },
+    {
+      "name": "مراغه",
+      "slug": "maragheh",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 124878
+    },
+    {
+      "name": "مشهد",
+      "slug": "mashhad",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 124665
+    },
+    {
+      "name": "نیشابور",
+      "slug": "neyshabur",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 122285
+    },
+    {
+      "name": "قوچان",
+      "slug": "quchan",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 119115
+    },
+    {
+      "name": "سبزوار",
+      "slug": "sabzevar",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 118063
+    },
+    {
+      "name": "سرخس",
+      "slug": "sarakhs",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 1159716
+    },
+    {
+      "name": "تایباد",
+      "slug": "taybad",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 1159384
+    },
+    {
+      "name": "تربت حیدریه",
+      "slug": "torbat-e-heydariyeh",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 112646
+    },
+    {
+      "name": "تربت جام",
+      "slug": "torbat-e-jam",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 1159362
+    },
+    {
+      "name": "طرقبه",
+      "slug": "torqabeh",
+      "provinceSlug": "razavi-khorasan",
+      "geonameId": 112616
+    },
+    {
+      "name": "دامغان",
+      "slug": "damghan",
+      "provinceSlug": "semnan",
+      "geonameId": 138025
+    },
+    {
+      "name": "گرمسار",
+      "slug": "garmsar",
+      "provinceSlug": "semnan",
+      "geonameId": 133964
+    },
+    {
+      "name": "یستگاهِ راهاهَنِ گَرمسار",
+      "slug": "istgah-e-rah-ahan-e-garmsar",
+      "provinceSlug": "semnan",
+      "geonameId": 32723
+    },
+    {
+      "name": "سنگسر",
+      "slug": "mahdishahr",
+      "provinceSlug": "semnan",
+      "geonameId": 7100777
+    },
+    {
+      "name": "سمنان",
+      "slug": "semnan",
+      "provinceSlug": "semnan",
+      "geonameId": 116402
+    },
+    {
+      "name": "شاهرود",
+      "slug": "shahrud",
+      "provinceSlug": "semnan",
+      "geonameId": 135423
+    },
+    {
+      "name": "چاه بهار",
+      "slug": "chabahar",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1161724
+    },
+    {
+      "name": "ایرانشهر",
+      "slug": "iranshahr",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1160939
+    },
+    {
+      "name": "خوشاب",
+      "slug": "jalq",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1160907
+    },
+    {
+      "name": "خاش",
+      "slug": "khash",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1160571
+    },
+    {
+      "name": "کنارک",
+      "slug": "konarak",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1160500
+    },
+    {
+      "name": "نیکشهر",
+      "slug": "nikshahr",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1160110
+    },
+    {
+      "name": "پیشین",
+      "slug": "pishin",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1159975
+    },
+    {
+      "name": "سراوان",
+      "slug": "saravan",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1159713
+    },
+    {
+      "name": "زابل",
+      "slug": "zabol",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1113217
+    },
+    {
+      "name": "زاهدان",
+      "slug": "zahedan",
+      "provinceSlug": "sistan-and-baluchestan",
+      "geonameId": 1159301
+    },
+    {
+      "name": "بیرجند",
+      "slug": "birjand",
+      "provinceSlug": "south-khorasan",
+      "geonameId": 140463
+    },
+    {
+      "name": "بشرویه",
+      "slug": "boshruyeh",
+      "provinceSlug": "south-khorasan",
+      "geonameId": 9480732
+    },
+    {
+      "name": "فردوس",
+      "slug": "ferdows",
+      "provinceSlug": "south-khorasan",
+      "geonameId": 134613
+    },
+    {
+      "name": "نهبندان",
+      "slug": "nehbandan",
+      "provinceSlug": "south-khorasan",
+      "geonameId": 1160120
+    },
+    {
+      "name": "قاین",
+      "slug": "qa-en",
+      "provinceSlug": "south-khorasan",
+      "geonameId": 120694
+    },
+    {
+      "name": "باقِرابادِ باقِرُف",
+      "slug": "baqershahr",
+      "provinceSlug": "tehran",
+      "geonameId": 400809
+    },
+    {
+      "name": "بومِ هِن",
+      "slug": "bumahen",
+      "provinceSlug": "tehran",
+      "geonameId": 139879
+    },
+    {
+      "name": "چَهار دانگِه",
+      "slug": "chahar-dangeh",
+      "provinceSlug": "tehran",
+      "geonameId": 139706
+    },
+    {
+      "name": "دماوند",
+      "slug": "damavand",
+      "provinceSlug": "tehran",
+      "geonameId": 138042
+    },
+    {
+      "name": "اقبالیّه",
+      "slug": "eqbaliyeh",
+      "provinceSlug": "tehran",
+      "geonameId": 406993
+    },
+    {
+      "name": "اسلامشهر",
+      "slug": "eslamshahr",
+      "provinceSlug": "tehran",
+      "geonameId": 449504
+    },
+    {
+      "name": "فردیس",
+      "slug": "fardis",
+      "provinceSlug": "tehran",
+      "geonameId": 6657205
+    },
+    {
+      "name": "فردوس",
+      "slug": "ferdowsiyeh",
+      "provinceSlug": "tehran",
+      "geonameId": 33069
+    },
+    {
+      "name": "فرون آباد",
+      "slug": "ferunabad",
+      "provinceSlug": "tehran",
+      "geonameId": 134598
+    },
+    {
+      "name": "فیروزکوه",
+      "slug": "firuzkuh",
+      "provinceSlug": "tehran",
+      "geonameId": 134462
+    },
+    {
+      "name": "شهرک گلستان",
+      "slug": "golestan",
+      "provinceSlug": "tehran",
+      "geonameId": 32900
+    },
+    {
+      "name": "حسن آباد فشافویه",
+      "slug": "hasanabad",
+      "provinceSlug": "tehran",
+      "geonameId": 131831
+    },
+    {
+      "name": "کَهریزَک",
+      "slug": "kahrizak",
+      "provinceSlug": "tehran",
+      "geonameId": 129664
+    },
+    {
+      "name": "کهریزک",
+      "slug": "kahrizak-2",
+      "provinceSlug": "tehran",
+      "geonameId": 11980175
+    },
+    {
+      "name": "خبر آباد",
+      "slug": "khabarabad",
+      "provinceSlug": "tehran",
+      "geonameId": 8421803
+    },
+    {
+      "name": "لواسان",
+      "slug": "lavasan",
+      "provinceSlug": "tehran",
+      "geonameId": 490
+    },
+    {
+      "name": "ماهدشت",
+      "slug": "mahdasht",
+      "provinceSlug": "tehran",
+      "geonameId": 124838
+    },
+    {
+      "name": "ملارد",
+      "slug": "malard",
+      "provinceSlug": "tehran",
+      "geonameId": 125188
+    },
+    {
+      "name": "مِشگین آباد",
+      "slug": "meshkin-dasht",
+      "provinceSlug": "tehran",
+      "geonameId": 123205
+    },
+    {
+      "name": "مجتمع مسکونی نامجو",
+      "slug": "mojtame-e-maskuni-ye-namju",
+      "provinceSlug": "tehran",
+      "geonameId": 7465130
+    },
+    {
+      "name": "مرتضی گرد",
+      "slug": "morteza-gerd",
+      "provinceSlug": "tehran",
+      "geonameId": 32996
+    },
+    {
+      "name": "نَصیرابادِ بَدِر",
+      "slug": "nasir-abaad",
+      "provinceSlug": "tehran",
+      "geonameId": 406462
+    },
+    {
+      "name": "نصیر آباد",
+      "slug": "nasirshahr",
+      "provinceSlug": "tehran",
+      "geonameId": 122544
+    },
+    {
+      "name": "اورین",
+      "slug": "ovrin",
+      "provinceSlug": "tehran",
+      "geonameId": 406487
+    },
+    {
+      "name": "پاکدشت",
+      "slug": "pakdasht",
+      "provinceSlug": "tehran",
+      "geonameId": 9478811
+    },
+    {
+      "name": "شهر جدید پرند",
+      "slug": "parand",
+      "provinceSlug": "tehran",
+      "geonameId": 6659672
+    },
+    {
+      "name": "شهر جدید پردیس",
+      "slug": "pardis",
+      "provinceSlug": "tehran",
+      "geonameId": 6681051
+    },
+    {
+      "name": "پیشوا",
+      "slug": "pishva",
+      "provinceSlug": "tehran",
+      "geonameId": 120972
+    },
+    {
+      "name": "قرچک",
+      "slug": "qarchak",
+      "provinceSlug": "tehran",
+      "geonameId": 32767
+    },
+    {
+      "name": "شهرک قیام دشت",
+      "slug": "qiamdasht",
+      "provinceSlug": "tehran",
+      "geonameId": 400833
+    },
+    {
+      "name": "شهرک قدس",
+      "slug": "qods",
+      "provinceSlug": "tehran",
+      "geonameId": 120292
+    },
+    {
+      "name": "رباط کریم",
+      "slug": "robat-karim",
+      "provinceSlug": "tehran",
+      "geonameId": 118367
+    },
+    {
+      "name": "رودهن",
+      "slug": "rudehen",
+      "provinceSlug": "tehran",
+      "geonameId": 118223
+    },
+    {
+      "name": "سعید آباد",
+      "slug": "sa-idabad",
+      "provinceSlug": "tehran",
+      "geonameId": 117814
+    },
+    {
+      "name": "قاسم آباد",
+      "slug": "sabbashahr",
+      "provinceSlug": "tehran",
+      "geonameId": 6672633
+    },
+    {
+      "name": "صفادشت",
+      "slug": "safadasht",
+      "provinceSlug": "tehran",
+      "geonameId": 13645766
+    },
+    {
+      "name": "شهرک صالح آباد",
+      "slug": "salehieh",
+      "provinceSlug": "tehran",
+      "geonameId": 32843
+    },
+    {
+      "name": "عَلیابادِ دِرازِه",
+      "slug": "shahedshahr",
+      "provinceSlug": "tehran",
+      "geonameId": 406472
+    },
+    {
+      "name": "علائین",
+      "slug": "shahrak-e-ala-in",
+      "provinceSlug": "tehran",
+      "geonameId": 8080737
+    },
+    {
+      "name": "شهر جدید اندیشه",
+      "slug": "shahre-jadide-andisheh",
+      "provinceSlug": "tehran",
+      "geonameId": 32909
+    },
+    {
+      "name": "شهریار",
+      "slug": "shahriar",
+      "provinceSlug": "tehran",
+      "geonameId": 143860
+    },
+    {
+      "name": "تجریش",
+      "slug": "tajrish",
+      "provinceSlug": "tehran",
+      "geonameId": 113514
+    },
+    {
+      "name": "تهران",
+      "slug": "tehran",
+      "provinceSlug": "tehran",
+      "geonameId": 112931
+    },
+    {
+      "name": "وحیدیه",
+      "slug": "vahidiyeh",
+      "provinceSlug": "tehran",
+      "geonameId": 404592
+    },
+    {
+      "name": "ورامین",
+      "slug": "varamin",
+      "provinceSlug": "tehran",
+      "geonameId": 112214
+    },
+    {
+      "name": "بوکان",
+      "slug": "bukan",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 139889
+    },
+    {
+      "name": "خوی",
+      "slug": "khuy",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 126972
+    },
+    {
+      "name": "مهاباد",
+      "slug": "mahabad",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 125446
+    },
+    {
+      "name": "ماکو",
+      "slug": "maku",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 125205
+    },
+    {
+      "name": "میاندوآب",
+      "slug": "miandoab",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 124085
+    },
+    {
+      "name": "نقده",
+      "slug": "naqadeh",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 122698
+    },
+    {
+      "name": "شهرستان ارومیه",
+      "slug": "orumiyeh",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 121801
+    },
+    {
+      "name": "اشنویه",
+      "slug": "oshnaviyeh",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 121795
+    },
+    {
+      "name": "پیرانشهر",
+      "slug": "piranshahr",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 121110
+    },
+    {
+      "name": "پلدشت",
+      "slug": "poldasht",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 120954
+    },
+    {
+      "name": "قره ضیاء الدین",
+      "slug": "qarah-zia-od-din",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 119730
+    },
+    {
+      "name": "سلماس",
+      "slug": "salmas",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 117656
+    },
+    {
+      "name": "سردشت",
+      "slug": "sardasht",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 117111
+    },
+    {
+      "name": "سیه چشمه",
+      "slug": "seyah-cheshmeh",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 116326
+    },
+    {
+      "name": "شاهین دژ",
+      "slug": "shahin-dezh",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 117793
+    },
+    {
+      "name": "شُط",
+      "slug": "showt",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 401118
+    },
+    {
+      "name": "تکاب",
+      "slug": "takab",
+      "provinceSlug": "west-azerbaijan",
+      "geonameId": 113508
+    },
+    {
+      "name": "ابرکوه",
+      "slug": "abarkuh",
+      "provinceSlug": "yazd",
+      "geonameId": 145427
+    },
+    {
+      "name": "اردکان",
+      "slug": "ardakan",
+      "provinceSlug": "yazd",
+      "geonameId": 143073
+    },
+    {
+      "name": "آشکَکزار",
+      "slug": "ashkezar",
+      "provinceSlug": "yazd",
+      "geonameId": 66250
+    },
+    {
+      "name": "بافق",
+      "slug": "bafq",
+      "provinceSlug": "yazd",
+      "geonameId": 142255
+    },
+    {
+      "name": "مِهریز",
+      "slug": "mahriz",
+      "provinceSlug": "yazd",
+      "geonameId": 124274
+    },
+    {
+      "name": "میبد",
+      "slug": "meybod",
+      "provinceSlug": "yazd",
+      "geonameId": 124193
+    },
+    {
+      "name": "طبس",
+      "slug": "tabas",
+      "provinceSlug": "yazd",
+      "geonameId": 113659
+    },
+    {
+      "name": "تفت",
+      "slug": "taft",
+      "provinceSlug": "yazd",
+      "geonameId": 113632
+    },
+    {
+      "name": "یزد",
+      "slug": "yazd",
+      "provinceSlug": "yazd",
+      "geonameId": 111822
+    },
+    {
+      "name": "ابهر",
+      "slug": "abhar",
+      "provinceSlug": "zanjan",
+      "geonameId": 145034
+    },
+    {
+      "name": "خرمدره",
+      "slug": "khorramdarreh",
+      "provinceSlug": "zanjan",
+      "geonameId": 41210
+    },
+    {
+      "name": "قیدَر",
+      "slug": "qidar",
+      "provinceSlug": "zanjan",
+      "geonameId": 119369
+    },
+    {
+      "name": "زنجان",
+      "slug": "zanjan",
+      "provinceSlug": "zanjan",
+      "geonameId": 111453
+    }
+  ]
+}
