@@ -1,19 +1,29 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface CommentFormProps {
   topicId: string;
+  autoFocus?: boolean;
 }
 
-export function CommentForm({ topicId }: CommentFormProps) {
+export function CommentForm({ topicId, autoFocus = false }: CommentFormProps) {
   const router = useRouter();
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (autoFocus && formRef.current) {
+      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      textareaRef.current?.focus();
+    }
+  }, [autoFocus]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -66,7 +76,6 @@ export function CommentForm({ topicId }: CommentFormProps) {
       setBody('');
       setSuccessMessage(payload?.message ?? 'نظر شما برای بررسی ارسال شد.');
 
-      // Re-fetch the server component to update the comments list
       router.refresh();
     } catch {
       setError('ارسال نظر ممکن نشد.');
@@ -77,6 +86,7 @@ export function CommentForm({ topicId }: CommentFormProps) {
 
   return (
     <form
+      ref={formRef}
       onSubmit={handleSubmit}
       noValidate
       className="mt-10 rounded-3xl bg-white p-5 ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)] md:p-6"
@@ -90,6 +100,7 @@ export function CommentForm({ topicId }: CommentFormProps) {
 
       <textarea
         id="comment-body"
+        ref={textareaRef}
         value={body}
         onChange={(event) => {
           setBody(event.target.value);

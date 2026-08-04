@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { TOPIC_TYPES } from '@/types/topic';
 import { CommentForm } from '@/components/topic/CommentForm';
 
+
 export const dynamic = 'force-dynamic';
 
 type TopicProvince = {
@@ -73,10 +74,13 @@ function formatPersianDate(value: string): string {
 
 export default async function TopicDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ focusComment?: string }>;
 }) {
   const { id } = await params;
+  const { focusComment } = await searchParams;
 
   const headersList = await headers();
   const host = headersList.get('host') ?? 'localhost:3000';
@@ -190,7 +194,10 @@ export default async function TopicDetailPage({
           </div>
         )}
 
-        <CommentForm topicId={topic.id} />
+        <CommentForm
+  topicId={topic.id}
+  autoFocus={focusComment === 'true'}
+/>
 
         <section aria-label="نظرات موضوع" className="mt-10">
           <h2 className="font-display text-2xl text-ink-900">نظرات</h2>
