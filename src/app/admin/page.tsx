@@ -1,10 +1,28 @@
 import Link from 'next/link';
+import { AdminLoginForm } from '@/components/admin/AdminLoginForm';
+import {
+  getAdminPassword,
+  validateAdminPassword,
+  getAdminPasswordFromCookie,
+} from '@/lib/admin-auth';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata = {
   title: 'مدیریت - نظرمن',
 };
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  if (!getAdminPassword()) {
+    return <AdminLoginForm notConfigured />;
+  }
+
+  const adminPassword = await getAdminPasswordFromCookie();
+
+  if (!validateAdminPassword(adminPassword)) {
+    return <AdminLoginForm hasInvalidCookie={adminPassword.length > 0} />;
+  }
+
   return (
     <main className="min-h-screen bg-paper">
       <div className="mx-auto w-full max-w-3xl px-5 py-10">

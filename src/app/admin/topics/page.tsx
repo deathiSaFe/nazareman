@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { TopicsModerationClient } from '@/components/admin/TopicsModerationClient';
+import { AdminLoginForm } from '@/components/admin/AdminLoginForm';
+import {
+  getAdminPassword,
+  validateAdminPassword,
+  getAdminPasswordFromCookie,
+} from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,7 +45,16 @@ export default async function AdminTopicsPage() {
       },
     },
   });
+ 
+  if (!getAdminPassword()) {
+  return <AdminLoginForm notConfigured />;
+   }
 
+  const adminPassword = await getAdminPasswordFromCookie();
+
+  if (!validateAdminPassword(adminPassword)) {
+  return <AdminLoginForm hasInvalidCookie={adminPassword.length > 0} />;
+  }
   const topics = pendingTopics.map((topic) => {
     const cityNameParts = [
       topic.city?.name,

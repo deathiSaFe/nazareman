@@ -1,6 +1,12 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import { CommentsModerationClient } from '@/components/admin/CommentsModerationClient';
+import { AdminLoginForm } from '@/components/admin/AdminLoginForm';
+import {
+  getAdminPassword,
+  validateAdminPassword,
+  getAdminPasswordFromCookie,
+} from '@/lib/admin-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +33,15 @@ export default async function AdminCommentsPage() {
       },
     },
   });
+if (!getAdminPassword()) {
+  return <AdminLoginForm notConfigured />;
+}
 
+const adminPassword = await getAdminPasswordFromCookie();
+
+if (!validateAdminPassword(adminPassword)) {
+  return <AdminLoginForm hasInvalidCookie={adminPassword.length > 0} />;
+}
   const comments = pendingComments.map((comment) => ({
     id: comment.id,
     body: comment.body,

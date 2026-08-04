@@ -19,14 +19,26 @@ function isAllowedStatus(value: unknown): value is AllowedStatus {
   );
 }
 
-
-
 export async function PATCH(
   request: NextRequest,
   context: {
     params: Promise<{ id: string }>;
   }
 ) {
+  const rawAdminPassword = request.headers.get('x-admin-password') ?? '';
+
+  let adminPassword = rawAdminPassword;
+
+  try {
+    adminPassword = decodeURIComponent(rawAdminPassword);
+  } catch {
+    adminPassword = rawAdminPassword;
+  }
+
+  if (!validateAdminPassword(adminPassword)) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
   let payload: unknown;
 
   try {
@@ -59,63 +71,71 @@ export async function PATCH(
     const { id } = await context.params;
     const identifier = id.trim();
 
-    if (!identifier || !UUID_REGEX.test(identifier)) {
+    if (!identifier) {
       return NextResponse.json(
-        { error: 'Comment not found.' },
+        { error: 'Topic not found.' },
         { status: 404 }
       );
     }
 
-    const existingComment = await prisma.comment.findUnique({
+    const isUuid = UUID_REGEX.test(identifier);
+
+    const existingTopic = await prisma.topic.findFirst({
       where: {
-        id: identifier,
+        OR: isUuid
+          ? [{ id: identifier }, { slug: identifier }]
+          : [{ slug: identifier }],
       },
       select: {
         id: true,
       },
     });
 
-    if (!existingComment) {
+    if (!existingTopic) {
       return NextResponse.json(
-        { error: 'Comment not found.' },
+        { error: 'Topic not found.' },
         { status: 404 }
       );
     }
 
-    const updatedComment = await prisma.comment.update({
-      where: {
-        id: existingComment.id,
-      },
-      data: {
-        status,
-      },
-      select: {
-        id: true,
-        body: true,
-        status: true,
-        createdAt: true,
-      },
+    const updatedTopic = await prisma.$transaction(async (tx) => {
+      const topic = await tx.topic.update({
+        where: {
+          id: existingTopic.id,
+        },
+        data: {
+          status,
+          approvedAt: status === 'APPROVED' ? new Date() : null,
+        },
+        select: {
+          id: true,
+          slug: true,
+          name: true,
+          type: true,
+          status: true,
+          approvedAt: true,
+        },
+      });
+
+      await tx.submission.updateMany({
+        where: {
+          topicId: existingTopic.id,
+        },
+        data: {
+          status,
+          decidedAt: new Date(),
+        },
+      });
+
+      return topic;
     });
-    const rawAdminPassword = request.headers.get('x-admin-password') ?? '';
 
-     let adminPassword = rawAdminPassword;
-
-      try {
-      adminPassword = decodeURIComponent(rawAdminPassword);
-     } catch {
-     adminPassword = rawAdminPassword;
-   }
-
-    if (!validateAdminPassword(adminPassword)) {
-     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    return NextResponse.json(updatedComment);
+    return NextResponse.json(updatedTopic);
   } catch (error) {
-    console.error('Failed to update comment moderation status:', error);
+    console.error('Failed to update topic moderation status:', error);
 
     return NextResponse.json(
-      { error: 'Failed to update comment moderation status.' },
+      { error: 'Failed to update topic moderation status.' },
       { status: 500 }
     );
   }

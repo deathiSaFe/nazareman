@@ -2,6 +2,30 @@
 
 import { useState } from 'react';
 
+function getStoredAdminPassword(): string {
+  if (typeof window === 'undefined') {
+    return '';
+  }
+
+  const localPassword = window.localStorage.getItem('admin_password');
+
+  if (localPassword) {
+    return localPassword;
+  }
+
+  const cookieRow = document.cookie
+    .split('; ')
+    .find((row) => row.startsWith('admin_password='));
+
+  const cookieValue = cookieRow?.split('=')[1] ?? '';
+
+  try {
+    return decodeURIComponent(cookieValue);
+  } catch {
+    return cookieValue;
+  }
+}
+
 type PendingComment = {
   id: string;
   body: string;
@@ -40,12 +64,17 @@ export function CommentsModerationClient({
       const response = await fetch(`/api/admin/comments/${id}`, {
         method: 'PATCH',
         headers: {
-          'Content-Type': 'application/json',
-        },
+        'Content-Type': 'application/json',
+       'x-admin-password': encodeURIComponent(getStoredAdminPassword()),
+            },
         body: JSON.stringify({ status }),
       });
 
       const payload = await response.json().catch(() => null);
+      if (response.status === 401) {
+  setError('رمز مدیریت معتبر نیست.');
+  return;
+}
 
       if (!response.ok) {
         setError(payload?.error ?? 'عملیات ممکن نشد.');
