@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ArrowLeftIcon, CheckIcon, SearchIcon, XIcon } from '@/components/icons';
-import { TOPIC_TYPES, type NewTopicDraft, type TopicSearchResult, type TopicType } from '@/types/topic';
+import { TOPIC_TYPES, type TopicSearchResult, type TopicType } from '@/types/topic';
 import { TopicTypeGrid } from './TopicTypeGrid';
 import { SimilarTopicsPanel } from './SimilarTopicsPanel';
 import { TopicDetailsForm } from './TopicDetailsForm';
@@ -33,12 +33,13 @@ export function AddTopicFlow({ className = '' }: AddTopicFlowProps) {
   const [type, setType] = useState<TopicType | null>(null);
   const [query, setQuery] = useState('');
   const [hasSearched, setHasSearched] = useState(false);
-  const [results, setResults] = useState<TopicSearchResult[]>([]); // future: duplicate hits
+  const [results, setResults] = useState<TopicSearchResult[]>([]);
   const [showDetails, setShowDetails] = useState(false);
   const [name, setName] = useState('');
   const [nameTouched, setNameTouched] = useState(false);
   const [city, setCity] = useState('');
   const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const searchStepRef = useRef<HTMLDivElement>(null);
   const detailsStepRef = useRef<HTMLDivElement>(null);
@@ -85,21 +86,49 @@ export function AddTopicFlow({ className = '' }: AddTopicFlowProps) {
     setShowDetails(true);
   }
 
-  function handleSubmit() {
-    if (!type) return;
+  async function handleSubmit() {
+    if (!type || isSubmitting) return;
+    setIsSubmitting(true);
 
-    const draft: NewTopicDraft = {
-      type,
+    let finalDescription = description.trim();
+    
+    // Ensure description is at least 20 chars for the API requirement
+    if (finalDescription.length > 0 && finalDescription.length < 20) {
+      finalDescription = finalDescription.padEnd(20, ' ');
+    } else if (finalDescription.length === 0) {
+      finalDescription = 'بدون توضیحات بیشتر از طرف کاربر ارائه شد.'; 
+    }
+
+    const payload = {
       name: name.trim(),
-      city: city.trim() || undefined,
-      description: description.trim() || undefined,
+      type,
+      description: finalDescription,
+      cityName: city.trim(),
+      imageUrl: '',
+      firstComment: '',
     };
 
-    // TODO:api-submit - Replace sessionStorage with real API POST and response handling
-    sessionStorage.setItem('newTopicDraft', JSON.stringify(draft));
-    
-    const newTopicId = 'mock-topic-' + Date.now(); 
-    router.push(`/topic/${encodeURIComponent(newTopicId)}?focusComment=true`);
+    try {
+      const response = await fetch('/api/topics/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'خطا در ثبت موضوع');
+      }
+
+      // Navigate to the real topic page
+      router.push(`/topic/${data.topicId}?focusComment=true`);
+    } catch (error) {
+      console.error(error);
+      alert('خطایی در ثبت موضوع رخ داد. لطفاً دوباره تلاش کنید.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
