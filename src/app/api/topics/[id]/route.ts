@@ -26,9 +26,14 @@ export async function GET(
 
     const isUuid = UUID_REGEX.test(identifier);
 
+    const allowedStatuses: Array<'APPROVED' | 'PENDING'> = isUuid
+      ? ['APPROVED', 'PENDING']
+      : ['APPROVED'];
+
+    // Fetch topic first (without comments) to determine its status
     const topic = await prisma.topic.findFirst({
       where: {
-        status: 'APPROVED',
+        status: { in: allowedStatuses },
         OR: isUuid
           ? [{ id: identifier }, { slug: identifier }]
           : [{ slug: identifier }],
@@ -40,6 +45,7 @@ export async function GET(
         type: true,
         description: true,
         imageUrl: true,
+        status: true,
         city: {
           select: {
             name: true,
@@ -48,24 +54,6 @@ export async function GET(
               select: {
                 name: true,
                 slug: true,
-              },
-            },
-          },
-        },
-        comments: {
-          where: {
-            status: 'APPROVED',
-          },
-          orderBy: {
-            createdAt: 'asc',
-          },
-          select: {
-            id: true,
-            body: true,
-            createdAt: true,
-            author: {
-              select: {
-                displayName: true,
               },
             },
           },
@@ -80,10 +68,41 @@ export async function GET(
       );
     }
 
-    const comments = topic.comments.map((comment) => ({
+    // If topic is PENDING (creator viewing via UUID), show all comments.
+    // If topic is APPROVED (public view), only show APPROVED comments.
+    const commentStatusFilter =
+      topic.status === 'PENDING'
+        ? undefined
+        : 'APPROVED';
+
+    const comments = await prisma.comment.findMany({
+      where: {
+        topicId: topic.id,
+        ...(commentStatusFilter
+          ? { status: commentStatusFilter }
+          : {}),
+      },
+      orderBy: {
+        createdAt: 'asc',
+      },
+      select: {
+        id: true,
+        body: true,
+        createdAt: true,
+        status: true,
+        author: {
+          select: {
+            displayName: true,
+          },
+        },
+      },
+    });
+
+    const mappedComments = comments.map((comment) => ({
       id: comment.id,
       body: comment.body,
       createdAt: comment.createdAt,
+      status: comment.status,
       authorName: comment.author?.displayName ?? null,
     }));
 
@@ -94,8 +113,9 @@ export async function GET(
       type: topic.type,
       description: topic.description,
       imageUrl: topic.imageUrl,
+      status: topic.status,
       city: topic.city,
-      comments,
+      comments: mappedComments,
     });
   } catch (error) {
     console.error('Failed to fetch topic:', error);

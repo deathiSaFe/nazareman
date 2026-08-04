@@ -39,7 +39,8 @@ export function AddTopicFlow({ className = '' }: AddTopicFlowProps) {
   const [nameTouched, setNameTouched] = useState(false);
   const [city, setCity] = useState('');
   const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const searchStepRef = useRef<HTMLDivElement>(null);
   const detailsStepRef = useRef<HTMLDivElement>(null);
@@ -88,21 +89,22 @@ export function AddTopicFlow({ className = '' }: AddTopicFlowProps) {
 
   async function handleSubmit() {
     if (!type || isSubmitting) return;
-    setIsSubmitting(true);
 
-    let finalDescription = description.trim();
+    const trimmedDescription = description.trim();
     
-    // Ensure description is at least 20 chars for the API requirement
-    if (finalDescription.length > 0 && finalDescription.length < 20) {
-      finalDescription = finalDescription.padEnd(20, ' ');
-    } else if (finalDescription.length === 0) {
-      finalDescription = 'بدون توضیحات بیشتر از طرف کاربر ارائه شد.'; 
+    // Frontend validation: Minimum 20 characters
+    if (trimmedDescription.length < 20) {
+      setSubmitError('توضیحات باید حداقل ۲۰ کاراکتر باشد.');
+      return;
     }
+
+    setSubmitError(null);
+    setIsSubmitting(true);
 
     const payload = {
       name: name.trim(),
       type,
-      description: finalDescription,
+      description: trimmedDescription,
       cityName: city.trim(),
       imageUrl: '',
       firstComment: '',
@@ -121,11 +123,10 @@ export function AddTopicFlow({ className = '' }: AddTopicFlowProps) {
         throw new Error(data.error || 'خطا در ثبت موضوع');
       }
 
-      // Navigate to the real topic page
       router.push(`/topic/${data.topicId}?focusComment=true`);
     } catch (error) {
       console.error(error);
-      alert('خطایی در ثبت موضوع رخ داد. لطفاً دوباره تلاش کنید.');
+      setSubmitError('خطایی در ثبت موضوع رخ داد. لطفاً دوباره تلاش کنید.');
     } finally {
       setIsSubmitting(false);
     }
@@ -209,8 +210,15 @@ export function AddTopicFlow({ className = '' }: AddTopicFlowProps) {
           {showDetails && (
             <div ref={detailsStepRef} className="mt-10 animate-fade-up motion-reduce:animate-none">
               {/* ——— step 3 · minimal details + submit ——— */}
-              <section aria-label="تکمیل اطلاعات">
+                            <section aria-label="تکمیل اطلاعات">
                 <StepHeading step="۳" title="تکمیل اطلاعات" />
+                
+                {submitError && (
+                  <p className="mt-4 text-sm font-bold text-red-600" role="alert">
+                    {submitError}
+                  </p>
+                )}
+
                 <TopicDetailsForm
                   className="mt-4"
                   name={name}

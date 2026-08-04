@@ -21,6 +21,7 @@ type TopicComment = {
   id: string;
   body: string;
   createdAt: string;
+  status: string;
   authorName: string | null;
 };
 
@@ -31,6 +32,7 @@ type TopicDetail = {
   type: string;
   description: string;
   imageUrl: string | null;
+  status: string;
   city: TopicCity | null;
   comments: TopicComment[];
 };
@@ -181,6 +183,13 @@ export default async function TopicDetailPage({
           </div>
         </article>
 
+                {topic.status === 'PENDING' && (
+          <div className="mt-10 rounded-2xl bg-saffron-50 border border-saffron-200/60 p-4 text-sm text-ink-800">
+            <p className="font-bold">این موضوع در انتظار بررسی است.</p>
+            <p className="mt-1">پس از تأیید مدیریت، برای همه کاربران قابل مشاهده خواهد بود.</p>
+          </div>
+        )}
+
         <CommentForm topicId={topic.id} />
 
         <section aria-label="نظرات موضوع" className="mt-10">
@@ -191,7 +200,7 @@ export default async function TopicDetailPage({
               هنوز نظری برای این موضوع ثبت نشده است.
             </div>
           ) : (
-            <div className="mt-4 space-y-4">
+                        <div className="mt-4 space-y-4">
               {topic.comments.map((comment) => (
                 <article
                   key={comment.id}
@@ -204,6 +213,12 @@ export default async function TopicDetailPage({
                   <footer className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-ink-500">
                     <span>{comment.authorName ?? 'ناشناس'}</span>
                     <span>{formatPersianDate(comment.createdAt)}</span>
+
+                    {comment.status === 'PENDING' && (
+                      <span className="rounded-full bg-saffron-500/10 px-2 py-0.5 text-saffron-700 font-bold">
+                        در انتظار بررسی
+                      </span>
+                    )}
                   </footer>
                 </article>
               ))}

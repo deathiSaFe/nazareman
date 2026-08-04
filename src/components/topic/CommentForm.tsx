@@ -1,12 +1,15 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface CommentFormProps {
   topicId: string;
 }
 
 export function CommentForm({ topicId }: CommentFormProps) {
+  const router = useRouter();
+
   const [body, setBody] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -14,6 +17,8 @@ export function CommentForm({ topicId }: CommentFormProps) {
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
+
+    if (isSubmitting) return;
 
     setSuccessMessage(null);
 
@@ -48,6 +53,11 @@ export function CommentForm({ topicId }: CommentFormProps) {
 
       const payload = await response.json().catch(() => null);
 
+      if (response.status === 401) {
+        setError('رمز مدیریت معتبر نیست.');
+        return;
+      }
+
       if (!response.ok) {
         setError(payload?.error ?? 'ارسال نظر ممکن نشد.');
         return;
@@ -55,6 +65,9 @@ export function CommentForm({ topicId }: CommentFormProps) {
 
       setBody('');
       setSuccessMessage(payload?.message ?? 'نظر شما برای بررسی ارسال شد.');
+
+      // Re-fetch the server component to update the comments list
+      router.refresh();
     } catch {
       setError('ارسال نظر ممکن نشد.');
     } finally {
@@ -91,7 +104,8 @@ export function CommentForm({ topicId }: CommentFormProps) {
         }}
         rows={4}
         placeholder="نظر خود را بنویسید..."
-        className="mt-3 w-full resize-none rounded-[22px] border border-ink-200 bg-paper p-4 text-[15px] leading-7 text-ink-900 caret-turquoise-700 outline-none transition-shadow placeholder:text-ink-400 focus:ring-2 focus:ring-turquoise-500 focus:shadow-md"
+        disabled={isSubmitting}
+        className="mt-3 w-full resize-none rounded-[22px] border border-ink-200 bg-paper p-4 text-[15px] leading-7 text-ink-900 caret-turquoise-700 outline-none transition-shadow placeholder:text-ink-400 focus:ring-2 focus:ring-turquoise-500 focus:shadow-md disabled:opacity-60"
       />
 
       {error ? (

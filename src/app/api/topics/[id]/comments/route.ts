@@ -32,7 +32,6 @@ export async function POST(
   }
 
   const data = payload as Record<string, unknown>;
-
   const body = typeof data.body === 'string' ? data.body.trim() : '';
 
   if (!body) {
@@ -62,9 +61,15 @@ export async function POST(
 
     const isUuid = UUID_REGEX.test(identifier);
 
+    // Allow comments on PENDING topics when accessed by UUID (creator flow).
+    // Slug-based access only allows APPROVED topics (public flow).
+    const allowedStatuses: Array<'APPROVED' | 'PENDING'> = isUuid
+      ? ['APPROVED', 'PENDING']
+      : ['APPROVED'];
+
     const topic = await prisma.topic.findFirst({
       where: {
-        status: 'APPROVED',
+        status: { in: allowedStatuses },
         OR: isUuid
           ? [{ id: identifier }, { slug: identifier }]
           : [{ slug: identifier }],
