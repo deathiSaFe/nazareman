@@ -25,13 +25,14 @@ function StepHeading({ step, title, done = false }: { step: string; title: strin
 
 interface AddTopicFlowProps {
   className?: string;
+  initialName?: string;
 }
 
-export function AddTopicFlow({ className = '' }: AddTopicFlowProps) {
+export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowProps) {
   const router = useRouter();
 
   const [type, setType] = useState<TopicType | null>(null);
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialName);
   const [hasSearched, setHasSearched] = useState(false);
   const [results, setResults] = useState<TopicSearchResult[]>([]);
   const [showDetails, setShowDetails] = useState(false);
