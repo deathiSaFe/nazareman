@@ -21,6 +21,6 @@
     "yauzl": "^3.4.0"
   },
   "devDependencies": {
-    "prisma": "^7.9.1"
+    "prisma": "^6.19.3"
   }
 }
