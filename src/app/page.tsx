@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { SearchSection } from '@/components/home/SearchSection';
+import FloatingActionButton from '@/components/home/FloatingActionButton';
 
 export const metadata: Metadata = {
   title: 'نظرمن - نظر دیگران را بدانید',
@@ -20,8 +20,8 @@ export default function HomePage() {
         <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-saffron-200/15 blur-3xl" />
       </div>
 
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 py-16">
-        {/* Motto - slightly larger, elegant */}
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 pt-16 pb-28">
+        {/* Motto */}
         <p className="text-center text-ink-500 text-lg md:text-xl font-light tracking-wide mb-10 max-w-md leading-relaxed">
           <span className="inline-block relative">
             <span className="bg-gradient-to-bl from-turquoise-700 to-emerald-500 bg-clip-text text-transparent font-medium">
@@ -38,29 +38,10 @@ export default function HomePage() {
         <div className="w-full max-w-xl">
           <SearchSection />
         </div>
-
-        {/* Quick Actions */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/topics"
-            className="rounded-full bg-turquoise-600 px-6 py-3 text-sm font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97]"
-          >
-            مشاهده موضوعات
-          </Link>
-
-          <Link
-            href="/add-topic"
-            className="rounded-full border border-turquoise-600/30 px-6 py-3 text-sm font-bold text-turquoise-700 transition-all hover:-translate-y-0.5 hover:bg-turquoise-600/10 active:translate-y-0 active:scale-[0.97]"
-          >
-            ایجاد موضوع جدید
-          </Link>
-        </div>
-
-        {/* Footer */}
-        <footer className="mt-16 text-center text-xs text-ink-400">
-          نظرمن — صدای جمعی برای موضوعات روزمره
-        </footer>
       </div>
+
+      {/* Floating Action Button */}
+      <FloatingActionButton />
     </main>
   );
 }
