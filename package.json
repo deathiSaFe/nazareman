@@ -2,7 +2,7 @@
   "name": "nazareman",
   "version": "0.1.0",
   "private": true,
-   "scripts": {
+  "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
@@ -19,8 +19,8 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "yauzl": "^3.4.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.9.1"
   }
 }
-
- 
-
