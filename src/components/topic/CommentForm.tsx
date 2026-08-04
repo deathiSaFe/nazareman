@@ -125,10 +125,15 @@ export function CommentForm({ topicId, autoFocus = false }: CommentFormProps) {
         </p>
       ) : null}
 
-      {successMessage ? (
-        <p role="status" className="mt-2 text-sm text-turquoise-700">
-          {successMessage}
-        </p>
+            {successMessage ? (
+        <div role="status" className="mt-3 rounded-2xl bg-turquoise-600/10 p-3">
+          <p className="text-sm font-bold text-turquoise-700">
+            {successMessage}
+          </p>
+          <p className="mt-1 text-xs text-turquoise-600">
+            نظر شما پس از تأیید مدیریت برای دیگران قابل مشاهده خواهد بود.
+          </p>
+        </div>
       ) : null}
 
       <div className="mt-4 flex justify-end">
