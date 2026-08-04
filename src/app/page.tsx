@@ -1,8 +1,6 @@
 import type { Metadata } from 'next';
-import { SearchSection } from '@/components/home/SearchSection';
-import { BrandMark } from '@/components/home/BrandMark';
-import { AmbientBackground } from '@/components/home/AmbientBackground';
 import Link from 'next/link';
+import { SearchSection } from '@/components/home/SearchSection';
 
 export const metadata: Metadata = {
   title: 'نظرمن - نظر دیگران را بدانید',
@@ -13,12 +11,25 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <main className="relative min-h-screen bg-paper overflow-hidden">
-      <AmbientBackground />
+      {/* Ambient background gradient */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+      >
+        <div className="absolute -top-32 left-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-turquoise-200/20 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-saffron-200/15 blur-3xl" />
+      </div>
 
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 py-16">
-        <BrandMark />
+        {/* Brand */}
+        <div className="flex items-center gap-3">
+          <div className="grid size-12 place-items-center rounded-2xl bg-turquoise-600 text-white shadow-lg shadow-turquoise-600/30">
+            <span className="font-display text-xl">ن</span>
+          </div>
+          <span className="font-display text-3xl text-ink-900">نظرمن</span>
+        </div>
 
-        <h1 className="mt-6 text-center font-display text-3xl text-ink-900 md:text-4xl">
+        <h1 className="mt-8 text-center font-display text-3xl text-ink-900 md:text-4xl">
           نظر دیگران را بدانید
         </h1>
 
@@ -26,10 +37,12 @@ export default function HomePage() {
           موضوعی را جستجو کنید، نظرات دیگران را بخوانید و نظر خود را ثبت کنید.
         </p>
 
+        {/* Search */}
         <div className="mt-8 w-full max-w-xl">
           <SearchSection />
         </div>
 
+        {/* Quick Actions */}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
           <Link
             href="/topics"
@@ -45,6 +58,11 @@ export default function HomePage() {
             ایجاد موضوع جدید
           </Link>
         </div>
+
+        {/* Footer */}
+        <footer className="mt-16 text-center text-xs text-ink-400">
+          نظرمن — صدای جمعی برای موضوعات روزمره
+        </footer>
       </div>
     </main>
   );
