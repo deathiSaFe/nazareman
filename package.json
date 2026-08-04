@@ -21,6 +21,9 @@
     "yauzl": "^3.4.0"
   },
   "devDependencies": {
-    "prisma": "^6.19.3"
+    "@tailwindcss/postcss": "^4.3.3",
+    "postcss": "^8.5.25",
+    "prisma": "^6.19.3",
+    "tailwindcss": "^4.3.3"
   }
 }
