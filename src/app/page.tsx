@@ -21,24 +21,21 @@ export default function HomePage() {
       </div>
 
       <div className="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 py-16">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="grid size-12 place-items-center rounded-2xl bg-turquoise-600 text-white shadow-lg shadow-turquoise-600/30">
-            <span className="font-display text-xl">ن</span>
-          </div>
-          <span className="font-display text-3xl text-ink-900">نظرمن</span>
-        </div>
-
-        <h1 className="mt-8 text-center font-display text-3xl text-ink-900 md:text-4xl">
-          نظر دیگران را بدانید
-        </h1>
-
-        <p className="mt-3 max-w-md text-center text-[15px] leading-7 text-ink-600">
-          موضوعی را جستجو کنید، نظرات دیگران را بخوانید و نظر خود را ثبت کنید.
+        {/* Motto - slightly larger, elegant */}
+        <p className="text-center text-ink-500 text-lg md:text-xl font-light tracking-wide mb-10 max-w-md leading-relaxed">
+          <span className="inline-block relative">
+            <span className="bg-gradient-to-bl from-turquoise-700 to-emerald-500 bg-clip-text text-transparent font-medium">
+              هر نظر
+            </span>
+            <span className="text-ink-300 mx-1">،</span>
+            <span className="text-ink-700">
+              کمک به یک انتخاب بهتر
+            </span>
+          </span>
         </p>
 
         {/* Search */}
-        <div className="mt-8 w-full max-w-xl">
+        <div className="w-full max-w-xl">
           <SearchSection />
         </div>
 

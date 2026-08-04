@@ -1,14 +1,13 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
+import { Vazirmatn } from 'next/font/google';
 import './globals.css';
+import SiteHeader from '@/components/layout/SiteHeader';
+
+const vazirmatn = Vazirmatn({ subsets: ['arabic'] });
 
 export const metadata: Metadata = {
-  title: 'نظرمن | دنبال هر چیزی می‌گردید؟',
-  description:
-    'نظرمن — نظر واقعی مردم دربارهٔ هر چیزی؛ جا، آدم، محصول، وب‌سایت و… بخوانید و ثبت کنید.',
-};
-
-export const viewport: Viewport = {
-  themeColor: '#f6f9f8',
+  title: 'نظر من - هر نظر، کمک به یک انتخاب بهتر',
+  description: 'پلتفرم اشتراک‌گذاری تجربیات واقعی، نظرات و توصیه‌ها',
 };
 
 export default function RootLayout({
@@ -17,8 +16,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fa" dir="rtl">
-      <body>{children}</body>
+    <html lang="fa" dir="rtl" suppressHydrationWarning>
+      <body className={vazirmatn.className}>
+        <SiteHeader />
+        <main className="min-h-[calc(100vh-4rem)]">
+          {children}
+        </main>
+      </body>
     </html>
   );
 }
