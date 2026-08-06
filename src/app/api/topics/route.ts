@@ -1,29 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import type { Prisma, TopicType } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
-
-const TOPIC_TYPES: readonly TopicType[] = [
-  'person',
-  'business',
-  'place',
-  'product',
-  'education',
-  'medical',
-  'organization',
-  'other',
-];
-
-function isTopicType(value: string): value is TopicType {
-  return (TOPIC_TYPES as readonly string[]).includes(value);
-}
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
 
     const citySlug = searchParams.get('city')?.trim() || undefined;
+    const provinceSlug = searchParams.get('province')?.trim() || undefined;
     const typeParam = searchParams.get('type')?.trim() || undefined;
     const searchTerm = searchParams.get('search')?.trim() || undefined;
     const pageParam = searchParams.get('page')?.trim();
@@ -46,22 +32,15 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    let type: TopicType | undefined;
-
-    if (typeParam) {
-      if (!isTopicType(typeParam)) {
-        return NextResponse.json(
-          { error: 'Invalid topic type.' },
-          { status: 400 }
-        );
-      }
-
-      type = typeParam;
-    }
-
     const where: Prisma.TopicWhereInput = {
       status: 'APPROVED',
     };
+
+    if (provinceSlug) {
+      where.province = {
+        slug: provinceSlug,
+      };
+    }
 
     if (citySlug) {
       where.city = {
@@ -69,8 +48,14 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    if (type) {
-      where.type = type;
+    if (typeParam) {
+      where.types = {
+        some: {
+          type: {
+            label: typeParam,
+          },
+        },
+      };
     }
 
     if (searchTerm) {
@@ -85,6 +70,19 @@ export async function GET(request: NextRequest) {
           description: {
             contains: searchTerm,
             mode: 'insensitive',
+          },
+        },
+        {
+          // Searching must consider all attached types, not just the primary.
+          types: {
+            some: {
+              type: {
+                label: {
+                  contains: searchTerm,
+                  mode: 'insensitive',
+                },
+              },
+            },
           },
         },
       ];
@@ -105,7 +103,6 @@ export async function GET(request: NextRequest) {
           id: true,
           slug: true,
           name: true,
-          type: true,
           description: true,
           imageUrl: true,
           createdAt: true,
@@ -122,15 +119,38 @@ export async function GET(request: NextRequest) {
               },
             },
           },
+          types: {
+            select: {
+              id: true,
+              kind: true,
+              type: {
+                select: {
+                  label: true,
+                },
+              },
+            },
+            orderBy: {
+              order: 'asc',
+            },
+          },
         },
       }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
 
+    const mappedTopics = topics.map((topic) => ({
+      ...topic,
+      types: topic.types.map((tag) => ({
+        id: tag.id,
+        label: tag.type.label,
+        kind: tag.kind,
+      })),
+    }));
+
     return NextResponse.json({
-      topics,
-      data: topics,
+      topics: mappedTopics,
+      data: mappedTopics,
       pagination: {
         page,
         limit,

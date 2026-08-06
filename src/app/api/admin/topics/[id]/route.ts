@@ -111,9 +111,17 @@ export async function PATCH(
           id: true,
           slug: true,
           name: true,
-          type: true,
           status: true,
           approvedAt: true,
+          types: {
+            select: {
+              order: true,
+              type: {
+                select: { label: true },
+              },
+            },
+            orderBy: { order: 'asc' },
+          },
         },
       });
 

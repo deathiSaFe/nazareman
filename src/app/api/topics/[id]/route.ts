@@ -42,7 +42,6 @@ export async function GET(
         id: true,
         slug: true,
         name: true,
-        type: true,
         description: true,
         imageUrl: true,
         status: true,
@@ -56,6 +55,20 @@ export async function GET(
                 slug: true,
               },
             },
+          },
+        },
+        types: {
+          select: {
+            id: true,
+            kind: true,
+            type: {
+              select: {
+                label: true,
+              },
+            },
+          },
+          orderBy: {
+            order: 'asc',
           },
         },
       },
@@ -110,11 +123,15 @@ export async function GET(
       id: topic.id,
       slug: topic.slug,
       name: topic.name,
-      type: topic.type,
       description: topic.description,
       imageUrl: topic.imageUrl,
       status: topic.status,
       city: topic.city,
+      types: topic.types.map((tag) => ({
+        id: tag.id,
+        label: tag.type.label,
+        kind: tag.kind,
+      })),
       comments: mappedComments,
     });
   } catch (error) {

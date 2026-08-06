@@ -1,7 +1,7 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
-import { TOPIC_TYPES } from '@/types/topic';
+import { topicTypesLabel } from '@/types/topic';
 
 function getStoredAdminPassword(): string {
   if (typeof window === 'undefined') {
@@ -30,19 +30,11 @@ function getStoredAdminPassword(): string {
 type PendingTopic = {
   id: string;
   name: string;
-  type: string;
+  types: string[];
   description: string;
   cityName: string;
   submittedAt: string;
 };
-
-function getTypeLabel(type: string): string {
-  const found = TOPIC_TYPES.find((topicType) => {
-    return (topicType.id as string) === type;
-  });
-
-  return found?.label ?? type;
-}
 
 function formatPersianDate(value: string): string {
   try {
@@ -136,7 +128,7 @@ export function TopicsModerationClient({
                   </h2>
 
                   <p className="mt-1 text-sm text-ink-500">
-                    {getTypeLabel(topic.type)} · {topic.cityName}
+                    {topicTypesLabel(topic.types)} · {topic.cityName}
                   </p>
 
                   <p className="mt-1 text-xs text-ink-400">

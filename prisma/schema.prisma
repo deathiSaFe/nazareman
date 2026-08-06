@@ -13,15 +13,11 @@ enum UserRole {
   ADMIN
 }
 
-enum TopicType {
-  person
-  business
-  place
-  product
-  education
-  medical
-  organization
-  other
+enum LocationScope {
+  NATIONAL
+  PROVINCE
+  CITY
+  ADDRESS
 }
 
 enum ModerationStatus {
@@ -33,6 +29,11 @@ enum ModerationStatus {
 enum ModerationAction {
   APPROVE
   REJECT
+}
+
+enum TopicTypeKind {
+  PRIMARY
+  SECONDARY
 }
 
 model User {
@@ -54,6 +55,7 @@ model Province {
   slug String @unique
 
   cities City[]
+  topics Topic[]
 
   @@index([name])
   @@index([slug])
@@ -80,25 +82,31 @@ model Topic {
   id            String           @id @default(uuid()) @db.Uuid
   slug          String           @unique
   name          String
-  type          TopicType
   description   String
   imageUrl      String?
+  scope         LocationScope    @default(NATIONAL)
+  provinceId    String?          @db.Uuid
   cityId        String?          @db.Uuid
+  address       String?
+  latitude      Float?
+  longitude     Float?
   status        ModerationStatus @default(PENDING)
   submittedById String?          @db.Uuid
   createdAt     DateTime         @default(now())
   approvedAt    DateTime?
 
-  city        City? @relation(fields: [cityId], references: [id], onDelete: Restrict)
-  submittedBy User? @relation(fields: [submittedById], references: [id], onDelete: SetNull)
+  province    Province? @relation(fields: [provinceId], references: [id], onDelete: Restrict)
+  city        City?     @relation(fields: [cityId], references: [id], onDelete: Restrict)
+  submittedBy User?     @relation(fields: [submittedById], references: [id], onDelete: SetNull)
 
+  types          TopicTypeTag[]
   comments       Comment[]
   submission     Submission?
   moderationLogs ModerationLog[]
 
   @@index([status, createdAt])
-  @@index([cityId, type, status])
-  @@index([type, name, cityId])
+  @@index([scope])
+  @@index([provinceId])
   @@index([name])
   @@index([createdAt])
   @@index([submittedById])
@@ -162,4 +170,59 @@ model ModerationLog {
   @@index([adminId, createdAt])
   @@index([action, createdAt])
   @@index([createdAt])
+}
+
+/**
+ * Canonical topic-type taxonomy. One row per distinct Persian label.
+ *
+ * A topic attaches to these through TopicTypeTag, so a topic can carry
+ * multiple types (one PRIMARY, the rest SECONDARY). The `status` field
+ * governs pool membership:
+ *   - APPROVED  -> offered by the add-topic autocomplete
+ *   - PENDING   -> a label a user entered; awaiting admin review
+ *   - REJECTED  -> reviewed and declined
+ * A topic may reference a PENDING row — the user's custom label is attached
+ * immediately and only the autocomplete eligibility waits for approval.
+ *
+ * FUTURE: synonym & hierarchy support.
+ * `parentId` already models a "type -> more specific type" hierarchy
+ * (e.g. «مکانیکی» -> «مکانیکی خودرو» -> «تعمیرگاه خودرو»). To add synonyms
+ * later, introduce a TopicTypeSynonym table (or a canonicalId self-reference)
+ * mapping alias labels to a canonical type — purely additive, no redesign.
+ */
+model TopicTypeSuggestion {
+  id          String           @id @default(uuid()) @db.Uuid
+  label       String           @unique
+  status      ModerationStatus @default(PENDING)
+  parentId    String?          @db.Uuid
+  parent      TopicTypeSuggestion? @relation("TypeHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    TopicTypeSuggestion[] @relation("TypeHierarchy")
+  submittedAt DateTime         @default(now())
+  decidedAt   DateTime?
+
+  tags TopicTypeTag[]
+
+  @@index([status, submittedAt])
+  @@index([label])
+  @@index([parentId])
+}
+
+/**
+ * A type attached to a topic. Every topic has exactly one PRIMARY tag
+ * (ordered first) and up to `TopicTypeTag`-count secondary tags.
+ */
+model TopicTypeTag {
+  id      String         @id @default(uuid()) @db.Uuid
+  topicId String         @db.Uuid
+  typeId  String         @db.Uuid
+  kind    TopicTypeKind  @default(SECONDARY)
+  order   Int            @default(0)
+
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  type  TopicTypeSuggestion @relation(fields: [typeId], references: [id], onDelete: Restrict)
+
+  @@unique([topicId, typeId])
+  @@index([topicId])
+  @@index([typeId])
+  @@index([typeId, kind])
 }

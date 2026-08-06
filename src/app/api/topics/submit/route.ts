@@ -1,21 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { randomUUID } from 'node:crypto';
 import { prisma } from '@/lib/prisma';
-import type { TopicType } from '@prisma/client';
+import type { LocationScope, TopicTypeKind } from '@/types/topic';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
-const TOPIC_TYPES: readonly TopicType[] = [
-  'person', 'business', 'place', 'product', 'education', 'medical', 'organization', 'other',
-];
+const LOCATION_SCOPES: readonly LocationScope[] = ['NATIONAL', 'PROVINCE', 'CITY', 'ADDRESS'];
 
-const LOCATION_BASED_TYPES: readonly TopicType[] = [
-  'person', 'business', 'place', 'education', 'medical', 'organization',
-];
+const MAX_NAME_LENGTH = 80;
+const MAX_TYPE_LENGTH = 60;
+const MAX_TYPES = 5;
+const MIN_DESCRIPTION_LENGTH = 20;
+const MAX_ADDRESS_LENGTH = 200;
 
-function isTopicType(value: string): value is TopicType {
-  return (TOPIC_TYPES as readonly string[]).includes(value);
+type SubmittedType = {
+  label: string;
+  kind: TopicTypeKind;
+};
+
+function isLocationScope(value: unknown): value is LocationScope {
+  return (
+    typeof value === 'string' &&
+    (LOCATION_SCOPES as readonly string[]).includes(value)
+  );
 }
 
 function isValidHttpUrl(value: string): boolean {
@@ -40,6 +48,69 @@ function slugifyName(value: string): string {
   return slug || 'topic';
 }
 
+/**
+ * Parse and validate the submitted types array (1..5, one PRIMARY).
+ * Normalizes to exactly one primary — the first PRIMARY wins; if none is
+ * provided, the first type becomes PRIMARY.
+ */
+function parseTypes(raw: unknown, errors: string[]): SubmittedType[] {
+  if (!Array.isArray(raw) || raw.length === 0) {
+    errors.push('types must contain at least one type.');
+    return [];
+  }
+
+  if (raw.length > MAX_TYPES) {
+    errors.push(`types must contain at most ${MAX_TYPES} types.`);
+  }
+
+  const types: SubmittedType[] = [];
+  const seen = new Set<string>();
+
+  for (const item of raw) {
+    if (typeof item !== 'object' || item === null) {
+      errors.push('Each type must be an object with label and kind.');
+      continue;
+    }
+
+    const record = item as Record<string, unknown>;
+    const label = typeof record.label === 'string' ? record.label.trim() : '';
+    const kind = record.kind;
+
+    if (!label) {
+      errors.push('type label is required.');
+      continue;
+    }
+
+    if (label.length > MAX_TYPE_LENGTH) {
+      errors.push(`type label must be ${MAX_TYPE_LENGTH} characters or fewer.`);
+      continue;
+    }
+
+    if (kind !== 'PRIMARY' && kind !== 'SECONDARY') {
+      errors.push('type kind must be PRIMARY or SECONDARY.');
+      continue;
+    }
+
+    if (seen.has(label)) {
+      errors.push(`Duplicate type label: "${label}".`);
+      continue;
+    }
+
+    seen.add(label);
+    types.push({ label, kind });
+  }
+
+  const primaryIndex = types.findIndex((type) => type.kind === 'PRIMARY');
+
+  if (primaryIndex > 0) {
+    errors.push('Only one primary type is allowed — the first type must be PRIMARY.');
+  } else if (primaryIndex === -1 && types.length > 0) {
+    types[0].kind = 'PRIMARY';
+  }
+
+  return types;
+}
+
 export async function POST(request: NextRequest) {
   let body: unknown;
 
@@ -57,16 +128,48 @@ export async function POST(request: NextRequest) {
   const errors: string[] = [];
 
   const name = typeof data.name === 'string' ? data.name.trim() : '';
-  const typeParam = typeof data.type === 'string' ? data.type.trim().toLowerCase() : '';
   const description = typeof data.description === 'string' ? data.description.trim() : '';
-  
-  const citySlug = typeof data.citySlug === 'string' ? data.citySlug.trim().toLowerCase() : '';
-  const cityName = typeof data.cityName === 'string' ? data.cityName.trim() : '';
+  const scope = data.scope;
+  const provinceSlug = typeof data.provinceSlug === 'string' ? data.provinceSlug.trim() : '';
+  const citySlug = typeof data.citySlug === 'string' ? data.citySlug.trim() : '';
+  const address = typeof data.address === 'string' ? data.address.trim() : '';
+
+  const types = parseTypes(data.types, errors);
 
   if (!name) errors.push('name is required.');
-  if (!typeParam || !isTopicType(typeParam)) errors.push('type must be a valid topic type.');
+  else if (name.length > MAX_NAME_LENGTH) {
+    errors.push(`name must be ${MAX_NAME_LENGTH} characters or fewer.`);
+  }
+
   if (!description) errors.push('description is required.');
-  else if (description.length < 20) errors.push('description must be at least 20 characters long.');
+  else if (description.length < MIN_DESCRIPTION_LENGTH) {
+    errors.push(`description must be at least ${MIN_DESCRIPTION_LENGTH} characters long.`);
+  }
+
+  if (!isLocationScope(scope)) {
+    errors.push('scope must be a valid location scope.');
+  }
+
+  const locationScope = isLocationScope(scope) ? scope : 'NATIONAL';
+
+  if (locationScope === 'PROVINCE' && !provinceSlug) {
+    errors.push('provinceSlug is required for province scope.');
+  }
+
+  if ((locationScope === 'CITY' || locationScope === 'ADDRESS') && !provinceSlug) {
+    errors.push('provinceSlug is required for city or address scope.');
+  }
+
+  if ((locationScope === 'CITY' || locationScope === 'ADDRESS') && !citySlug) {
+    errors.push('citySlug is required for city or address scope.');
+  }
+
+  if (locationScope === 'ADDRESS') {
+    if (!address) errors.push('address is required for address scope.');
+    else if (address.length > MAX_ADDRESS_LENGTH) {
+      errors.push(`address must be ${MAX_ADDRESS_LENGTH} characters or fewer.`);
+    }
+  }
 
   let imageUrl: string | undefined;
   if (typeof data.imageUrl === 'string' && data.imageUrl.trim()) {
@@ -83,45 +186,76 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Invalid input.', details: errors }, { status: 400 });
   }
 
-  const topicType = typeParam as TopicType;
-  const isLocationBased = LOCATION_BASED_TYPES.includes(topicType);
-
   try {
-    let city = null;
+    let provinceId: string | null = null;
+    let cityId: string | null = null;
 
-    if (citySlug) {
-      city = await prisma.city.findFirst({ where: { slug: citySlug }, select: { id: true } });
-    } 
-    
-    if (!city && cityName) {
-      city = await prisma.city.findFirst({ where: { name: cityName }, select: { id: true } });
+    if (locationScope === 'PROVINCE' || locationScope === 'CITY' || locationScope === 'ADDRESS') {
+      const province = await prisma.province.findUnique({
+        where: { slug: provinceSlug },
+        select: { id: true },
+      });
+
+      if (!province) {
+        return NextResponse.json({ error: 'Province not found.' }, { status: 404 });
+      }
+
+      provinceId = province.id;
     }
 
-    if (!city && isLocationBased) {
-      // Fallback for testing: if location is required but missing/invalid, default to Tehran
-      city = await prisma.city.findFirst({ where: { slug: 'tehran' }, select: { id: true } });
-    }
+    if (locationScope === 'CITY' || locationScope === 'ADDRESS') {
+      const city = await prisma.city.findUnique({
+        where: { provinceId_slug: { provinceId: provinceId as string, slug: citySlug } },
+        select: { id: true },
+      });
 
-    if (!city && isLocationBased) {
-      return NextResponse.json({ error: 'City not found and no default city available.' }, { status: 404 });
+      if (!city) {
+        return NextResponse.json({ error: 'City not found.' }, { status: 404 });
+      }
+
+      cityId = city.id;
     }
 
     const createdTopic = await prisma.$transaction(async (tx) => {
       const baseSlug = slugifyName(name);
-      let slug = `${baseSlug}-${randomUUID().replace(/-/g, '').slice(0, 12)}`;
+      const slug = `${baseSlug}-${randomUUID().replace(/-/g, '').slice(0, 12)}`;
 
       const topic = await tx.topic.create({
         data: {
           slug,
           name,
-          type: topicType,
           description,
           imageUrl,
-          cityId: city?.id || null,
+          scope: locationScope,
+          provinceId,
+          cityId,
+          address: locationScope === 'ADDRESS' ? address : null,
           status: 'PENDING',
         },
         select: { id: true, slug: true },
       });
+
+      // Record each type label as a suggestion (PENDING if brand-new) so new
+      // types land in the admin review queue, then attach it to the topic.
+      for (let index = 0; index < types.length; index += 1) {
+        const type = types[index];
+
+        const suggestion = await tx.topicTypeSuggestion.upsert({
+          where: { label: type.label },
+          update: {},
+          create: { label: type.label, status: 'PENDING' },
+          select: { id: true },
+        });
+
+        await tx.topicTypeTag.create({
+          data: {
+            topicId: topic.id,
+            typeId: suggestion.id,
+            kind: type.kind,
+            order: index,
+          },
+        });
+      }
 
       await tx.submission.create({
         data: { topicId: topic.id, status: 'PENDING' },

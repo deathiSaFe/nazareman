@@ -1,6 +1,6 @@
-import Link from 'next/link';
+﻿import Link from 'next/link';
 import { headers } from 'next/headers';
-import { TOPIC_TYPES, topicHref } from '@/types/topic';
+import { primaryTypeLabel, topicHref } from '@/types/topic';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,24 +20,22 @@ type ApiCity = {
   province: ApiProvince;
 };
 
+type ApiTopicType = {
+  id: string;
+  label: string;
+  kind: 'PRIMARY' | 'SECONDARY';
+};
+
 type ApiTopic = {
   id: string;
   slug: string;
   name: string;
-  type: string;
+  types: ApiTopicType[];
   description: string;
   imageUrl: string | null;
   createdAt: string;
   city: ApiCity | null;
 };
-
-function getTypeLabel(type: string): string {
-  const found = TOPIC_TYPES.find((topicType) => {
-    return (topicType.id as string) === type;
-  });
-
-  return found?.label ?? type;
-}
 
 function getCityLabel(topic: ApiTopic): string {
   const parts = [topic.city?.name, topic.city?.province?.name].filter(Boolean);
@@ -123,9 +121,15 @@ export default async function TopicsPage() {
                     </h2>
 
                     <span className="shrink-0 rounded-full bg-turquoise-600/10 px-3 py-1 text-xs font-bold text-turquoise-700">
-                      {getTypeLabel(topic.type)}
+                      {primaryTypeLabel(topic.types.map((type) => type.label))}
                     </span>
                   </div>
+
+                  {topic.types.length > 1 && (
+                    <p className="mt-1 text-xs font-medium text-ink-400">
+                      {topic.types.slice(1).map((type) => type.label).join('، ')}
+                    </p>
+                  )}
 
                   <p className="mt-1 text-sm text-ink-500">
                     {getCityLabel(topic)}

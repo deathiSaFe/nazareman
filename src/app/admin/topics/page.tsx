@@ -25,7 +25,6 @@ export default async function AdminTopicsPage() {
     select: {
       id: true,
       name: true,
-      type: true,
       description: true,
       createdAt: true,
       city: {
@@ -37,6 +36,17 @@ export default async function AdminTopicsPage() {
             },
           },
         },
+      },
+      types: {
+        select: {
+          order: true,
+          type: {
+            select: {
+              label: true,
+            },
+          },
+        },
+        orderBy: { order: 'asc' },
       },
       submission: {
         select: {
@@ -64,7 +74,7 @@ export default async function AdminTopicsPage() {
     return {
       id: topic.id,
       name: topic.name,
-      type: topic.type,
+      types: topic.types.map((tag) => tag.type.label),
       description: topic.description,
       cityName: cityNameParts.length > 0 ? cityNameParts.join(' · ') : 'بدون شهر',
       submittedAt: (topic.submission?.createdAt ?? topic.createdAt).toISOString(),

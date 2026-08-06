@@ -1,15 +1,21 @@
-'use client';
+﻿'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { SearchIcon } from '@/components/icons';
-import { TOPIC_TYPES } from '@/types/topic';
+import { primaryTypeLabel } from '@/types/topic';
+
+type SearchResultType = {
+  id: string;
+  label: string;
+  kind: 'PRIMARY' | 'SECONDARY';
+};
 
 type SearchResult = {
   id: string;
   slug: string;
   name: string;
-  type: string;
+  types: SearchResultType[];
   description: string;
   city: {
     name: string;
@@ -22,11 +28,6 @@ type SearchResult = {
 };
 
 type SearchState = 'idle' | 'loading' | 'success' | 'error';
-
-function getTypeLabel(type: string): string {
-  const found = TOPIC_TYPES.find((t) => (t.id as string) === type);
-  return found?.label ?? type;
-}
 
 export function SearchSection() {
   const [query, setQuery] = useState('');
@@ -215,14 +216,17 @@ export function SearchSection() {
                       {topic.name}
                     </h3>
                     <p className="mt-1 truncate text-sm text-ink-500">
-                      {getTypeLabel(topic.type)}
+                      {primaryTypeLabel(topic.types.map((type) => type.label))}
+                      {topic.types.length > 1 && (
+                        <> · {topic.types.slice(1).map((type) => type.label).join('، ')}</>
+                      )}
                       {topic.city && (
                         <> · {topic.city.name}</>
                       )}
                     </p>
                   </div>
                   <span className="shrink-0 rounded-full bg-turquoise-600/10 px-3 py-1 text-xs font-bold text-turquoise-700">
-                    {getTypeLabel(topic.type)}
+                    {primaryTypeLabel(topic.types.map((type) => type.label))}
                   </span>
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-600">

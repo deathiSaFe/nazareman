@@ -1,101 +1,167 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeftIcon, CheckIcon, SearchIcon, XIcon } from '@/components/icons';
-import { TOPIC_TYPES, type TopicSearchResult, type TopicType } from '@/types/topic';
-import { TopicTypeGrid } from './TopicTypeGrid';
-import { SimilarTopicsPanel } from './SimilarTopicsPanel';
-import { TopicDetailsForm } from './TopicDetailsForm';
-
-function StepHeading({ step, title, done = false }: { step: string; title: string; done?: boolean }) {
-  return (
-    <div className="flex items-center gap-2.5">
-      <span
-        className={`grid size-7 shrink-0 place-items-center rounded-full text-[13px] font-extrabold transition-all duration-300 ${
-          done ? 'bg-turquoise-600 text-white shadow-sm shadow-turquoise-600/40' : 'bg-turquoise-600/10 text-turquoise-700'
-        }`}
-      >
-        {done ? <CheckIcon strokeWidth={3} className="size-3.5" /> : step}
-      </span>
-      <h2 className="text-[15px] font-extrabold text-ink-900">{title}</h2>
-    </div>
-  );
-}
+import {
+  activityAreaLabel,
+  type ActivityAreaValue,
+  type DuplicateTopic,
+  type SelectedTopicType,
+} from '@/types/topic';
+import { TopicTypesField } from './TopicTypesField';
+import { ActivityAreaPicker } from './ActivityAreaPicker';
+import { DuplicateReviewPanel } from './DuplicateReviewPanel';
+import { TopicDescriptionForm } from './TopicDescriptionForm';
 
 interface AddTopicFlowProps {
   className?: string;
   initialName?: string;
 }
 
+type Step = 'identity' | 'review' | 'details';
+
+const NAME_EXAMPLES = [
+  'مکانیکی علی',
+  'دبیرستان البرز',
+  'رستوران شب‌های شیراز',
+  'دکتر احمدی',
+  'آموزشگاه زبان سفیر',
+];
+
+const ROTATE_INTERVAL_MS = 4000;
+
+const fieldLabelClass = 'mb-3 block text-[13px] font-bold text-ink-900';
+
+const nameInputClass =
+  'h-16 w-full rounded-[22px] bg-white px-5 text-[17px] font-medium text-ink-900 caret-turquoise-700 outline-none ring-1 ring-ink-900/10 transition-all duration-200 placeholder:font-normal placeholder:text-ink-900/30 focus:shadow-[0_10px_28px_-12px_rgba(26,99,93,0.35)] focus:ring-2 focus:ring-turquoise-600/70 md:h-[68px]';
+
 export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowProps) {
   const router = useRouter();
 
-  const [type, setType] = useState<TopicType | null>(null);
-  const [query, setQuery] = useState(initialName);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [results, setResults] = useState<TopicSearchResult[]>([]);
-  const [showDetails, setShowDetails] = useState(false);
-  const [name, setName] = useState('');
-  const [nameTouched, setNameTouched] = useState(false);
-  const [city, setCity] = useState('');
+  const [step, setStep] = useState<Step>('identity');
+
+  // Identity
+  const [name, setName] = useState(initialName);
+  const [types, setTypes] = useState<SelectedTopicType[]>([]);
+  const [activity, setActivity] = useState<ActivityAreaValue>({
+    scope: 'NATIONAL',
+  });
+  const [identityError, setIdentityError] = useState<string | null>(null);
+
+  // Duplicate detection
+  const [checking, setChecking] = useState(false);
+  const [duplicates, setDuplicates] = useState<DuplicateTopic[]>([]);
+
+  // Details
   const [description, setDescription] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const searchStepRef = useRef<HTMLDivElement>(null);
-  const detailsStepRef = useRef<HTMLDivElement>(null);
-  const scrolledToSearch = useRef(false);
-  const scrolledToDetails = useRef(false);
+  // Rotating name placeholder
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
-  const trimmedQuery = query.trim();
-  const hasResults = results.length > 0;
-  const selectedType = TOPIC_TYPES.find((t) => t.id === type) ?? null;
-
-  /* The search field doubles as the future topic name —
-     keep them synced until the user edits the name field manually. */
-  useEffect(() => {
-    if (!nameTouched) setName(trimmedQuery);
-  }, [trimmedQuery, nameTouched]);
-
-  /* Gently bring each newly revealed step into view (once). */
-  useEffect(() => {
-    if (!type || scrolledToSearch.current) return;
-    scrolledToSearch.current = true;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    searchStepRef.current?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
-  }, [type]);
+  const topRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!showDetails || scrolledToDetails.current) return;
-    scrolledToDetails.current = true;
-    detailsStepRef.current?.scrollIntoView({ behavior: 'auto', block: 'nearest' });
-  }, [showDetails]);
+    const interval = window.setInterval(() => {
+      setPlaceholderIndex((index) => (index + 1) % NAME_EXAMPLES.length);
+    }, ROTATE_INTERVAL_MS);
 
-  /** Triggered by Enter / the phone keyboard's search key. */
-  function handleSearch(event?: FormEvent) {
-    event?.preventDefault();
-    if (!trimmedQuery) return;
-    // TODO(duplicate-search): call the topics search endpoint with `trimmedQuery`
-    // and store the hits: setResults(response.topics).
-    setResults([]);
-    setHasSearched(true);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  // Bring the new step into view — the Continue button sits below the fold.
+  useEffect(() => {
+    if (step === 'identity') return;
+    topRef.current?.scrollIntoView({ block: 'start' });
+  }, [step]);
+
+  function validateIdentity(): string | null {
+    if (!name.trim()) return 'نام موضوع را وارد کنید.';
+
+    if (types.length === 0) return 'نوع موضوع را انتخاب کنید.';
+
+    if (activity.scope === 'PROVINCE' && !activity.provinceSlug) {
+      return 'استان را انتخاب کنید.';
+    }
+
+    if (
+      (activity.scope === 'CITY' || activity.scope === 'ADDRESS') &&
+      !activity.provinceSlug
+    ) {
+      return 'استان را انتخاب کنید.';
+    }
+
+    if (
+      (activity.scope === 'CITY' || activity.scope === 'ADDRESS') &&
+      !activity.citySlug
+    ) {
+      return 'شهر را انتخاب کنید.';
+    }
+
+    if (activity.scope === 'ADDRESS' && !activity.address?.trim()) {
+      return 'نشانی خیابان را وارد کنید.';
+    }
+
+    return null;
   }
 
-  /** Explicit continue — Step 3 never reveals on its own. */
-  function handleContinue() {
-    if (!trimmedQuery) return;
-    setShowDetails(true);
+  async function handleContinue() {
+    const validationError = validateIdentity();
+
+    if (validationError) {
+      setIdentityError(validationError);
+      return;
+    }
+
+    setIdentityError(null);
+    setChecking(true);
+
+    try {
+      const response = await fetch('/api/topics/duplicates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          types: types.map((type) => type.label),
+          scope: activity.scope,
+          provinceSlug: activity.provinceSlug,
+          citySlug: activity.citySlug,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Duplicate check failed');
+      }
+
+      const payload = await response.json();
+      const matches: DuplicateTopic[] = payload.duplicates ?? [];
+
+      if (matches.length > 0) {
+        setDuplicates(matches);
+        setStep('review');
+      } else {
+        setStep('details');
+      }
+    } catch {
+      // Never block the user — if the duplicate check fails, continue.
+      setStep('details');
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  function handleOpenTopic(duplicate: DuplicateTopic) {
+    router.push(
+      `/topic/${duplicate.status === 'APPROVED' ? duplicate.slug : duplicate.id}`
+    );
   }
 
   async function handleSubmit() {
-    if (!type || isSubmitting) return;
-
     const trimmedDescription = description.trim();
-    
-    // Frontend validation: Minimum 20 characters
+
     if (trimmedDescription.length < 20) {
-      setSubmitError('توضیحات باید حداقل ۲۰ کاراکتر باشد.');
+      setSubmitError('توضیح باید حداقل ۲۰ حرف باشد.');
       return;
     }
 
@@ -104,11 +170,12 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
 
     const payload = {
       name: name.trim(),
-      type,
+      types: types.map((type) => ({ label: type.label, kind: type.kind })),
       description: trimmedDescription,
-      cityName: city.trim(),
-      imageUrl: '',
-      firstComment: '',
+      scope: activity.scope,
+      provinceSlug: activity.provinceSlug,
+      citySlug: activity.citySlug,
+      address: activity.address?.trim(),
     };
 
     try {
@@ -134,110 +201,85 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
   }
 
   return (
-    <div className={className}>
-      {/* ——— step 1 · topic type ——— */}
-      <section aria-label="انتخاب نوع موضوع">
-        <StepHeading step="۱" title="نوع موضوع را انتخاب کنید" done={!!type} />
-        <TopicTypeGrid value={type} onChange={setType} className="mt-4" />
-      </section>
-
-      {type && (
-        <div ref={searchStepRef} className="mt-10 animate-fade-up motion-reduce:animate-none">
-          {/* ——— step 2 · name + duplicate check ——— */}
-          <section aria-label="نام موضوع">
-            <StepHeading step="۲" title="نام موضوع را وارد کنید" done={showDetails} />
-
-            <form
-              role="search"
-              onSubmit={handleSearch}
-              className="group mt-4 flex items-center gap-3 rounded-[22px] bg-white pe-3 ps-5 ring-1 ring-ink-900/[0.06]
-                         shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)] transition-all duration-300
-                         focus-within:-translate-y-0.5 focus-within:ring-2 focus-within:ring-turquoise-600/70 focus-within:shadow-[0_18px_40px_-16px_rgba(26,99,93,0.45)]"
-            >
-              <SearchIcon
-                strokeWidth={2.2}
-                className="size-5 shrink-0 text-ink-900/30 transition-colors group-focus-within:text-turquoise-700"
-              />
+    <div ref={topRef} className={className}>
+      {step === 'identity' && (
+        <form onSubmit={(event) => {
+          event.preventDefault();
+          void handleContinue();
+        }} noValidate>
+          <div className="space-y-8">
+            <label className="block">
+              <span className={fieldLabelClass}>نام موضوع</span>
               <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="نام موضوع را وارد کنید..."
+                type="text"
+                value={name}
+                onChange={(event) => {
+                  setName(event.target.value);
+                  setIdentityError(null);
+                }}
+                placeholder={NAME_EXAMPLES[placeholderIndex]}
                 aria-label="نام موضوع"
-                enterKeyHint="search"
+                enterKeyHint="next"
                 autoComplete="off"
-                className="h-14 w-full min-w-0 bg-transparent text-[15px] font-medium text-ink-900 caret-turquoise-700 outline-none placeholder:font-normal placeholder:text-ink-900/35 md:h-[60px] [&::-webkit-search-cancel-button]:hidden"
+                className={nameInputClass}
               />
-              {query.length > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setQuery('')}
-                  aria-label="پاک کردن متن"
-                  className="grid size-7 shrink-0 place-items-center rounded-full text-ink-900/35 transition-colors hover:bg-ink-900/5 hover:text-ink-900/70"
-                >
-                  <XIcon strokeWidth={2.4} className="size-3.5" />
-                </button>
-              )}
-            </form>
+            </label>
 
-            {/* duplicate detection — mounts only after an explicit search */}
-            {hasSearched && (
-              <SimilarTopicsPanel results={results} className="mt-4 animate-fade-up motion-reduce:animate-none" />
-            )}
+            <TopicTypesField
+              value={types}
+              onChange={(next) => {
+                setTypes(next);
+                setIdentityError(null);
+              }}
+              onQueryChange={() => setIdentityError(null)}
+            />
 
-            {/* explicit continue — Step 3 never appears automatically */}
-            {!showDetails && (
-              <div className="mt-5 flex justify-center">
-                <button
-                  type="button"
-                  onClick={handleContinue}
-                  disabled={!trimmedQuery}
-                  className={`inline-flex items-center gap-2 rounded-full px-7 py-3 text-sm font-bold transition-all duration-200
-                              hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]
-                              disabled:pointer-events-none disabled:opacity-40
-                              focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-turquoise-600/60 ${
-                                hasResults
-                                  ? 'border border-ink-900/15 bg-white/80 text-ink-900/60 hover:border-turquoise-600/40 hover:text-turquoise-700'
-                                  : 'bg-turquoise-600 text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] hover:bg-turquoise-700 hover:shadow-[0_14px_30px_-10px_rgba(26,99,93,0.6)]'
-                              }`}
-                >
-                  {hasResults ? 'موضوع جدید است، ادامه می‌دهم' : 'ادامه'}
-                  <ArrowLeftIcon strokeWidth={2.4} className="size-4" />
-                </button>
-              </div>
-            )}
-          </section>
+            <ActivityAreaPicker
+              value={activity}
+              onChange={(next) => {
+                setActivity(next);
+                setIdentityError(null);
+              }}
+            />
+          </div>
 
-          {showDetails && (
-            <div ref={detailsStepRef} className="mt-10 animate-fade-up motion-reduce:animate-none">
-              {/* ——— step 3 · minimal details + submit ——— */}
-                            <section aria-label="تکمیل اطلاعات">
-                <StepHeading step="۳" title="تکمیل اطلاعات" />
-                
-                {submitError && (
-                  <p className="mt-4 text-sm font-bold text-red-600" role="alert">
-                    {submitError}
-                  </p>
-                )}
-
-                <TopicDetailsForm
-                  className="mt-4"
-                  name={name}
-                  onNameChange={(value) => {
-                    setName(value);
-                    setNameTouched(true);
-                  }}
-                  city={city}
-                  onCityChange={setCity}
-                  description={description}
-                  onDescriptionChange={setDescription}
-                  showCityField={selectedType?.locationBased ?? false}
-                  onSubmit={handleSubmit}
-                />
-              </section>
-            </div>
+          {identityError && (
+            <p role="alert" className="mt-6 text-sm font-bold text-red-600">
+              {identityError}
+            </p>
           )}
-        </div>
+
+          <button
+            type="submit"
+            disabled={checking}
+            className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-turquoise-600 px-7 py-4 text-[15px] font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50"
+          >
+            {checking ? 'بررسی موضوع مشابه...' : 'ادامه'}
+          </button>
+        </form>
+      )}
+
+      {step === 'review' && (
+        <DuplicateReviewPanel
+          duplicates={duplicates}
+          onSelect={handleOpenTopic}
+          onContinue={() => setStep('details')}
+          onBack={() => setStep('identity')}
+        />
+      )}
+
+      {step === 'details' && (
+        <TopicDescriptionForm
+          name={name.trim()}
+          types={types.map((type) => type.label)}
+          locationLabel={activityAreaLabel(activity)}
+          description={description}
+          onDescriptionChange={setDescription}
+          onSubmit={() => void handleSubmit()}
+          onEdit={() => setStep('identity')}
+          isSubmitting={isSubmitting}
+          submitError={submitError}
+        />
       )}
     </div>
   );

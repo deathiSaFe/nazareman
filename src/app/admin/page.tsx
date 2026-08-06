@@ -46,6 +46,13 @@ export default async function AdminPage() {
           >
             بررسی نظرات
           </Link>
+
+          <Link
+            href="/admin/types"
+            className="rounded-3xl bg-white p-6 text-center font-display text-xl text-turquoise-700 ring-1 ring-ink-900/[0.06] transition-all hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-16px_rgba(26,99,93,0.45)]"
+          >
+            بررسی نوع‌های جدید
+          </Link>
         </div>
       </div>
     </main>
