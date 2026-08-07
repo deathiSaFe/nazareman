@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   activityAreaLabel,
@@ -62,8 +62,6 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
   // Rotating name placeholder
   const [placeholderIndex, setPlaceholderIndex] = useState(0);
 
-  const topRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const interval = window.setInterval(() => {
       setPlaceholderIndex((index) => (index + 1) % NAME_EXAMPLES.length);
@@ -72,10 +70,12 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
     return () => window.clearInterval(interval);
   }, []);
 
-  // Bring the new step into view — the Continue button sits below the fold.
+  // Open each new step at the top of the page. `scrollIntoView` would align
+  // the flow's top to the viewport top, hiding it under the sticky header —
+  // so reset the window scroll instead.
   useEffect(() => {
     if (step === 'identity') return;
-    topRef.current?.scrollIntoView({ block: 'start' });
+    window.scrollTo(0, 0);
   }, [step]);
 
   function validateIdentity(): string | null {
@@ -195,7 +195,7 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
   }
 
   return (
-    <div ref={topRef} className={className}>
+    <div className={className}>
       {step === 'identity' && (
         <form onSubmit={(event) => {
           event.preventDefault();

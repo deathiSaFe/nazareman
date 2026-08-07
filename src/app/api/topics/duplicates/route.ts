@@ -135,10 +135,20 @@ export async function POST(request: NextRequest) {
         ? { OR: [{ provinceId }, { cityId: null, provinceId: null }] }
         : { cityId: null, provinceId: null };
 
+    // Hard pre-filter: the PRIMARY type must match exactly, so a «پزشک» page
+    // is never a candidate for a «کافی‌شاپ» query. (This is a loose superset —
+    // the in-memory gate still requires the ordered-first type to match.)
+    const primaryType = types[0];
+
     const candidates = await prisma.topic.findMany({
       where: {
         status: { in: ['APPROVED', 'PENDING'] },
         ...locationFilter,
+        types: {
+          some: {
+            type: { label: primaryType },
+          },
+        },
       },
       orderBy: { createdAt: 'desc' },
       take: CANDIDATE_LIMIT,

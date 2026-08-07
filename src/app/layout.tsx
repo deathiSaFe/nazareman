@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Vazirmatn } from 'next/font/google';
 import './globals.css';
 import SiteHeader from '@/components/layout/SiteHeader';
+import { ScrollToTop } from '@/components/layout/ScrollToTop';
 
 const vazirmatn = Vazirmatn({ subsets: ['arabic'] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="fa" dir="rtl" suppressHydrationWarning>
       <body className={vazirmatn.className}>
+        <ScrollToTop />
         <SiteHeader />
         <main className="min-h-[calc(100vh-4rem)]">
           {children}
