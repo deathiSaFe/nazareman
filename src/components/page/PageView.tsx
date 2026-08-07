@@ -76,6 +76,19 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
+/** Compact Persian date for a comment timestamp. */
+function formatCommentDate(value: string): string {
+  try {
+    return new Date(value).toLocaleDateString('fa-IR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  } catch {
+    return '';
+  }
+}
+
 /** A compact, inviting add-action — used for empty sections. */
 function CompactInvite({ label, onClick }: { label: string; onClick: () => void }) {
   return (
@@ -146,11 +159,13 @@ function ContactRow({
   label,
   value,
   href,
+  onRemove,
 }: {
   icon: string;
   label: string;
   value: string;
   href?: string;
+  onRemove?: () => void;
 }) {
   return (
     <div className="flex items-center gap-3 py-2.5">
@@ -172,6 +187,16 @@ function ContactRow({
           value
         )}
       </span>
+      {onRemove && (
+        <button
+          type="button"
+          onClick={onRemove}
+          aria-label={`حذف ${label}`}
+          className="grid size-7 shrink-0 place-items-center rounded-full text-ink-900/40 transition-colors hover:bg-ink-900/5 hover:text-ink-900/70"
+        >
+          <XIcon strokeWidth={2.4} className="size-3.5" />
+        </button>
+      )}
     </div>
   );
 }
@@ -495,7 +520,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {(admin || status !== 'APPROVED') && (
         <div className="flex justify-center">
           <span
@@ -529,49 +554,62 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
         {/* ——— Cover: image is the dominant visual ——— */}
         <div className="relative">
           {imageUrl ? (
-            /* eslint-disable-next-line @next/next/no-img-element */
-            <img
-              src={imageUrl}
-              alt={name}
-              className="h-52 w-full object-cover md:h-72"
-            />
-          ) : (
-            <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-turquoise-900 via-turquoise-800 to-ink-900 md:h-52">
-              {editable && !imageOpen && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageUrl}
+                alt={name}
+                className="h-52 w-full object-cover md:h-72"
+              />
+
+              {/* Readability gradient spans the whole cover so the name stays
+                  legible regardless of the image. */}
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/65 via-black/25 to-transparent" />
+
+              {/* Name (dominant) + primary type (small tag above it) */}
+              <div className="absolute inset-x-0 top-0 flex flex-col items-start gap-3 p-5 md:p-7">
+                <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-ink-900 shadow-sm md:text-xs">
+                  {types[0]?.label ?? 'بدون نوع'}
+                </span>
+                <h1 className="font-display text-[26px] leading-9 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)] md:text-4xl md:leading-[3rem]">
+                  {name}
+                </h1>
+              </div>
+
+              {editable && (
                 <button
                   type="button"
                   onClick={() => setImageOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-[13px] font-bold text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25"
+                  className="absolute bottom-3 right-4 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-4 py-2 text-[12px] font-bold text-white ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-black/60"
                 >
-                  <PlusIcon strokeWidth={2.6} className="size-4" />
-                  افزودن تصویر
+                  <PenIcon strokeWidth={2.2} className="size-3.5" />
+                  ویرایش تصویر
                 </button>
               )}
+            </>
+          ) : (
+            <div className="flex min-h-44 flex-col bg-gradient-to-br from-turquoise-900 via-turquoise-800 to-ink-900 px-5 pb-6 pt-5 md:min-h-56 md:px-7 md:pb-7 md:pt-7">
+              <span className="self-start rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold text-white ring-1 ring-white/20 backdrop-blur md:text-xs">
+                {types[0]?.label ?? 'بدون نوع'}
+              </span>
+
+              <h1 className="mt-3 font-display text-[26px] leading-9 text-white md:text-4xl md:leading-[3rem]">
+                {name}
+              </h1>
+
+              <div className="mt-auto flex justify-center pt-6">
+                {editable && !imageOpen && (
+                  <button
+                    type="button"
+                    onClick={() => setImageOpen(true)}
+                    className="inline-flex items-center gap-2 rounded-full bg-white/15 px-5 py-2.5 text-[13px] font-bold text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25"
+                  >
+                    <PlusIcon strokeWidth={2.6} className="size-4" />
+                    افزودن تصویر
+                  </button>
+                )}
+              </div>
             </div>
-          )}
-
-          {/* readability gradient behind the name */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 via-black/25 to-transparent" />
-
-          {/* name (top-right) + type (top-left) */}
-          <div className="absolute inset-x-0 top-0 flex items-start justify-between gap-3 p-4 md:p-6">
-            <h1 className="max-w-[72%] font-display text-[26px] leading-10 text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)] md:text-4xl md:leading-[3rem]">
-              {name}
-            </h1>
-            <span className="shrink-0 rounded-full bg-white/95 px-3.5 py-1.5 text-xs font-bold text-ink-900 shadow-sm">
-              {types[0]?.label ?? 'بدون نوع'}
-            </span>
-          </div>
-
-          {imageUrl && editable && (
-            <button
-              type="button"
-              onClick={() => setImageOpen(true)}
-              className="absolute bottom-3 right-4 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-4 py-2 text-[12px] font-bold text-white ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-black/60"
-            >
-              <PenIcon strokeWidth={2.2} className="size-3.5" />
-              ویرایش تصویر
-            </button>
           )}
         </div>
 
@@ -592,7 +630,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
 
           {/* Secondary types — subtle chips */}
           {secondaryTypes.length > 0 && (
-            <div className="mb-5 flex flex-wrap gap-1.5">
+            <div className="mb-4 flex flex-wrap gap-1.5">
               {secondaryTypes.map((type, index) => (
                 <span
                   key={`${type.label}-${index}`}
@@ -740,6 +778,8 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
 
           {/* ——— Section 2 · Important information ——— */}
           <section className="border-b border-ink-900/[0.08] py-4">
+            <SectionTitle>اطلاعات مهم</SectionTitle>
+
             <div className="divide-y divide-ink-900/[0.06]">
               {/* Service area */}
               <div className="flex items-baseline justify-between gap-4 py-2.5">
@@ -822,30 +862,13 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
                   />
                 )}
                 {socialLinks.map((link, index) => (
-                  <div key={index} className="flex items-center gap-3 py-2.5">
-                    <span aria-hidden className="w-6 shrink-0 text-center text-[15px]">
-                      {PLATFORM_SYMBOL[link.platform]}
-                    </span>
-                    <span className="shrink-0 text-[13px] font-medium text-ink-500">
-                      {CONTACT_PLATFORM_LABELS[link.platform]}
-                    </span>
-                    <span
-                      dir="ltr"
-                      className="min-w-0 flex-1 truncate text-end text-[14px] font-semibold text-ink-900"
-                    >
-                      {link.value}
-                    </span>
-                    {editable && (
-                      <button
-                        type="button"
-                        onClick={() => void removeLink(index)}
-                        aria-label={`حذف ${CONTACT_PLATFORM_LABELS[link.platform]}`}
-                        className="grid size-7 shrink-0 place-items-center rounded-full text-ink-900/40 transition-colors hover:bg-ink-900/5 hover:text-ink-900/70"
-                      >
-                        <XIcon strokeWidth={2.4} className="size-3.5" />
-                      </button>
-                    )}
-                  </div>
+                  <ContactRow
+                    key={`${link.platform}-${index}`}
+                    icon={PLATFORM_SYMBOL[link.platform]}
+                    label={CONTACT_PLATFORM_LABELS[link.platform]}
+                    value={link.value}
+                    onRemove={editable ? () => void removeLink(index) : undefined}
+                  />
                 ))}
               </div>
             ) : editable ? (
@@ -969,7 +992,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
       </article>
 
       {/* ————————————————— COMMENTS FRAME ————————————————— */}
-      <section className="rounded-[28px] bg-white p-5 ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)] md:p-7">
+      <section className="rounded-[28px] bg-white p-5 ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)] md:p-6">
         <div className="flex items-center justify-between gap-3">
           <h2 className="font-display text-xl text-ink-900">نظرات</h2>
           <button
@@ -1026,7 +1049,12 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
                         {comment.body}
                       </p>
 
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                        {comment.createdAt && (
+                          <span className="text-[11px] text-ink-400">
+                            {formatCommentDate(comment.createdAt)}
+                          </span>
+                        )}
                         {comment.status === 'PENDING' && (
                           <span className="rounded-full bg-red-600/10 px-2.5 py-0.5 text-[12px] font-bold text-red-700">
                             در انتظار بررسی
