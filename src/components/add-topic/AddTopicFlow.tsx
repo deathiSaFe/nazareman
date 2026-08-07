@@ -21,19 +21,22 @@ interface AddTopicFlowProps {
 type Step = 'identity' | 'review' | 'details';
 
 const NAME_EXAMPLES = [
-  'مکانیکی علی',
-  'دبیرستان البرز',
-  'رستوران شب‌های شیراز',
+  'علی مکانیکی',
+  'رستوران حاج رضا',
+  'کتاب‌فروشی مهر',
   'دکتر احمدی',
-  'آموزشگاه زبان سفیر',
+  'مدرسه فرهنگ',
+  'کافی‌شاپ آفتاب',
+  'فروشگاه موبایل پارس',
 ];
 
 const ROTATE_INTERVAL_MS = 4000;
 
-const fieldLabelClass = 'mb-3 block text-[13px] font-bold text-ink-900';
+const fieldLabelClass = 'mb-2 block text-[13px] font-bold text-ink-900';
 
+// Matches the type field's bar height / radius / text size exactly.
 const nameInputClass =
-  'h-16 w-full rounded-[22px] bg-white px-5 text-[17px] font-medium text-ink-900 caret-turquoise-700 outline-none ring-1 ring-ink-900/10 transition-all duration-200 placeholder:font-normal placeholder:text-ink-900/30 focus:shadow-[0_10px_28px_-12px_rgba(26,99,93,0.35)] focus:ring-2 focus:ring-turquoise-600/70 md:h-[68px]';
+  'h-14 w-full rounded-[22px] bg-white px-5 text-[15px] font-medium text-ink-900 caret-turquoise-700 outline-none ring-1 ring-ink-900/10 transition-all duration-200 placeholder:font-normal placeholder:text-ink-900/30 focus:shadow-[0_10px_28px_-12px_rgba(26,99,93,0.35)] focus:ring-2 focus:ring-turquoise-600/70';
 
 export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowProps) {
   const router = useRouter();
@@ -198,7 +201,7 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
           event.preventDefault();
           void handleContinue();
         }} noValidate>
-          <div className="space-y-8">
+          <div className="space-y-4">
             <label className="block">
               <span className={fieldLabelClass}>نام موضوع</span>
               <input
@@ -235,7 +238,7 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
           </div>
 
           {identityError && (
-            <p role="alert" className="mt-6 text-sm font-bold text-red-600">
+            <p role="alert" className="mt-4 text-sm font-bold text-red-600">
               {identityError}
             </p>
           )}
@@ -243,7 +246,7 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
           <button
             type="submit"
             disabled={checking}
-            className="mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-turquoise-600 px-7 py-4 text-[15px] font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50"
+            className="mt-5 flex w-full items-center justify-center gap-2 rounded-full bg-turquoise-600 px-7 py-3 text-[15px] font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50"
           >
             {checking ? 'بررسی موضوع مشابه...' : 'ادامه'}
           </button>

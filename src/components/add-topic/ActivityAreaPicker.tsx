@@ -32,10 +32,10 @@ type CityOption = {
 const SCOPES: readonly LocationScope[] = ['NATIONAL', 'PROVINCE', 'CITY', 'ADDRESS'];
 
 const selectClass =
-  'h-14 w-full rounded-[22px] bg-white px-5 text-[15px] font-medium text-ink-900 outline-none ring-1 ring-ink-900/10 transition-all duration-200 focus:ring-2 focus:ring-turquoise-600/70 focus:shadow-[0_10px_28px_-12px_rgba(26,99,93,0.35)] disabled:opacity-50';
+  'h-12 w-full rounded-2xl bg-white px-4 text-[14px] font-medium text-ink-900 outline-none ring-1 ring-ink-900/10 transition-all duration-200 focus:ring-2 focus:ring-turquoise-600/70 focus:shadow-[0_10px_28px_-12px_rgba(26,99,93,0.35)] disabled:opacity-50';
 
 const inputClass =
-  'w-full rounded-[22px] bg-white px-5 py-4 text-[15px] font-medium text-ink-900 outline-none ring-1 ring-ink-900/10 transition-all duration-200 placeholder:font-normal placeholder:text-ink-900/30 focus:shadow-[0_10px_28px_-12px_rgba(26,99,93,0.35)] focus:ring-2 focus:ring-turquoise-600/70';
+  'w-full rounded-2xl bg-white px-4 py-3 text-[14px] font-medium text-ink-900 outline-none ring-1 ring-ink-900/10 transition-all duration-200 placeholder:font-normal placeholder:text-ink-900/30 focus:shadow-[0_10px_28px_-12px_rgba(26,99,93,0.35)] focus:ring-2 focus:ring-turquoise-600/70';
 
 export function ActivityAreaPicker({
   value,
@@ -146,15 +146,15 @@ export function ActivityAreaPicker({
   return (
     <div className={className}>
       <fieldset>
-        <legend className="mb-3 block text-[13px] font-bold text-ink-900">
+        <legend className="mb-2 block text-[13px] font-bold text-ink-900">
           این مورد در چه محدوده‌ای فعالیت می‌کند؟
         </legend>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {SCOPES.map((item) => (
             <label
               key={item}
-              className={`flex cursor-pointer items-center gap-3 rounded-[18px] px-5 py-4 ring-1 transition-all duration-200 ${
+              className={`flex cursor-pointer items-center gap-2.5 rounded-2xl px-4 py-2.5 ring-1 transition-all duration-200 ${
                 scope === item
                   ? 'bg-turquoise-50 ring-2 ring-turquoise-600'
                   : 'bg-white ring-ink-900/10 hover:ring-turquoise-600/40'
@@ -168,7 +168,7 @@ export function ActivityAreaPicker({
                 onChange={() => selectScope(item)}
                 className="size-4 shrink-0 accent-turquoise-600"
               />
-              <span className="text-[14px] font-semibold text-ink-900">
+              <span className="text-[13px] font-semibold text-ink-900">
                 {LOCATION_SCOPE_LABELS[item]}
               </span>
             </label>
@@ -177,7 +177,7 @@ export function ActivityAreaPicker({
       </fieldset>
 
       {showProvince && (
-        <div className="mt-4 space-y-4">
+        <div className="mt-3 space-y-3">
           <label className="block">
             <span className="mb-2 block text-[13px] font-bold text-ink-900">کشور</span>
             <div className="relative">
@@ -258,7 +258,7 @@ export function ActivityAreaPicker({
           {showAddressInput && (
             <div
               aria-hidden="true"
-              className="flex items-center gap-3 rounded-[18px] bg-ink-900/[0.03] px-5 py-4 ring-1 ring-ink-900/[0.06]"
+              className="flex items-center gap-3 rounded-2xl bg-ink-900/[0.03] px-4 py-3 ring-1 ring-ink-900/[0.06]"
             >
               <MapPinIcon className="size-5 shrink-0 text-ink-900/30" />
               <p className="text-[13px] leading-6 text-ink-900/45">

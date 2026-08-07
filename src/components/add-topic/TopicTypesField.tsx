@@ -61,7 +61,7 @@ export function TopicTypesField({
   return (
     <div className={className}>
       {value.length > 0 && (
-        <div className="mb-3 flex flex-wrap items-center gap-2">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
           {value.map((type, index) => {
             const isPrimary = type.kind === 'PRIMARY';
             const removable = value.length > 1 || !isPrimary;
@@ -100,21 +100,12 @@ export function TopicTypesField({
         </div>
       )}
 
-      <span className="mb-3 block text-[13px] font-bold text-ink-900">
+      <span className="mb-2 block text-[13px] font-bold text-ink-900">
         {value.length === 0 ? 'نوع موضوع' : 'افزودن نوع دیگر'}
       </span>
 
       {canAddMore ? (
-        <TypeAutocomplete
-          value=""
-          onChange={handleAdd}
-          onQueryChange={onQueryChange}
-          placeholder={
-            value.length === 0
-              ? 'مثلاً: مکانیکی خودرو، استاد زبان'
-              : 'مثلاً: جلوبندی، تعویض روغن'
-          }
-        />
+        <TypeAutocomplete value="" onChange={handleAdd} onQueryChange={onQueryChange} />
       ) : (
         <p className="mt-2 text-[13px] font-medium text-ink-500">
           حداکثر {MAX_TYPES} نوع می‌توانید برای یک موضوع انتخاب کنید.

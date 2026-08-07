@@ -14,9 +14,9 @@ export default async function AddTopicPage({
   const { name } = await searchParams;
 
   return (
-    <main className="min-h-screen bg-paper pb-20">
-      <div className="mx-auto w-full max-w-2xl px-5 pt-10">
-        <header className="mb-8 text-center">
+    <main className="min-h-screen bg-paper pb-10">
+      <div className="mx-auto w-full max-w-2xl px-5 pt-6">
+        <header className="mb-5 text-center">
           <p className="mx-auto max-w-md text-[15px] font-light leading-7 text-ink-600 md:text-base">
             موضوعی را معرفی کنید تا دیگران بتوانند درباره آن نظر بدهند.
           </p>

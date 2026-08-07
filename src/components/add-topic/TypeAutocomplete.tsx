@@ -10,17 +10,27 @@ interface TypeAutocompleteProps {
   onChange: (label: string) => void;
   /** Fired on every keystroke so the parent can clear validation state. */
   onQueryChange?: (query: string) => void;
-  placeholder?: string;
   className?: string;
 }
 
 const DEBOUNCE_MS = 300;
+const ROTATE_INTERVAL_MS = 4000;
+
+const TYPE_EXAMPLES = [
+  'مکانیکی خودرو',
+  'رستوران',
+  'دندان‌پزشک',
+  'مدرسه',
+  'استاد دانشگاه',
+  'فروشگاه موبایل',
+  'کافی‌شاپ',
+  'پیرایشگاه',
+];
 
 export function TypeAutocomplete({
   value,
   onChange,
   onQueryChange,
-  placeholder = 'مثلاً: مکانیکی خودرو، استاد زبان',
   className = '',
 }: TypeAutocompleteProps) {
   const [query, setQuery] = useState(value);
@@ -35,6 +45,17 @@ export function TypeAutocomplete({
   const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // Rotating placeholder — same behaviour as the topic-name field.
+  const [placeholderIndex, setPlaceholderIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      setPlaceholderIndex((index) => (index + 1) % TYPE_EXAMPLES.length);
+    }, ROTATE_INTERVAL_MS);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   const trimmedQuery = query.trim();
   const normalizedQuery = normalizePersian(trimmedQuery);
@@ -276,10 +297,10 @@ export function TypeAutocomplete({
           aria-autocomplete="list"
           aria-controls="topic-type-listbox"
           aria-label="نوع موضوع"
-          placeholder={placeholder}
+          placeholder={TYPE_EXAMPLES[placeholderIndex]}
           autoComplete="off"
           enterKeyHint="done"
-          className="h-14 w-full min-w-0 bg-transparent text-[15px] font-medium text-ink-900 caret-turquoise-700 outline-none placeholder:font-normal placeholder:text-ink-900/35 md:h-[60px]"
+          className="h-14 w-full min-w-0 bg-transparent text-[15px] font-medium text-ink-900 caret-turquoise-700 outline-none placeholder:font-normal placeholder:text-ink-900/35"
         />
         {query.length > 0 && (
           <button
