@@ -259,6 +259,12 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
           onSelect={handleOpenTopic}
           onContinue={() => setStep('details')}
           onBack={() => setStep('identity')}
+          userEntry={{
+            name: name.trim(),
+            primaryType: types[0]?.label ?? '',
+            secondaryTypes: types.slice(1).map((type) => type.label),
+            locationLabel: activityAreaLabel(activity),
+          }}
         />
       )}
 

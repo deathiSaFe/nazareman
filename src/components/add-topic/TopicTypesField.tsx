@@ -1,5 +1,6 @@
 'use client';
 
+import { useRef } from 'react';
 import { XIcon } from '@/components/icons';
 import type { SelectedTopicType, TopicTypeKind } from '@/types/topic';
 import { TypeAutocomplete } from './TypeAutocomplete';
@@ -27,6 +28,10 @@ export function TopicTypesField({
   className = '',
 }: TopicTypesFieldProps) {
   const canAddMore = value.length < MAX_TYPES;
+
+  // The mobile keyboard scroll target: wraps the label AND the autocomplete,
+  // so the whole section can be brought near the top of the visible viewport.
+  const sectionRef = useRef<HTMLDivElement>(null);
 
   const handleAdd = (label: string) => {
     const trimmed = label.trim();
@@ -100,17 +105,24 @@ export function TopicTypesField({
         </div>
       )}
 
-      <span className="mb-2 block text-[13px] font-bold text-ink-900">
-        {value.length === 0 ? 'نوع موضوع' : 'افزودن نوع دیگر'}
-      </span>
+      <div ref={sectionRef}>
+        <span className="mb-2 block text-[13px] font-bold text-ink-900">
+          {value.length === 0 ? 'نوع موضوع' : 'افزودن نوع دیگر'}
+        </span>
 
-      {canAddMore ? (
-        <TypeAutocomplete value="" onChange={handleAdd} onQueryChange={onQueryChange} />
-      ) : (
-        <p className="mt-2 text-[13px] font-medium text-ink-500">
-          حداکثر {MAX_TYPES} نوع می‌توانید برای یک موضوع انتخاب کنید.
-        </p>
-      )}
+        {canAddMore ? (
+          <TypeAutocomplete
+            value=""
+            onChange={handleAdd}
+            onQueryChange={onQueryChange}
+            sectionRef={sectionRef}
+          />
+        ) : (
+          <p className="mt-2 text-[13px] font-medium text-ink-500">
+            حداکثر {MAX_TYPES} نوع می‌توانید برای یک موضوع انتخاب کنید.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

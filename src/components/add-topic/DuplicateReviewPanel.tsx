@@ -4,12 +4,32 @@ import { useState } from 'react';
 import { CheckIcon, MapPinIcon, PlusIcon } from '@/components/icons';
 import type { DuplicateTopic } from '@/types/topic';
 
+/** Exactly what the user just entered — shown for easy comparison. */
+export interface UserEntry {
+  name: string;
+  primaryType: string;
+  secondaryTypes: string[];
+  locationLabel: string;
+}
+
 interface DuplicateReviewPanelProps {
   duplicates: DuplicateTopic[];
   onSelect: (duplicate: DuplicateTopic) => void;
   onContinue: () => void;
   onBack?: () => void;
+  userEntry: UserEntry;
   className?: string;
+}
+
+function EntryRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-start justify-between gap-4">
+      <dt className="shrink-0 text-[13px] font-medium text-ink-500">{label}</dt>
+      <dd className="min-w-0 text-start text-[14px] font-semibold leading-6 text-ink-900">
+        {value}
+      </dd>
+    </div>
+  );
 }
 
 export function DuplicateReviewPanel({
@@ -17,6 +37,7 @@ export function DuplicateReviewPanel({
   onSelect,
   onContinue,
   onBack,
+  userEntry,
   className = '',
 }: DuplicateReviewPanelProps) {
   const [selectedId, setSelectedId] = useState(duplicates[0]?.id ?? '');
@@ -26,7 +47,27 @@ export function DuplicateReviewPanel({
 
   return (
     <section className={className}>
-      <h2 className="font-display text-2xl text-ink-900">
+      {/* ——— The user's own entry, shown first for comparison ——— */}
+      <section
+        aria-label="موضوعی که شما می‌خواهید اضافه کنید"
+        className="rounded-[22px] bg-ink-900/[0.03] px-5 py-4 ring-1 ring-ink-900/[0.06]"
+      >
+        <h2 className="text-[13px] font-bold text-ink-500">
+          موضوعی که شما می‌خواهید اضافه کنید
+        </h2>
+
+        <dl className="mt-3 space-y-2.5">
+          <EntryRow label="نام" value={userEntry.name} />
+          <EntryRow label="نوع اصلی" value={userEntry.primaryType} />
+          {userEntry.secondaryTypes.length > 0 && (
+            <EntryRow label="انواع دیگر" value={userEntry.secondaryTypes.join('، ')} />
+          )}
+          <EntryRow label="محدوده فعالیت" value={userEntry.locationLabel} />
+        </dl>
+      </section>
+
+      {/* ——— Existing possible duplicates ——— */}
+      <h2 className="mt-10 font-display text-2xl text-ink-900">
         آیا منظور شما یکی از این موارد است؟
       </h2>
 
