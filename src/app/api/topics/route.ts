@@ -1,8 +1,66 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { SEARCH_MIN_SCORE, searchScore, type TopicForSearch } from '@/lib/topic-search';
 import type { Prisma } from '@prisma/client';
 
 export const dynamic = 'force-dynamic';
+
+/**
+ * Upper bound on how many topics are pulled into memory for relevance scoring
+ * when a `search` term is present. Practical for the current dataset — in-memory
+ * scoring needs to see the full candidate window because SQL `contains` cannot
+ * see Arabic/Persian glyph variants (ك/ک, ي/ی). Revisit when the dataset grows.
+ */
+const SEARCH_CANDIDATE_LIMIT = 500;
+
+const topicSelect = {
+  id: true,
+  slug: true,
+  name: true,
+  description: true,
+  imageUrl: true,
+  createdAt: true,
+  city: {
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      province: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  },
+  types: {
+    select: {
+      id: true,
+      kind: true,
+      type: {
+        select: {
+          label: true,
+        },
+      },
+    },
+    orderBy: {
+      order: 'asc',
+    },
+  },
+} satisfies Prisma.TopicSelect;
+
+type SearchableTopic = Prisma.TopicGetPayload<{ select: typeof topicSelect }>;
+
+function mapTopic(topic: SearchableTopic) {
+  return {
+    ...topic,
+    types: topic.types.map((tag) => ({
+      id: tag.id,
+      label: tag.type.label,
+      kind: tag.kind,
+    })),
+  };
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -58,37 +116,56 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    if (searchTerm) {
-      where.OR = [
-        {
-          name: {
-            contains: searchTerm,
-            mode: 'insensitive',
-          },
-        },
-        {
-          description: {
-            contains: searchTerm,
-            mode: 'insensitive',
-          },
-        },
-        {
-          // Searching must consider all attached types, not just the primary.
-          types: {
-            some: {
-              type: {
-                label: {
-                  contains: searchTerm,
-                  mode: 'insensitive',
-                },
-              },
-            },
-          },
-        },
-      ];
-    }
-
     const skip = (page - 1) * limit;
+
+    if (searchTerm) {
+      // Relevance search: pull a bounded, most-recent candidate window and
+      // rank it in memory. The province/city/type filters above still apply at
+      // the query level, so an explicit type or location filter is preserved.
+      const candidates = await prisma.topic.findMany({
+        where,
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: SEARCH_CANDIDATE_LIMIT,
+        select: topicSelect,
+      });
+
+      const scored = candidates
+        .map((topic) => {
+          const match: TopicForSearch = {
+            name: topic.name,
+            description: topic.description,
+            types: topic.types.map((tag) => tag.type.label),
+          };
+
+          return { topic, score: searchScore(searchTerm, match) };
+        })
+        .filter(({ score }) => score >= SEARCH_MIN_SCORE)
+        .sort(
+          (a, b) =>
+            b.score - a.score ||
+            b.topic.createdAt.getTime() - a.topic.createdAt.getTime()
+        );
+
+      const total = scored.length;
+      const totalPages = Math.ceil(total / limit);
+
+      const mappedTopics = scored
+        .slice(skip, skip + limit)
+        .map(({ topic }) => mapTopic(topic));
+
+      return NextResponse.json({
+        topics: mappedTopics,
+        data: mappedTopics,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages,
+        },
+      });
+    }
 
     const [total, topics] = await Promise.all([
       prisma.topic.count({ where }),
@@ -99,54 +176,13 @@ export async function GET(request: NextRequest) {
         },
         skip,
         take: limit,
-        select: {
-          id: true,
-          slug: true,
-          name: true,
-          description: true,
-          imageUrl: true,
-          createdAt: true,
-          city: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-              province: {
-                select: {
-                  name: true,
-                  slug: true,
-                },
-              },
-            },
-          },
-          types: {
-            select: {
-              id: true,
-              kind: true,
-              type: {
-                select: {
-                  label: true,
-                },
-              },
-            },
-            orderBy: {
-              order: 'asc',
-            },
-          },
-        },
+        select: topicSelect,
       }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
 
-    const mappedTopics = topics.map((topic) => ({
-      ...topic,
-      types: topic.types.map((tag) => ({
-        id: tag.id,
-        label: tag.type.label,
-        kind: tag.kind,
-      })),
-    }));
+    const mappedTopics = topics.map(mapTopic);
 
     return NextResponse.json({
       topics: mappedTopics,
