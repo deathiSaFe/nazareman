@@ -42,11 +42,99 @@ export interface ActivityAreaValue {
 export interface NewTopicDraft {
   name: string;
   types: SelectedTopicType[];
-  description?: string;
   scope: LocationScope;
   provinceSlug?: string;
   citySlug?: string;
   address?: string;
+}
+
+export type ContactPlatform =
+  | 'INSTAGRAM'
+  | 'TELEGRAM'
+  | 'WHATSAPP'
+  | 'BALE'
+  | 'EITAA'
+  | 'RUBIKA'
+  | 'LINKEDIN'
+  | 'X'
+  | 'YOUTUBE'
+  | 'FACEBOOK'
+  | 'WEBSITE'
+  | 'OTHER';
+
+export const CONTACT_PLATFORM_LABELS: Record<ContactPlatform, string> = {
+  INSTAGRAM: 'اینستاگرام',
+  TELEGRAM: 'تلگرام',
+  WHATSAPP: 'واتس‌اپ',
+  BALE: 'بله',
+  EITAA: 'ایتا',
+  RUBIKA: 'روبیکا',
+  LINKEDIN: 'لینکدین',
+  X: 'ایکس (توییتر)',
+  YOUTUBE: 'یوتیوب',
+  FACEBOOK: 'فیسبوک',
+  WEBSITE: 'وب‌سایت',
+  OTHER: 'سایر',
+};
+
+export const CONTACT_PLATFORMS: readonly ContactPlatform[] = [
+  'INSTAGRAM',
+  'TELEGRAM',
+  'WHATSAPP',
+  'BALE',
+  'EITAA',
+  'RUBIKA',
+  'LINKEDIN',
+  'X',
+  'YOUTUBE',
+  'FACEBOOK',
+  'WEBSITE',
+  'OTHER',
+];
+
+/** A repeatable contact / social-media row on a page. */
+export interface PageLink {
+  id: string;
+  platform: ContactPlatform;
+  value: string;
+}
+
+/** A type attached to a page (as rendered by the page view). */
+export interface PageType {
+  id: string;
+  label: string;
+  kind: TopicTypeKind;
+  /** Admin-only: the suggestion behind this type (for inline approval). */
+  suggestionId?: string;
+  suggestionStatus?: 'PENDING' | 'APPROVED' | 'REJECTED';
+}
+
+export interface PageComment {
+  id: string;
+  body: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}
+
+/**
+ * The full shape of a page as the central object. The same shape is used by
+ * the public page view and the admin page review.
+ */
+export interface PageData {
+  id: string;
+  slug: string;
+  name: string;
+  description: string | null;
+  imageUrl: string | null;
+  phone: string | null;
+  address: string | null;
+  scope: LocationScope;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  province: { id: string; name: string; slug: string } | null;
+  city: { id: string; name: string; slug: string } | null;
+  types: PageType[];
+  links: PageLink[];
+  comments: PageComment[];
 }
 
 export interface TopicSearchResult {
@@ -89,11 +177,6 @@ export function topicHref(topic: Pick<TopicSearchResult, 'id' | 'slug'>): string
 /** Render the primary type label from an ordered list of labels. */
 export function primaryTypeLabel(types: string[]): string {
   return types[0] || 'بدون نوع';
-}
-
-/** Render an ordered list of type labels as one string. */
-export function topicTypesLabel(types: string[]): string {
-  return types.filter(Boolean).join('، ') || 'بدون نوع';
 }
 
 /** Render a human-friendly activity-area string from a draft. */

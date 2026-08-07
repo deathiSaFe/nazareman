@@ -36,6 +36,21 @@ enum TopicTypeKind {
   SECONDARY
 }
 
+enum ContactPlatform {
+  INSTAGRAM
+  TELEGRAM
+  WHATSAPP
+  BALE
+  EITAA
+  RUBIKA
+  LINKEDIN
+  X
+  YOUTUBE
+  FACEBOOK
+  WEBSITE
+  OTHER
+}
+
 model User {
   id          String   @id @default(uuid()) @db.Uuid
   role        UserRole @default(USER)
@@ -78,12 +93,22 @@ model City {
   @@index([provinceId, name])
 }
 
+/**
+ * A "page" — the central object of the application. The model keeps its
+ * legacy name `Topic` to avoid a disruptive rename; UI copy refers to it as
+ * a page.
+ *
+ * FUTURE OWNERSHIP: `submittedById` is currently unused (no auth). It is the
+ * natural home for the future Creator and Owner relations — no schema change
+ * is required to add ownership later.
+ */
 model Topic {
   id            String           @id @default(uuid()) @db.Uuid
   slug          String           @unique
   name          String
-  description   String
+  description   String?
   imageUrl      String?
+  phone         String?
   scope         LocationScope    @default(NATIONAL)
   provinceId    String?          @db.Uuid
   cityId        String?          @db.Uuid
@@ -100,6 +125,7 @@ model Topic {
   submittedBy User?     @relation(fields: [submittedById], references: [id], onDelete: SetNull)
 
   types          TopicTypeTag[]
+  links          TopicLink[]
   comments       Comment[]
   submission     Submission?
   moderationLogs ModerationLog[]
@@ -225,4 +251,21 @@ model TopicTypeTag {
   @@index([topicId])
   @@index([typeId])
   @@index([typeId, kind])
+}
+
+/**
+ * A repeatable contact / social-media row on a page (e.g. Instagram,
+ * Telegram, WhatsApp, a website, ...). One row per platform+value, so pages
+ * can support an unlimited number of contact methods.
+ */
+model TopicLink {
+  id        String          @id @default(uuid()) @db.Uuid
+  topicId   String          @db.Uuid
+  platform  ContactPlatform
+  value     String
+  createdAt DateTime        @default(now())
+
+  topic Topic @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
 }

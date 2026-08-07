@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import { MapPinIcon } from '@/components/icons';
@@ -11,6 +11,9 @@ import {
 interface ActivityAreaPickerProps {
   value: ActivityAreaValue;
   onChange: (value: ActivityAreaValue) => void;
+  /** When false, the street-address + GPS placeholder inputs are hidden and
+   *  the address is managed by the caller (e.g. a separate completion field). */
+  showAddress?: boolean;
   className?: string;
 }
 
@@ -37,6 +40,7 @@ const inputClass =
 export function ActivityAreaPicker({
   value,
   onChange,
+  showAddress = true,
   className = '',
 }: ActivityAreaPickerProps) {
   const [provinces, setProvinces] = useState<ProvinceOption[]>([]);
@@ -48,7 +52,7 @@ export function ActivityAreaPicker({
   const { scope } = value;
   const showProvince = scope === 'PROVINCE' || scope === 'CITY' || scope === 'ADDRESS';
   const showCity = scope === 'CITY' || scope === 'ADDRESS';
-  const showAddress = scope === 'ADDRESS';
+  const showAddressInput = showAddress && scope === 'ADDRESS';
 
   const cities = value.provinceSlug ? citiesByProvince[value.provinceSlug] : undefined;
   const citiesLoading = Boolean(value.provinceSlug) && cities === undefined;
@@ -235,7 +239,7 @@ export function ActivityAreaPicker({
             </label>
           )}
 
-          {showAddress && (
+          {showAddressInput && (
             <label className="block">
               <span className="mb-2 block text-[13px] font-bold text-ink-900">نشانی خیابان</span>
               <input
@@ -251,7 +255,7 @@ export function ActivityAreaPicker({
             </label>
           )}
 
-          {showAddress && (
+          {showAddressInput && (
             <div
               aria-hidden="true"
               className="flex items-center gap-3 rounded-[18px] bg-ink-900/[0.03] px-5 py-4 ring-1 ring-ink-900/[0.06]"

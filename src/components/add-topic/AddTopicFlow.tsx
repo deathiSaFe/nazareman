@@ -11,7 +11,7 @@ import {
 import { TopicTypesField } from './TopicTypesField';
 import { ActivityAreaPicker } from './ActivityAreaPicker';
 import { DuplicateReviewPanel } from './DuplicateReviewPanel';
-import { TopicDescriptionForm } from './TopicDescriptionForm';
+import { ConfirmationForm } from './ConfirmationForm';
 
 interface AddTopicFlowProps {
   className?: string;
@@ -52,8 +52,7 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
   const [checking, setChecking] = useState(false);
   const [duplicates, setDuplicates] = useState<DuplicateTopic[]>([]);
 
-  // Details
-  const [description, setDescription] = useState('');
+  // Creation
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -158,20 +157,12 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
   }
 
   async function handleSubmit() {
-    const trimmedDescription = description.trim();
-
-    if (trimmedDescription.length < 20) {
-      setSubmitError('توضیح باید حداقل ۲۰ حرف باشد.');
-      return;
-    }
-
     setSubmitError(null);
     setIsSubmitting(true);
 
     const payload = {
       name: name.trim(),
       types: types.map((type) => ({ label: type.label, kind: type.kind })),
-      description: trimmedDescription,
       scope: activity.scope,
       provinceSlug: activity.provinceSlug,
       citySlug: activity.citySlug,
@@ -188,13 +179,13 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'خطا در ثبت موضوع');
+        throw new Error(data.error || 'خطا در ایجاد صفحه');
       }
 
-      router.push(`/topic/${data.topicId}?focusComment=true`);
+      router.push(`/topic/${data.topicId}`);
     } catch (error) {
       console.error(error);
-      setSubmitError('خطایی در ثبت موضوع رخ داد. لطفاً دوباره تلاش کنید.');
+      setSubmitError('خطایی در ایجاد صفحه رخ داد. لطفاً دوباره تلاش کنید.');
     } finally {
       setIsSubmitting(false);
     }
@@ -269,12 +260,11 @@ export function AddTopicFlow({ className = '', initialName = '' }: AddTopicFlowP
       )}
 
       {step === 'details' && (
-        <TopicDescriptionForm
+        <ConfirmationForm
           name={name.trim()}
-          types={types.map((type) => type.label)}
+          primaryType={types[0]?.label ?? ''}
+          secondaryTypes={types.slice(1).map((type) => type.label)}
           locationLabel={activityAreaLabel(activity)}
-          description={description}
-          onDescriptionChange={setDescription}
           onSubmit={() => void handleSubmit()}
           onEdit={() => setStep('identity')}
           isSubmitting={isSubmitting}

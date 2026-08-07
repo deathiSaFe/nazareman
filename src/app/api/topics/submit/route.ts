@@ -11,7 +11,7 @@ const LOCATION_SCOPES: readonly LocationScope[] = ['NATIONAL', 'PROVINCE', 'CITY
 const MAX_NAME_LENGTH = 80;
 const MAX_TYPE_LENGTH = 60;
 const MAX_TYPES = 5;
-const MIN_DESCRIPTION_LENGTH = 20;
+const MAX_DESCRIPTION_LENGTH = 500;
 const MAX_ADDRESS_LENGTH = 200;
 
 type SubmittedType = {
@@ -141,9 +141,10 @@ export async function POST(request: NextRequest) {
     errors.push(`name must be ${MAX_NAME_LENGTH} characters or fewer.`);
   }
 
-  if (!description) errors.push('description is required.');
-  else if (description.length < MIN_DESCRIPTION_LENGTH) {
-    errors.push(`description must be at least ${MIN_DESCRIPTION_LENGTH} characters long.`);
+  // The short introduction is optional at creation (Part 1/3) — the page is
+  // valid without it and can be completed later.
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    errors.push(`description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer.`);
   }
 
   if (!isLocationScope(scope)) {
@@ -224,7 +225,7 @@ export async function POST(request: NextRequest) {
         data: {
           slug,
           name,
-          description,
+          description: description || null,
           imageUrl,
           scope: locationScope,
           provinceId,
