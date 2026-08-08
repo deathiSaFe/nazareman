@@ -1,11 +1,13 @@
 ﻿'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Link from 'next/link';
 import { CheckIcon, PenIcon, PlusIcon, XIcon } from '@/components/icons';
 import { ContactIcon } from '@/components/contact-icons';
 import { ActivityAreaPicker } from '@/components/add-topic/ActivityAreaPicker';
 import { TopicTypesField } from '@/components/add-topic/TopicTypesField';
 import { CommentForm } from '@/components/topic/CommentForm';
+import { TourOverlay, type TourAction, type TourStepContent } from '@/components/page/TourOverlay';
 import {
   CONTACT_PLATFORM_LABELS,
   type ActivityAreaValue,
@@ -29,6 +31,43 @@ const SOCIAL_PLATFORMS = (
 ).filter((platform) => platform !== 'WEBSITE' && platform !== 'PHONE');
 
 type DraftLink = { platform: ContactPlatform; label: string | null; value: string };
+
+/** Guided onboarding tour — order of the Topic-page areas (name/type are fixed). */
+const TOUR_TOTAL = 7; // 6 content steps + final submission
+const TOUR_ORDER = ['image', 'intro', 'hours', 'address', 'contact', 'comment'] as const;
+type TourKey = (typeof TOUR_ORDER)[number];
+
+/**
+ * Build the tour sequence from the initial page data: already-complete areas are
+ * skipped automatically (the address step always runs when the location is
+ * relevant). Returns an empty sequence when everything is complete.
+ */
+function buildTourSequenceFromPage(p: PageData): { key: TourKey; originalIndex: number }[] {
+  const showAddress = p.scope !== 'NATIONAL';
+
+  const complete: Record<TourKey, boolean> = {
+    image: Boolean(p.imageUrl),
+    intro: Boolean(p.description?.trim()),
+    hours: Boolean(p.workingHours?.trim()),
+    address: Boolean(p.address?.trim()) || !showAddress,
+    contact: p.links.length > 0,
+    comment: p.comments.length > 0,
+  };
+
+  if (TOUR_ORDER.every((key) => complete[key])) return [];
+
+  const steps: { key: TourKey; originalIndex: number }[] = [];
+
+  TOUR_ORDER.forEach((key, originalIndex) => {
+    if (key === 'address') {
+      if (showAddress) steps.push({ key, originalIndex });
+    } else if (!complete[key]) {
+      steps.push({ key, originalIndex });
+    }
+  });
+
+  return steps;
+}
 
 const inputClass =
   'w-full rounded-2xl bg-white px-4 py-3 text-[15px] font-medium text-ink-900 outline-none ring-1 ring-ink-900/10 transition-all duration-200 placeholder:font-normal placeholder:text-ink-900/30 focus:ring-2 focus:ring-turquoise-600/70';
@@ -70,13 +109,23 @@ function formatCommentDate(value: string): string {
   }
 }
 
+/** 0-9 → ۰-۹ for Persian numeral rendering. */
+function persianNumber(value: number | string): string {
+  return String(value).replace(/\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
+}
+
+function scrollToId(id: string) {
+  if (typeof window === 'undefined') return;
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 /** A compact, inviting add-action — used for empty sections. */
 function CompactInvite({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-2 rounded-2xl border border-dashed border-ink-900/20 bg-white/50 px-4 py-3 text-sm font-semibold text-ink-500 transition-colors hover:border-turquoise-600/50 hover:text-turquoise-700"
+      className="flex w-full items-center gap-2 rounded-xl border border-dashed border-ink-900/20 bg-white/50 px-3 py-2.5 text-sm font-semibold text-ink-500 transition-colors hover:border-turquoise-600/50 hover:text-turquoise-700"
     >
       <PlusIcon strokeWidth={2.4} className="size-4 shrink-0" />
       {label}
@@ -122,16 +171,17 @@ function InlineEditor({
   );
 }
 
-/** Compact «ویرایش» trigger, placed on the left (end) of a row. */
-function EditLink({ label, onClick }: { label: string; onClick: () => void }) {
+/** Icon-only edit trigger (pen), placed on the left (end) of a row/section. */
+function EditButton({ label, onClick, className = '' }: { label: string; onClick: () => void; className?: string }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-turquoise-700 transition-colors hover:text-turquoise-800"
+      aria-label={label}
+      title={label}
+      className={`grid size-7 shrink-0 place-items-center rounded-full text-ink-900/40 transition-colors hover:bg-ink-900/5 hover:text-ink-900/70 ${className}`}
     >
       <PenIcon strokeWidth={2.2} className="size-3.5" />
-      {label}
     </button>
   );
 }
@@ -151,7 +201,7 @@ function InfoRow({
   onEdit?: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 py-2.5">
+    <div className="flex items-center justify-between gap-3 py-2">
       <dt className="shrink-0 text-[13px] font-medium text-ink-500">{label}</dt>
       <dd
         className={`min-w-0 flex-1 text-end text-[14px] font-semibold ${
@@ -160,7 +210,7 @@ function InfoRow({
       >
         {value}
       </dd>
-      {edit && onEdit && <EditLink label="ویرایش" onClick={onEdit} />}
+      {edit && onEdit && <EditButton label={`ویرایش ${label}`} onClick={onEdit} />}
     </div>
   );
 }
@@ -182,7 +232,7 @@ function ContactRow({
   onRemove?: () => void;
 }) {
   return (
-    <div className="flex items-center gap-3 py-2.5">
+    <div className="flex items-center gap-3 py-2">
       <span aria-hidden className="grid w-6 shrink-0 place-items-center text-ink-500">
         {icon}
       </span>
@@ -201,16 +251,7 @@ function ContactRow({
           value
         )}
       </span>
-      {onEdit && (
-        <button
-          type="button"
-          onClick={onEdit}
-          aria-label={`ویرایش ${label || 'تماس'}`}
-          className="grid size-7 shrink-0 place-items-center rounded-full text-ink-900/40 transition-colors hover:bg-ink-900/5 hover:text-ink-900/70"
-        >
-          <PenIcon strokeWidth={2.2} className="size-3.5" />
-        </button>
-      )}
+      {onEdit && <EditButton label={`ویرایش ${label || 'تماس'}`} onClick={onEdit} />}
       {onRemove && (
         <button
           type="button"
@@ -273,6 +314,26 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
   const [contactEditIndex, setContactEditIndex] = useState<number | null>(null);
   const [contactAddOpen, setContactAddOpen] = useState(false);
 
+  // Guided onboarding tour (starts once when a PENDING page opens).
+  const [tour, setTour] = useState<{
+    active: boolean;
+    steps: { key: TourKey; originalIndex: number }[];
+    index: number;
+  } | null>(() => {
+    if (admin || page.status !== 'PENDING') return null;
+    return { active: true, steps: buildTourSequenceFromPage(page), index: 0 };
+  });
+
+  // Final submission
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Introduction clamp/expand
+  const introRef = useRef<HTMLParagraphElement>(null);
+  const [introExpanded, setIntroExpanded] = useState(false);
+  const [introCanExpand, setIntroCanExpand] = useState(false);
+
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -286,6 +347,11 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     const timer = window.setTimeout(() => setMessage(null), 2500);
     return () => window.clearTimeout(timer);
   }, [message]);
+
+  useEffect(() => {
+    if (introExpanded || !introRef.current) return;
+    setIntroCanExpand(introRef.current.scrollHeight > introRef.current.clientHeight + 1);
+  }, [description, introExpanded]);
 
   const secondaryTypes = types.slice(1);
   const showAddressBlock = activity.scope !== 'NATIONAL';
@@ -329,6 +395,247 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     }
     return undefined;
   };
+
+  // ——— Tour state ———
+  const tourActive = tour?.active ?? false;
+  const tourSteps = tour?.steps ?? [];
+  const tourIndex = tour?.index ?? 0;
+  const tourIsFinal = tourActive && tourIndex >= tourSteps.length;
+  const tourKey: TourKey | null =
+    !tourIsFinal && tourIndex < tourSteps.length ? tourSteps[tourIndex].key : null;
+
+  const showSendButton = !admin && status === 'PENDING' && !submitted && !tourActive;
+
+  /** The tour steps aside while a tour-relevant editor is open, so the user can
+   *  actually use it without the overlay blocking it. */
+  const tourPaused =
+    imageOpen ||
+    introOpen ||
+    hoursOpen ||
+    addressOpen ||
+    contactAddOpen ||
+    contactEditIndex !== null ||
+    formOpen;
+
+  function goNext() {
+    setTour((current) =>
+      current ? { ...current, index: Math.min(current.index + 1, current.steps.length) } : current
+    );
+  }
+
+  function goBack() {
+    setTour((current) =>
+      current ? { ...current, index: Math.max(current.index - 1, 0) } : current
+    );
+  }
+
+  function closeTour() {
+    setTour(null);
+  }
+
+  /** Advance the tour when the given step's content is saved/submitted. */
+  function completeStep(key: TourKey) {
+    setTour((current) => {
+      if (!current) return current;
+      const currentStep = current.steps[current.index];
+      if (!currentStep || currentStep.key !== key) return current;
+      return { ...current, index: Math.min(current.index + 1, current.steps.length) };
+    });
+  }
+
+  const addressDone = Boolean(address.trim()) || activity.scope === 'NATIONAL';
+  const completionPercent = (() => {
+    const done = [
+      Boolean(imageUrl),
+      Boolean(description.trim()),
+      Boolean(workingHours.trim()),
+      addressDone,
+      links.length > 0,
+      comments.length > 0,
+    ];
+    return Math.round((done.filter(Boolean).length / done.length) * 100);
+  })();
+
+  function currentTourStepContent(): TourStepContent {
+    const backAction: TourAction = { label: 'قبلی', onClick: goBack };
+    const nextAction: TourAction = { label: 'بعدی', onClick: goNext };
+    const hasBack = tourIndex > 0;
+
+    if (tourIsFinal) {
+      return {
+        targetId: null,
+        title: 'بررسی و ارسال اطلاعات',
+        message: 'اطلاعات صفحه را بررسی کنید و در صورت آماده بودن آن را ارسال کنید.',
+        stepLabel: `مرحله ${persianNumber(TOUR_TOTAL)} از ${persianNumber(TOUR_TOTAL)}`,
+        actions: [
+          {
+            label: 'بررسی و ارسال اطلاعات',
+            onClick: () => {
+              closeTour();
+              setConfirmOpen(true);
+            },
+          },
+          backAction,
+        ],
+      };
+    }
+
+    if (!tourKey) {
+      return { targetId: null, title: '', message: '', stepLabel: null, actions: [] };
+    }
+
+    const originalIndex = tourSteps[tourIndex].originalIndex;
+    const stepLabel = `مرحله ${persianNumber(originalIndex + 1)} از ${persianNumber(TOUR_TOTAL)}`;
+
+    switch (tourKey) {
+      case 'image': {
+        const hasImage = Boolean(imageUrl);
+        return {
+          targetId: 'tour-image',
+          title: 'تصویر',
+          message: hasImage
+            ? 'تصویر صفحه اضافه شده است. در صورت نیاز می‌توانید آن را تغییر دهید.'
+            : 'یک تصویر به صفحه اضافه کنید تا موضوع شما راحت‌تر شناخته شود.',
+          stepLabel,
+          actions: [
+            {
+              label: hasImage ? 'تغییر تصویر' : 'افزودن تصویر',
+              onClick: () => {
+                setImageOpen(true);
+                scrollToId('page-hero');
+              },
+            },
+            ...(hasBack ? [backAction] : []),
+            nextAction,
+          ],
+        };
+      }
+
+      case 'intro': {
+        const hasIntro = Boolean(description.trim());
+        return {
+          targetId: 'page-intro',
+          title: 'معرفی',
+          message: hasIntro
+            ? 'معرفی ثبت شده است. می‌توانید آن را بازبینی یا ویرایش کنید.'
+            : 'یک معرفی کوتاه درباره این موضوع بنویسید تا بازدیدکنندگان بهتر با آن آشنا شوند.',
+          stepLabel,
+          actions: [
+            {
+              label: hasIntro ? 'ویرایش معرفی' : 'نوشتن معرفی',
+              onClick: () => setIntroOpen(true),
+            },
+            ...(hasBack ? [backAction] : []),
+            nextAction,
+          ],
+        };
+      }
+
+      case 'hours': {
+        const hasHours = Boolean(workingHours.trim());
+        return {
+          targetId: 'page-info',
+          title: 'ساعات کاری',
+          message: hasHours
+            ? 'ساعات کاری ثبت شده است. در صورت نیاز می‌توانید آن را ویرایش کنید.'
+            : 'ساعات کاری به بازدیدکنندگان کمک می‌کند بدانند چه زمانی در دسترس هستید.',
+          stepLabel,
+          actions: [
+            {
+              label: hasHours ? 'ویرایش ساعات کاری' : 'افزودن ساعات کاری',
+              onClick: () => setHoursOpen(true),
+            },
+            ...(hasBack ? [backAction] : []),
+            nextAction,
+          ],
+        };
+      }
+
+      case 'address':
+        return {
+          targetId: 'page-info',
+          title: 'محدوده / آدرس',
+          message: addressLabel
+            ? 'آدرس فعلی را بررسی کنید و در صورت نیاز جزئیات بیشتری اضافه کنید.'
+            : 'محدوده یا آدرس فعالیت را اضافه کنید تا افراد راحت‌تر شما را پیدا کنند.',
+          stepLabel,
+          actions: [
+            { label: 'ویرایش آدرس', onClick: () => setAddressOpen(true) },
+            ...(hasBack ? [backAction] : []),
+            nextAction,
+          ],
+        };
+
+      case 'contact':
+        return {
+          targetId: 'page-info',
+          title: 'راه‌های ارتباطی',
+          message:
+            'راه‌های ارتباطی خود را اضافه کنید؛ تلفن، موبایل، وب‌سایت و شبکه‌های اجتماعی. می‌توانید چند راه ارتباطی اضافه کنید.',
+          stepLabel,
+          actions: [
+            { label: 'افزودن راه ارتباطی', onClick: startContactAdd },
+            ...(hasBack ? [backAction] : []),
+            nextAction,
+          ],
+        };
+
+      case 'comment': {
+        const hasComment = comments.length > 0;
+        return {
+          targetId: 'page-comments',
+          title: 'اولین نظر',
+          message: hasComment
+            ? 'اولین نظر شما ثبت شد. می‌توانید نظر دیگری هم اضافه کنید.'
+            : 'حالا اولین نظر را ثبت کنید تا صفحه شما زنده‌تر و مفیدتر شود. اولین نظر به بازدیدکنندگان کمک می‌کند با موضوع آشنا شوند.',
+          stepLabel,
+          actions: [
+            { label: hasComment ? 'ثبت نظر دیگر' : 'ثبت اولین نظر', onClick: handleFirstComment },
+            ...(hasBack ? [backAction] : []),
+            nextAction,
+          ],
+        };
+      }
+    }
+  }
+
+  function handleFirstComment() {
+    setFormOpen(true);
+    scrollToId('page-comments');
+  }
+
+  function handleCommentSubmitted(comment: {
+    id: string;
+    body: string;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    createdAt: string;
+  }) {
+    setComments((prev) => [...prev, comment]);
+    setFormOpen(false);
+    completeStep('comment');
+  }
+
+  async function handleConfirmSubmit() {
+    setSubmitting(true);
+
+    // Everything is already saved incrementally; a final save of the current
+    // state guarantees no in-editor text is lost before it goes for review.
+    const ok = await savePage({
+      description: description.trim(),
+      workingHours: workingHours.trim(),
+      imageUrl: imageUrl.trim(),
+      address: address.trim(),
+      links: links.map((link) => ({ platform: link.platform, label: link.label, value: link.value })),
+    });
+
+    setSubmitting(false);
+
+    if (ok) {
+      setConfirmOpen(false);
+      clearFeedback();
+      setSubmitted(true);
+    }
+  }
 
   function clearFeedback() {
     setMessage(null);
@@ -506,22 +813,34 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
 
   const saveImage = async () => {
     const ok = await savePage({ imageUrl: imageUrl.trim() });
-    if (ok) setImageOpen(false);
+    if (ok) {
+      setImageOpen(false);
+      completeStep('image');
+    }
   };
 
   const saveIntro = async () => {
     const ok = await savePage({ description: description.trim() });
-    if (ok) setIntroOpen(false);
+    if (ok) {
+      setIntroOpen(false);
+      completeStep('intro');
+    }
   };
 
   const saveHours = async () => {
     const ok = await savePage({ workingHours: workingHours.trim() });
-    if (ok) setHoursOpen(false);
+    if (ok) {
+      setHoursOpen(false);
+      completeStep('hours');
+    }
   };
 
   const saveAddress = async () => {
     const ok = await savePage({ address: address.trim() });
-    if (ok) setAddressOpen(false);
+    if (ok) {
+      setAddressOpen(false);
+      completeStep('address');
+    }
   };
 
   const startContactAdd = () => {
@@ -565,7 +884,10 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
 
     setLinks(nextLinks);
     const ok = await savePage({ links: nextLinks });
-    if (ok) cancelContactEditor();
+    if (ok) {
+      cancelContactEditor();
+      completeStep('contact');
+    }
   };
 
   const removeLink = async (index: number) => {
@@ -592,8 +914,35 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     setAddress(page.address ?? '');
   };
 
+  if (submitted) {
+    return (
+      <div className="rounded-3xl bg-white p-8 text-center ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)]">
+        <div className="mx-auto grid size-14 place-items-center rounded-full bg-turquoise-600/10">
+          <CheckIcon strokeWidth={2.6} className="size-7 text-turquoise-700" />
+        </div>
+
+        <h2 className="mt-4 font-display text-2xl text-ink-900">
+          اطلاعات شما با موفقیت ارسال شد
+        </h2>
+
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-600">
+          صفحه شما در انتظار بررسی است و پس از تأیید، برای دیگران قابل مشاهده خواهد بود.
+        </p>
+
+        <Link
+          href="/"
+          className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-turquoise-600 px-8 py-3 text-sm font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97]"
+        >
+          بازگشت به صفحه اصلی
+        </Link>
+      </div>
+    );
+  }
+
+  const tourContent = tourActive ? currentTourStepContent() : null;
+
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       {(admin || status !== 'APPROVED') && (
         <div className="flex justify-center">
           <span
@@ -622,14 +971,14 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
         </div>
       )}
 
-      {/* ————————————————— MAIN PROFILE FRAME ————————————————— */}
+      {/* ————————————————— HERO / IDENTITY ————————————————— */}
       <article className="overflow-hidden rounded-[28px] bg-white ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)]">
-        {/* ——— Cover + identity: image → primary type → name → secondary types ——— */}
-        <div className="relative">
+        <div id="page-hero" className="relative scroll-mt-20">
           {imageUrl ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
+                id="tour-image"
                 src={imageUrl}
                 alt={name}
                 className="h-52 w-full object-cover md:h-72"
@@ -639,60 +988,64 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
                   legible regardless of the image. */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/15" />
 
-              <div className="absolute inset-x-0 top-0 flex flex-col items-start gap-2.5 p-5 md:p-7">
-                <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-ink-900 shadow-sm md:text-xs">
-                  {types[0]?.label ?? 'بدون نوع'}
-                </span>
-                <h1 className="font-display text-[26px] leading-9 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)] md:text-4xl md:leading-[3rem]">
+              {/* Identity, top-right: name → primary type → secondary types. */}
+              <div
+                id="tour-identity"
+                className="absolute inset-x-0 top-0 flex flex-col items-start gap-2 p-4 md:p-5"
+              >
+                <h1 className="font-display text-[22px] leading-8 text-white drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)] md:text-[30px] md:leading-9">
                   {name}
                 </h1>
-                {secondaryTypes.length > 0 && (
-                  <div className="mt-1 flex flex-wrap gap-1.5">
-                    {secondaryTypes.map((type, index) => (
-                      <span
-                        key={`${type.label}-${index}`}
-                        className="rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/25 backdrop-blur"
-                      >
-                        {type.label}
-                      </span>
-                    ))}
-                  </div>
-                )}
+                <div className="mt-0.5 flex flex-col items-start gap-1">
+                  <span className="rounded-full bg-white/20 px-3 py-0.5 text-[11px] font-bold text-white ring-1 ring-white/25 backdrop-blur md:text-xs">
+                    {types[0]?.label ?? 'بدون نوع'}
+                  </span>
+                  {secondaryTypes.map((type, index) => (
+                    <span
+                      key={`${type.label}-${index}`}
+                      className="rounded-full bg-white/20 px-3 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/25 backdrop-blur md:text-xs"
+                    >
+                      {type.label}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               {editable && (
                 <button
                   type="button"
                   onClick={() => setImageOpen(true)}
-                  className="absolute bottom-3 right-4 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-4 py-2 text-[12px] font-bold text-white ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-black/60"
+                  aria-label="ویرایش تصویر"
+                  title="ویرایش تصویر"
+                  className="absolute bottom-3 right-4 grid size-8 place-items-center rounded-full bg-black/45 text-white ring-1 ring-white/20 backdrop-blur transition-colors hover:bg-black/60"
                 >
                   <PenIcon strokeWidth={2.2} className="size-3.5" />
-                  ویرایش تصویر
                 </button>
               )}
             </>
           ) : (
-            <div className="flex min-h-44 flex-col bg-gradient-to-br from-turquoise-900 via-turquoise-800 to-ink-900 px-5 pb-6 pt-5 md:min-h-56 md:px-7 md:pb-7 md:pt-7">
-              <span className="self-start rounded-full bg-white/15 px-3 py-1 text-[11px] font-bold text-white ring-1 ring-white/20 backdrop-blur md:text-xs">
-                {types[0]?.label ?? 'بدون نوع'}
-              </span>
-
-              <h1 className="mt-3 font-display text-[26px] leading-9 text-white md:text-4xl md:leading-[3rem]">
-                {name}
-              </h1>
-
-              {secondaryTypes.length > 0 && (
-                <div className="mt-3 flex flex-wrap gap-1.5">
+            <div
+              id="tour-image"
+              className="flex min-h-44 flex-col bg-gradient-to-br from-turquoise-900 via-turquoise-800 to-ink-900 px-4 pb-6 pt-4 md:min-h-56 md:px-5 md:pb-7 md:pt-5"
+            >
+              <div id="tour-identity" className="flex flex-col items-start">
+                <h1 className="self-start font-display text-[22px] leading-8 text-white md:text-[30px] md:leading-9">
+                  {name}
+                </h1>
+                <div className="mt-2 flex flex-col items-start gap-1">
+                  <span className="rounded-full bg-white/15 px-3 py-0.5 text-[11px] font-bold text-white ring-1 ring-white/20 backdrop-blur md:text-xs">
+                    {types[0]?.label ?? 'بدون نوع'}
+                  </span>
                   {secondaryTypes.map((type, index) => (
                     <span
                       key={`${type.label}-${index}`}
-                      className="rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/20 backdrop-blur"
+                      className="rounded-full bg-white/15 px-3 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/20 backdrop-blur md:text-xs"
                     >
                       {type.label}
                     </span>
                   ))}
                 </div>
-              )}
+              </div>
 
               <div className="mt-auto flex justify-center pt-6">
                 {editable && !imageOpen && (
@@ -710,335 +1063,371 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
           )}
         </div>
 
-        {/* ——— Profile body ——— */}
-        <div className="p-5 md:p-7">
-          {editable && imageOpen && (
-            <InlineEditor onSave={() => void saveImage()} onCancel={() => setImageOpen(false)} saving={saving}>
-              <input
-                type="text"
-                value={imageUrl}
-                onChange={(event) => setImageUrl(event.target.value)}
-                placeholder="https://..."
-                dir="ltr"
-                className={inputClass}
+        {(editable && imageOpen) || admin ? (
+          <div className="p-4 md:p-5">
+            {editable && imageOpen && (
+              <InlineEditor onSave={() => void saveImage()} onCancel={() => setImageOpen(false)} saving={saving}>
+                <input
+                  type="text"
+                  value={imageUrl}
+                  onChange={(event) => setImageUrl(event.target.value)}
+                  placeholder="https://..."
+                  dir="ltr"
+                  autoFocus
+                  className={inputClass}
+                />
+              </InlineEditor>
+            )}
+
+            {admin && (
+              <>
+                {!identityOpen ? (
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-[13px] font-medium text-ink-500">
+                      ویرایش هویت صفحه (نام، نوع‌ها و محدوده)
+                    </span>
+                    <EditButton
+                      label="ویرایش نام، نوع‌ها و محدوده فعالیت"
+                      onClick={() => setIdentityOpen(true)}
+                    />
+                  </div>
+                ) : (
+                  <div className="space-y-4 rounded-2xl bg-ink-900/[0.02] p-4 ring-1 ring-ink-900/[0.06]">
+                    <label className="block">
+                      <span className="mb-2 block text-[13px] font-bold text-ink-900">نام صفحه</span>
+                      <input
+                        type="text"
+                        value={name}
+                        onChange={(event) => setName(event.target.value)}
+                        className={inputClass}
+                      />
+                    </label>
+
+                    <TopicTypesField value={types} onChange={setTypes} />
+
+                    <ActivityAreaPicker value={activity} onChange={setActivity} showAddress={false} />
+
+                    <label className="block">
+                      <span className="mb-2 block text-[13px] font-bold text-ink-900">آدرس</span>
+                      <input
+                        type="text"
+                        value={address}
+                        onChange={(event) => setAddress(event.target.value)}
+                        className={inputClass}
+                      />
+                    </label>
+
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => void saveAdmin()}
+                        disabled={saving}
+                        className="rounded-full bg-turquoise-600 px-5 py-2 text-[13px] font-bold text-white transition-colors hover:bg-turquoise-700 disabled:opacity-50"
+                      >
+                        {saving ? 'در حال ذخیره...' : 'ذخیره'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={resetIdentity}
+                        disabled={saving}
+                        className="rounded-full bg-white px-5 py-2 text-[13px] font-bold text-ink-600 ring-1 ring-ink-900/15 transition-colors hover:bg-ink-900/5 disabled:opacity-50"
+                      >
+                        انصراف
+                      </button>
+                    </div>
+
+                    {pendingTypes.length > 0 && (
+                      <div className="rounded-2xl bg-saffron-50 p-4 ring-1 ring-saffron-200/60">
+                        <p className="text-[13px] font-bold text-ink-800">
+                          این نوع‌ها جدید هستند و در انتظار بررسی‌اند:
+                        </p>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {pendingTypes.map((item) => (
+                            <span
+                              key={item.id}
+                              className="inline-flex items-center gap-2 rounded-full bg-white py-1.5 ps-3 pe-1.5 text-[13px] font-semibold text-ink-800 ring-1 ring-ink-900/10"
+                            >
+                              {item.label}
+                              <button
+                                type="button"
+                                onClick={() => void approveType(item.id)}
+                                className="grid size-5 place-items-center rounded-full bg-turquoise-600 text-white transition-colors hover:bg-turquoise-700"
+                                aria-label={`تأیید نوع «${item.label}»`}
+                              >
+                                <CheckIcon strokeWidth={3} className="size-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div className="mt-3 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => void saveAdmin()}
+                    disabled={saving}
+                    className="w-full rounded-full bg-white px-7 py-3 text-[15px] font-bold text-ink-900 ring-1 ring-ink-900/15 transition-all duration-200 hover:ring-turquoise-600/50 hover:text-turquoise-700 disabled:opacity-50"
+                  >
+                    {saving ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void saveAdmin('APPROVED')}
+                    disabled={saving}
+                    className="flex w-full items-center justify-center gap-2 rounded-full bg-turquoise-600 px-7 py-3 text-[15px] font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all duration-200 hover:bg-turquoise-700 disabled:opacity-50"
+                  >
+                    <CheckIcon strokeWidth={2.6} className="size-5" />
+                    انتشار صفحه
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => void saveAdmin('REJECTED')}
+                    disabled={saving}
+                    className="w-full rounded-full bg-white px-7 py-3 text-[15px] font-bold text-red-700 ring-1 ring-red-200 transition-all duration-200 hover:bg-red-50 disabled:opacity-50"
+                  >
+                    رد صفحه
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        ) : null}
+      </article>
+
+      {/* ————————————————— INTRODUCTION ————————————————— */}
+      <section
+        id="page-intro"
+        className="scroll-mt-20 rounded-2xl border border-ink-900/10 bg-white px-4 py-3 md:px-5"
+      >
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-[12px] font-bold text-ink-500">معرفی</span>
+          {editable && !introOpen && (
+            <EditButton label="ویرایش معرفی" onClick={() => setIntroOpen(true)} />
+          )}
+        </div>
+
+        {description ? (
+          editable && introOpen ? (
+            <InlineEditor onSave={() => void saveIntro()} onCancel={() => setIntroOpen(false)} saving={saving}>
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                rows={12}
+                maxLength={2000}
+                className={`${inputClass} resize-y leading-7`}
               />
             </InlineEditor>
-          )}
-
-          {/* Admin identity editing */}
-          {admin && (
-            <div className="mb-5">
-              {!identityOpen ? (
-                <EditLink label="ویرایش نام، نوع‌ها و محدوده فعالیت" onClick={() => setIdentityOpen(true)} />
-              ) : (
-                <div className="space-y-5 rounded-2xl bg-ink-900/[0.02] p-4 ring-1 ring-ink-900/[0.06]">
-                  <label className="block">
-                    <span className="mb-2 block text-[13px] font-bold text-ink-900">نام صفحه</span>
-                    <input
-                      type="text"
-                      value={name}
-                      onChange={(event) => setName(event.target.value)}
-                      className={inputClass}
-                    />
-                  </label>
-
-                  <TopicTypesField value={types} onChange={setTypes} />
-
-                  <ActivityAreaPicker value={activity} onChange={setActivity} showAddress={false} />
-
-                  <label className="block">
-                    <span className="mb-2 block text-[13px] font-bold text-ink-900">آدرس</span>
-                    <input
-                      type="text"
-                      value={address}
-                      onChange={(event) => setAddress(event.target.value)}
-                      className={inputClass}
-                    />
-                  </label>
-
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => void saveAdmin()}
-                      disabled={saving}
-                      className="rounded-full bg-turquoise-600 px-5 py-2 text-[13px] font-bold text-white transition-colors hover:bg-turquoise-700 disabled:opacity-50"
-                    >
-                      {saving ? 'در حال ذخیره...' : 'ذخیره'}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={resetIdentity}
-                      disabled={saving}
-                      className="rounded-full bg-white px-5 py-2 text-[13px] font-bold text-ink-600 ring-1 ring-ink-900/15 transition-colors hover:bg-ink-900/5 disabled:opacity-50"
-                    >
-                      انصراف
-                    </button>
-                  </div>
-
-                  {pendingTypes.length > 0 && (
-                    <div className="rounded-2xl bg-saffron-50 p-4 ring-1 ring-saffron-200/60">
-                      <p className="text-[13px] font-bold text-ink-800">
-                        این نوع‌ها جدید هستند و در انتظار بررسی‌اند:
-                      </p>
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {pendingTypes.map((item) => (
-                          <span
-                            key={item.id}
-                            className="inline-flex items-center gap-2 rounded-full bg-white py-1.5 ps-3 pe-1.5 text-[13px] font-semibold text-ink-800 ring-1 ring-ink-900/10"
-                          >
-                            {item.label}
-                            <button
-                              type="button"
-                              onClick={() => void approveType(item.id)}
-                              className="grid size-5 place-items-center rounded-full bg-turquoise-600 text-white transition-colors hover:bg-turquoise-700"
-                              aria-label={`تأیید نوع «${item.label}»`}
-                            >
-                              <CheckIcon strokeWidth={3} className="size-3" />
-                            </button>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+          ) : (
+            <>
+              <p
+                ref={introRef}
+                className={`${introExpanded ? '' : 'line-clamp-3'} whitespace-pre-line text-[14px] leading-7 text-ink-700`}
+              >
+                {description}
+              </p>
+              {introCanExpand && (
+                <button
+                  type="button"
+                  onClick={() => setIntroExpanded((open) => !open)}
+                  className="mt-1 text-[12px] font-semibold text-turquoise-700 transition-colors hover:text-turquoise-800"
+                >
+                  {introExpanded ? 'کمتر' : 'بیشتر'}
+                </button>
               )}
+            </>
+          )
+        ) : editable ? (
+          introOpen ? (
+            <InlineEditor onSave={() => void saveIntro()} onCancel={() => setIntroOpen(false)} saving={saving}>
+              <textarea
+                value={description}
+                onChange={(event) => setDescription(event.target.value)}
+                rows={12}
+                maxLength={2000}
+                placeholder="درباره این صفحه بنویسید..."
+                className={`${inputClass} resize-y leading-7`}
+              />
+            </InlineEditor>
+          ) : (
+            <CompactInvite label="افزودن معرفی" onClick={() => setIntroOpen(true)} />
+          )
+        ) : (
+          <p className="text-[14px] text-ink-400">معرفی‌ای ثبت نشده است.</p>
+        )}
+      </section>
+
+      {/* ————————————————— IMPORTANT INFORMATION & CONTACTS ————————————————— */}
+      <section id="page-info" className="scroll-mt-20 rounded-2xl border border-ink-900/10 bg-white px-4 py-3 md:px-5">
+        <dl className="divide-y divide-ink-900/[0.06]">
+          <InfoRow
+            label="محدوده خدمات‌دهی"
+            value={serviceAreaLabel}
+            edit={admin}
+            onEdit={admin ? () => setIdentityOpen(true) : undefined}
+          />
+
+          <div>
+            <InfoRow
+              label="ساعات کاری"
+              value={workingHours || 'ثبت نشده'}
+              muted={!workingHours}
+              edit={editable}
+              onEdit={() => setHoursOpen(true)}
+            />
+            {editable && hoursOpen && (
+              <InlineEditor onSave={() => void saveHours()} onCancel={() => setHoursOpen(false)} saving={saving}>
+                <textarea
+                  value={workingHours}
+                  onChange={(event) => setWorkingHours(event.target.value)}
+                  rows={4}
+                  maxLength={500}
+                  placeholder={`شنبه تا چهارشنبه: ۹ تا ۱۸
+پنجشنبه: ۹ تا ۱۳
+جمعه: تعطیل`}
+                  className={`${inputClass} resize-y leading-7`}
+                />
+              </InlineEditor>
+            )}
+          </div>
+
+          <div>
+            <InfoRow
+              label="آدرس"
+              value={addressLabel || 'آدرسی برای این مورد ثبت نشده.'}
+              muted={!addressLabel}
+              edit={editable && !admin && showAddressBlock}
+              onEdit={() => setAddressOpen(true)}
+            />
+            {editable && !admin && showAddressBlock && addressOpen && (
+              <InlineEditor onSave={() => void saveAddress()} onCancel={() => setAddressOpen(false)} saving={saving}>
+                <input
+                  type="text"
+                  value={address}
+                  onChange={(event) => setAddress(event.target.value)}
+                  placeholder="خیابان، کوچه، پلاک"
+                  className={inputClass}
+                />
+              </InlineEditor>
+            )}
+          </div>
+        </dl>
+
+        <div className="border-t border-ink-900/[0.06] pt-1">
+          {orderedLinks.length > 0 && (
+            <div className="divide-y divide-ink-900/[0.06]">
+              {orderedLinks.map(({ link, index }) => (
+                <ContactRow
+                  key={`${link.platform}-${index}`}
+                  icon={<ContactIcon platform={link.platform} className="size-4" />}
+                  label={contactLabel(link)}
+                  value={link.value}
+                  href={contactHref(link)}
+                  onEdit={editable ? () => startContactEdit(index) : undefined}
+                  onRemove={editable ? () => void removeLink(index) : undefined}
+                />
+              ))}
             </div>
           )}
 
-          {/* ——— Introduction ——— */}
-          <section className="py-3">
-            {description ? (
-              editable && introOpen ? (
-                <InlineEditor onSave={() => void saveIntro()} onCancel={() => setIntroOpen(false)} saving={saving}>
-                  <textarea
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    rows={5}
-                    maxLength={500}
-                    className={`${inputClass} resize-none leading-7`}
+          {(contactEditIndex !== null || contactAddOpen) && (
+            <div className="py-2">
+              <InlineEditor
+                onSave={() => void saveContactDraft()}
+                onCancel={cancelContactEditor}
+                saving={saving}
+                saveLabel={contactEditIndex !== null ? 'ذخیره' : 'افزودن'}
+              >
+                <div className="space-y-3">
+                  <select
+                    value={contactDraft.platform}
+                    onChange={(event) =>
+                      setContactDraft((draft) => ({ ...draft, platform: event.target.value as ContactPlatform }))
+                    }
+                    aria-label="نوع راه ارتباطی"
+                    className={`${inputClass} appearance-none`}
+                  >
+                    <optgroup label="تلفن">
+                      <option value="PHONE">تلفن</option>
+                    </optgroup>
+                    <optgroup label="وب‌سایت">
+                      <option value="WEBSITE">وب‌سایت</option>
+                    </optgroup>
+                    <optgroup label="شبکه‌های اجتماعی">
+                      {SOCIAL_PLATFORMS.map((platform) => (
+                        <option key={platform} value={platform}>
+                          {CONTACT_PLATFORM_LABELS[platform]}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+
+                  {(contactDraft.platform === 'PHONE' || contactDraft.platform === 'WEBSITE') && (
+                    <input
+                      type="text"
+                      value={contactDraft.label}
+                      onChange={(event) => setContactDraft((draft) => ({ ...draft, label: event.target.value }))}
+                      placeholder="برچسب (اختیاری) — مثل: دفتر مرکزی، فکس، پشتیبانی"
+                      className={inputClass}
+                    />
+                  )}
+
+                  <input
+                    type="text"
+                    value={contactDraft.value}
+                    onChange={(event) => setContactDraft((draft) => ({ ...draft, value: event.target.value }))}
+                    placeholder={
+                      contactDraft.platform === 'PHONE'
+                        ? 'شماره تلفن'
+                        : contactDraft.platform === 'WEBSITE'
+                          ? 'نشانی وب‌سایت'
+                          : 'نام کاربری یا نشانی'
+                    }
+                    dir="ltr"
+                    className={inputClass}
                   />
-                </InlineEditor>
-              ) : (
-                <div className="flex items-start justify-between gap-4">
-                  <p className="min-w-0 flex-1 whitespace-pre-line text-[14px] leading-7 text-ink-700">
-                    {description}
-                  </p>
-                  {editable && <EditLink label="ویرایش" onClick={() => setIntroOpen(true)} />}
                 </div>
-              )
-            ) : editable ? (
-              introOpen ? (
-                <InlineEditor onSave={() => void saveIntro()} onCancel={() => setIntroOpen(false)} saving={saving}>
-                  <textarea
-                    value={description}
-                    onChange={(event) => setDescription(event.target.value)}
-                    rows={5}
-                    maxLength={500}
-                    placeholder="یک یا دو جمله درباره این صفحه..."
-                    className={`${inputClass} resize-none leading-7`}
-                  />
-                </InlineEditor>
-              ) : (
-                <CompactInvite label="افزودن معرفی" onClick={() => setIntroOpen(true)} />
-              )
-            ) : (
-              <p className="text-[14px] text-ink-400">معرفی‌ای ثبت نشده است.</p>
-            )}
-          </section>
+              </InlineEditor>
+            </div>
+          )}
 
-          {/* ——— Important information: service area · working hours · address ——— */}
-          <section className="border-t border-ink-900/[0.08] py-3">
-            <dl className="divide-y divide-ink-900/[0.06]">
-              <InfoRow
-                label="محدوده خدمات‌دهی"
-                value={serviceAreaLabel}
-                edit={admin}
-                onEdit={admin ? () => setIdentityOpen(true) : undefined}
-              />
-
-              <div>
-                <InfoRow
-                  label="ساعت کاری"
-                  value={workingHours || 'ثبت نشده'}
-                  muted={!workingHours}
-                  edit={editable}
-                  onEdit={() => setHoursOpen(true)}
-                />
-                {editable && hoursOpen && (
-                  <InlineEditor onSave={() => void saveHours()} onCancel={() => setHoursOpen(false)} saving={saving}>
-                    <textarea
-                      value={workingHours}
-                      onChange={(event) => setWorkingHours(event.target.value)}
-                      rows={4}
-                      maxLength={500}
-                      placeholder={`شنبه تا چهارشنبه: ۹ تا ۱۸
-پنجشنبه: ۹ تا ۱۳
-جمعه: تعطیل`}
-                      className={`${inputClass} resize-none leading-7`}
-                    />
-                  </InlineEditor>
-                )}
-              </div>
-
-              <div>
-                <InfoRow
-                  label="آدرس"
-                  value={addressLabel || 'آدرسی برای این مورد ثبت نشده.'}
-                  muted={!addressLabel}
-                  edit={editable && !admin && showAddressBlock}
-                  onEdit={() => setAddressOpen(true)}
-                />
-                {editable && !admin && showAddressBlock && addressOpen && (
-                  <InlineEditor onSave={() => void saveAddress()} onCancel={() => setAddressOpen(false)} saving={saving}>
-                    <input
-                      type="text"
-                      value={address}
-                      onChange={(event) => setAddress(event.target.value)}
-                      placeholder="خیابان، کوچه، پلاک"
-                      className={inputClass}
-                    />
-                  </InlineEditor>
-                )}
-              </div>
-            </dl>
-          </section>
-
-          {/* ——— Contact directory ——— */}
-          <section className="border-t border-ink-900/[0.08] py-3">
-            {orderedLinks.length > 0 && (
-              <div className="divide-y divide-ink-900/[0.06]">
-                {orderedLinks.map(({ link, index }) => (
-                  <ContactRow
-                    key={`${link.platform}-${index}`}
-                    icon={<ContactIcon platform={link.platform} className="size-4" />}
-                    label={contactLabel(link)}
-                    value={link.value}
-                    href={contactHref(link)}
-                    onEdit={editable ? () => startContactEdit(index) : undefined}
-                    onRemove={editable ? () => void removeLink(index) : undefined}
-                  />
-                ))}
-              </div>
-            )}
-
-            {(contactEditIndex !== null || contactAddOpen) && (
-              <div className="pt-3">
-                <InlineEditor
-                  onSave={() => void saveContactDraft()}
-                  onCancel={cancelContactEditor}
-                  saving={saving}
-                  saveLabel={contactEditIndex !== null ? 'ذخیره' : 'افزودن'}
-                >
-                  <div className="space-y-3">
-                    <select
-                      value={contactDraft.platform}
-                      onChange={(event) =>
-                        setContactDraft((draft) => ({ ...draft, platform: event.target.value as ContactPlatform }))
-                      }
-                      aria-label="نوع تماس"
-                      className={`${inputClass} appearance-none`}
-                    >
-                      <optgroup label="تلفن">
-                        <option value="PHONE">تلفن</option>
-                      </optgroup>
-                      <optgroup label="وب‌سایت">
-                        <option value="WEBSITE">وب‌سایت</option>
-                      </optgroup>
-                      <optgroup label="شبکه‌های اجتماعی">
-                        {SOCIAL_PLATFORMS.map((platform) => (
-                          <option key={platform} value={platform}>
-                            {CONTACT_PLATFORM_LABELS[platform]}
-                          </option>
-                        ))}
-                      </optgroup>
-                    </select>
-
-                    {(contactDraft.platform === 'PHONE' || contactDraft.platform === 'WEBSITE') && (
-                      <input
-                        type="text"
-                        value={contactDraft.label}
-                        onChange={(event) => setContactDraft((draft) => ({ ...draft, label: event.target.value }))}
-                        placeholder="برچسب (اختیاری) — مثل: دفتر مرکزی، فکس، پشتیبانی"
-                        className={inputClass}
-                      />
-                    )}
-
-                    <input
-                      type="text"
-                      value={contactDraft.value}
-                      onChange={(event) => setContactDraft((draft) => ({ ...draft, value: event.target.value }))}
-                      placeholder={
-                        contactDraft.platform === 'PHONE'
-                          ? 'شماره تلفن'
-                          : contactDraft.platform === 'WEBSITE'
-                            ? 'نشانی وب‌سایت'
-                            : 'نام کاربری یا نشانی'
-                      }
-                      dir="ltr"
-                      className={inputClass}
-                    />
-                  </div>
-                </InlineEditor>
-              </div>
-            )}
-
-            {editable && contactEditIndex === null && !contactAddOpen && (
-              <div className="mt-3">
-                <CompactInvite label="افزودن تماس" onClick={startContactAdd} />
-              </div>
-            )}
-          </section>
-
-          {/* Admin actions */}
-          {admin && (
-            <section className="mt-5 space-y-2.5 border-t border-ink-900/[0.08] pt-5">
-              <button
-                type="button"
-                onClick={() => void saveAdmin()}
-                disabled={saving}
-                className="w-full rounded-full bg-white px-7 py-3 text-[15px] font-bold text-ink-900 ring-1 ring-ink-900/15 transition-all duration-200 hover:ring-turquoise-600/50 hover:text-turquoise-700 disabled:opacity-50"
-              >
-                {saving ? 'در حال ذخیره...' : 'ذخیره تغییرات'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => void saveAdmin('APPROVED')}
-                disabled={saving}
-                className="flex w-full items-center justify-center gap-2 rounded-full bg-turquoise-600 px-7 py-3 text-[15px] font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all duration-200 hover:bg-turquoise-700 disabled:opacity-50"
-              >
-                <CheckIcon strokeWidth={2.6} className="size-5" />
-                انتشار صفحه
-              </button>
-
-              <button
-                type="button"
-                onClick={() => void saveAdmin('REJECTED')}
-                disabled={saving}
-                className="w-full rounded-full bg-white px-7 py-3 text-[15px] font-bold text-red-700 ring-1 ring-red-200 transition-all duration-200 hover:bg-red-50 disabled:opacity-50"
-              >
-                رد صفحه
-              </button>
-            </section>
+          {editable && contactEditIndex === null && !contactAddOpen && (
+            <div className="py-2">
+              <CompactInvite label="افزودن راه ارتباطی" onClick={startContactAdd} />
+            </div>
           )}
         </div>
-      </article>
+      </section>
 
-      {/* ————————————————— COMMENTS FRAME ————————————————— */}
-      <section className="rounded-[28px] bg-white p-5 ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)] md:p-6">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-xl text-ink-900">نظرات</h2>
-          <button
-            type="button"
-            onClick={() => setFormOpen((open) => !open)}
-            className="rounded-full bg-turquoise-600 px-5 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-turquoise-700"
-          >
-            ثبت نظر
-          </button>
+      {/* ————————————————— COMMENTS ————————————————— */}
+      <section
+        id="page-comments"
+        className="scroll-mt-20 rounded-2xl border border-ink-900/10 bg-white px-4 py-3 md:px-5"
+      >
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <span className="text-[12px] font-bold text-ink-500">نظرات</span>
+          <div className="flex items-center gap-3">
+            {comments.length > 0 && (
+              <span className="text-[12px] font-medium text-ink-400">
+                {persianNumber(comments.length)} نظر
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={() => setFormOpen((open) => !open)}
+              className="rounded-full bg-turquoise-600 px-5 py-2 text-[13px] font-bold text-white transition-colors hover:bg-turquoise-700"
+            >
+              ثبت نظر
+            </button>
+          </div>
         </div>
 
         {comments.length > 0 && (
-          <div className="mt-4 divide-y divide-ink-900/[0.06]">
+          <div className="mt-2 divide-y divide-ink-900/[0.06]">
             {comments.map((comment) => {
               const isPending = comment.status === 'PENDING';
               const isEditing = editingCommentId === comment.id;
@@ -1046,7 +1435,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
               return (
                 <article
                   key={comment.id}
-                  className={`py-4 ${isPending ? 'border-s-4 border-red-400 ps-3' : ''}`}
+                  className={`py-3 ${isPending ? 'border-s-4 border-red-400 ps-3' : ''}`}
                 >
                   {admin && isEditing ? (
                     <div>
@@ -1082,7 +1471,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
                         {comment.body}
                       </p>
 
-                      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
+                      <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
                         {comment.createdAt && (
                           <span className="text-[11px] text-ink-400">
                             {formatCommentDate(comment.createdAt)}
@@ -1147,11 +1536,64 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
         )}
 
         {formOpen && (
-          <div id="page-comment-form" className="mt-5 border-t border-ink-900/[0.06] pt-5">
-            <CommentForm topicId={page.id} autoFocus />
+          <div className="mt-2">
+            <CommentForm topicId={page.id} autoFocus onSubmitted={handleCommentSubmitted} />
           </div>
         )}
       </section>
+
+      {/* ————————————————— FINAL SUBMISSION ————————————————— */}
+      {showSendButton && (
+        <div id="page-submit" className="scroll-mt-24 pt-1">
+          <button
+            type="button"
+            onClick={() => setConfirmOpen(true)}
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-turquoise-600 px-7 py-3.5 text-[15px] font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all duration-200 hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97]"
+          >
+            ارسال اطلاعات
+          </button>
+        </div>
+      )}
+
+      {/* ————————————————— ONBOARDING TOUR ————————————————— */}
+      {tourActive && !tourPaused && tourContent && (
+        <TourOverlay step={tourContent} progress={completionPercent} onClose={closeTour} />
+      )}
+
+      {/* ————————————————— CONFIRMATION MODAL ————————————————— */}
+      {confirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink-900/40 p-4">
+          <div className="w-full max-w-sm rounded-3xl bg-white p-5 shadow-2xl">
+            <h3 className="text-center text-[16px] font-bold text-ink-900">
+              آیا اطلاعات صفحه درست است؟
+            </h3>
+
+            <p className="mt-2 text-center text-[13px] leading-6 text-ink-600">
+              این آخرین فرصت برای بازبینی و ویرایش است. پس از تأیید، اطلاعات شما برای
+              بررسی ارسال می‌شود.
+            </p>
+
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmOpen(false)}
+                disabled={submitting}
+                className="flex-1 rounded-full bg-white px-4 py-2.5 text-[13px] font-bold text-ink-600 ring-1 ring-ink-900/15 transition-colors hover:bg-ink-900/5 disabled:opacity-50"
+              >
+                بازبینی / بازگشت
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleConfirmSubmit()}
+                disabled={submitting}
+                className="flex-1 rounded-full bg-turquoise-600 px-4 py-2.5 text-[13px] font-bold text-white transition-colors hover:bg-turquoise-700 disabled:opacity-50"
+              >
+                {submitting ? 'در حال ارسال...' : 'تأیید و ارسال'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

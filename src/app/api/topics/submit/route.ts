@@ -11,7 +11,7 @@ const LOCATION_SCOPES: readonly LocationScope[] = ['NATIONAL', 'PROVINCE', 'CITY
 const MAX_NAME_LENGTH = 80;
 const MAX_TYPE_LENGTH = 60;
 const MAX_TYPES = 5;
-const MAX_DESCRIPTION_LENGTH = 500;
+const MAX_DESCRIPTION_LENGTH = 2000;
 const MAX_ADDRESS_LENGTH = 200;
 
 type SubmittedType = {

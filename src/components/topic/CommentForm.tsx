@@ -6,9 +6,17 @@ import { useRouter } from 'next/navigation';
 interface CommentFormProps {
   topicId: string;
   autoFocus?: boolean;
+  /** Called with the created comment so the parent can update state live
+   *  (e.g. the profile-completion «اولین نظر» stage). */
+  onSubmitted?: (comment: {
+    id: string;
+    body: string;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    createdAt: string;
+  }) => void;
 }
 
-export function CommentForm({ topicId, autoFocus = false }: CommentFormProps) {
+export function CommentForm({ topicId, autoFocus = false, onSubmitted }: CommentFormProps) {
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -76,6 +84,13 @@ export function CommentForm({ topicId, autoFocus = false }: CommentFormProps) {
       setBody('');
       setSuccessMessage(payload?.message ?? 'نظر شما برای بررسی ارسال شد.');
 
+      onSubmitted?.({
+        id: String(payload?.commentId ?? ''),
+        body: trimmedBody,
+        status: 'PENDING',
+        createdAt: new Date().toISOString(),
+      });
+
       router.refresh();
     } catch {
       setError('ارسال نظر ممکن نشد.');
@@ -89,15 +104,8 @@ export function CommentForm({ topicId, autoFocus = false }: CommentFormProps) {
       ref={formRef}
       onSubmit={handleSubmit}
       noValidate
-      className="mt-10 rounded-3xl bg-white p-5 ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)] md:p-6"
+      className="mt-3 border-t border-ink-900/[0.08] pt-3"
     >
-      <label
-        htmlFor="comment-body"
-        className="font-display text-xl text-ink-900"
-      >
-        ثبت نظر جدید
-      </label>
-
       <textarea
         id="comment-body"
         ref={textareaRef}
@@ -113,34 +121,38 @@ export function CommentForm({ topicId, autoFocus = false }: CommentFormProps) {
             setSuccessMessage(null);
           }
         }}
-        rows={4}
+        rows={3}
         placeholder="نظر خود را بنویسید..."
+        aria-label="متن نظر"
         disabled={isSubmitting}
-        className="mt-3 w-full resize-none rounded-[22px] border border-ink-200 bg-paper p-4 text-[15px] leading-7 text-ink-900 caret-turquoise-700 outline-none transition-shadow placeholder:text-ink-400 focus:ring-2 focus:ring-turquoise-500 focus:shadow-md disabled:opacity-60"
+        className="w-full resize-none rounded-xl border border-ink-200 bg-paper p-3 text-[14px] leading-6 text-ink-900 caret-turquoise-700 outline-none transition-shadow placeholder:text-ink-400 focus:ring-2 focus:ring-turquoise-500 disabled:opacity-60"
       />
 
       {error ? (
-        <p role="alert" className="mt-2 text-sm text-red-600">
+        <p role="alert" className="mt-1.5 text-[12px] text-red-600">
           {error}
         </p>
       ) : null}
 
-            {successMessage ? (
-        <div role="status" className="mt-3 rounded-2xl bg-turquoise-600/10 p-3">
-          <p className="text-sm font-bold text-turquoise-700">
+      {successMessage ? (
+        <div role="status" className="mt-2 rounded-xl bg-turquoise-600/10 px-3 py-2">
+          <p className="text-[13px] font-bold text-turquoise-700">
             {successMessage}
           </p>
-          <p className="mt-1 text-xs text-turquoise-600">
+          <p className="mt-0.5 text-[11px] text-turquoise-600">
             نظر شما پس از تأیید مدیریت برای دیگران قابل مشاهده خواهد بود.
           </p>
         </div>
       ) : null}
 
-      <div className="mt-4 flex justify-end">
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <p className="text-[11px] text-ink-400">
+          نظر شما پس از تأیید مدیریت نمایش داده می‌شود.
+        </p>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-full bg-turquoise-600 px-7 py-3 text-sm font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40"
+          className="rounded-full bg-turquoise-600 px-6 py-2.5 text-[13px] font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40"
         >
           {isSubmitting ? 'در حال ارسال...' : 'ارسال نظر'}
         </button>

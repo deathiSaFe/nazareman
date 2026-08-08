@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-const MAX_DESCRIPTION_LENGTH = 500;
+const MAX_DESCRIPTION_LENGTH = 2000;
 const MAX_WORKING_HOURS_LENGTH = 500;
 const MAX_LINK_LENGTH = 200;
 const MAX_LINK_LABEL_LENGTH = 40;
