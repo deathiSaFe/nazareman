@@ -168,8 +168,9 @@ export function TourOverlay({ step, progress, onClose }: TourOverlayProps) {
 
   return (
     <>
-      {/* Dark overlay + spotlight (never intercepts pointer events). */}
-      <div className="pointer-events-none fixed inset-0 z-40">
+      {/* Dark overlay + spotlight (never intercepts pointer events). Clipped to
+          the viewport so the spotlight's large shadow cannot widen the page. */}
+      <div className="pointer-events-none fixed inset-0 z-40 overflow-hidden">
         {spot && (
           <div
             className="absolute rounded-[20px] transition-[top,left,width,height] duration-300 ease-out"

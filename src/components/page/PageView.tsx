@@ -204,7 +204,7 @@ function InfoRow({
     <div className="flex items-center justify-between gap-3 py-2">
       <dt className="shrink-0 text-[13px] font-medium text-ink-500">{label}</dt>
       <dd
-        className={`min-w-0 flex-1 text-end text-[14px] font-semibold ${
+        className={`min-w-0 flex-1 break-words text-end text-[14px] font-semibold ${
           muted ? 'font-medium text-ink-400' : 'text-ink-900'
         }`}
       >
@@ -237,7 +237,7 @@ function ContactRow({
         {icon}
       </span>
       {label && <span className="shrink-0 text-[13px] font-medium text-ink-500">{label}</span>}
-      <span dir="ltr" className="min-w-0 flex-1 truncate text-end text-[14px] font-semibold text-ink-900">
+      <span dir="ltr" className="min-w-0 flex-1 break-words text-end text-[14px] font-semibold text-ink-900">
         {href ? (
           <a
             href={href}
@@ -303,7 +303,10 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
   const [hoursOpen, setHoursOpen] = useState(false);
   const [addressOpen, setAddressOpen] = useState(false);
   const [identityOpen, setIdentityOpen] = useState(false);
-  const [formOpen, setFormOpen] = useState(false);
+
+  // Comment form (always visible); track focus + on-demand focus requests.
+  const [commentFocused, setCommentFocused] = useState(false);
+  const [commentFocusRequest, setCommentFocusRequest] = useState(0);
 
   // Contact editor (add or edit one row)
   const [contactDraft, setContactDraft] = useState<{ platform: ContactPlatform; label: string; value: string }>({
@@ -415,7 +418,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     addressOpen ||
     contactAddOpen ||
     contactEditIndex !== null ||
-    formOpen;
+    commentFocused;
 
   function goNext() {
     setTour((current) =>
@@ -571,7 +574,9 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
           targetId: 'page-info',
           title: 'راه‌های ارتباطی',
           message:
-            'راه‌های ارتباطی خود را اضافه کنید؛ تلفن، موبایل، وب‌سایت و شبکه‌های اجتماعی. می‌توانید چند راه ارتباطی اضافه کنید.',
+            links.length > 0
+              ? 'یک راه ارتباطی اضافه شد. می‌توانید شماره‌های دیگر، موبایل، وب‌سایت یا شبکه‌های اجتماعی بیشتری اضافه کنید.'
+              : 'راه‌های ارتباطی خود را اضافه کنید؛ تلفن، موبایل، وب‌سایت و شبکه‌های اجتماعی. می‌توانید چند راه ارتباطی اضافه کنید.',
           stepLabel,
           actions: [
             { label: 'افزودن راه ارتباطی', onClick: startContactAdd },
@@ -600,7 +605,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
   }
 
   function handleFirstComment() {
-    setFormOpen(true);
+    setCommentFocusRequest((request) => request + 1);
     scrollToId('page-comments');
   }
 
@@ -611,7 +616,6 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     createdAt: string;
   }) {
     setComments((prev) => [...prev, comment]);
-    setFormOpen(false);
     completeStep('comment');
   }
 
@@ -884,10 +888,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
 
     setLinks(nextLinks);
     const ok = await savePage({ links: nextLinks });
-    if (ok) {
-      cancelContactEditor();
-      completeStep('contact');
-    }
+    if (ok) cancelContactEditor();
   };
 
   const removeLink = async (index: number) => {
@@ -1226,7 +1227,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
             <>
               <p
                 ref={introRef}
-                className={`${introExpanded ? '' : 'line-clamp-3'} whitespace-pre-line text-[14px] leading-7 text-ink-700`}
+                className={`${introExpanded ? '' : 'line-clamp-3'} whitespace-pre-line break-words text-[14px] leading-7 text-ink-700`}
               >
                 {description}
               </p>
@@ -1410,20 +1411,11 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
       >
         <div className="mb-2 flex items-center justify-between gap-3">
           <span className="text-[12px] font-bold text-ink-500">نظرات</span>
-          <div className="flex items-center gap-3">
-            {comments.length > 0 && (
-              <span className="text-[12px] font-medium text-ink-400">
-                {persianNumber(comments.length)} نظر
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={() => setFormOpen((open) => !open)}
-              className="rounded-full bg-turquoise-600 px-5 py-2 text-[13px] font-bold text-white transition-colors hover:bg-turquoise-700"
-            >
-              ثبت نظر
-            </button>
-          </div>
+          {comments.length > 0 && (
+            <span className="text-[12px] font-medium text-ink-400">
+              {persianNumber(comments.length)} نظر
+            </span>
+          )}
         </div>
 
         {comments.length > 0 && (
@@ -1467,7 +1459,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
                     </div>
                   ) : (
                     <>
-                      <p className="whitespace-pre-line text-[14px] leading-7 text-ink-800">
+                      <p className="whitespace-pre-line break-words text-[14px] leading-7 text-ink-800">
                         {comment.body}
                       </p>
 
@@ -1535,11 +1527,14 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
           </div>
         )}
 
-        {formOpen && (
-          <div className="mt-2">
-            <CommentForm topicId={page.id} autoFocus onSubmitted={handleCommentSubmitted} />
-          </div>
-        )}
+        <div className="mt-2">
+          <CommentForm
+            topicId={page.id}
+            focusRequest={commentFocusRequest}
+            onSubmitted={handleCommentSubmitted}
+            onFocusChange={setCommentFocused}
+          />
+        </div>
       </section>
 
       {/* ————————————————— FINAL SUBMISSION ————————————————— */}

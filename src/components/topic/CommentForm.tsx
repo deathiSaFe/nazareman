@@ -5,18 +5,26 @@ import { useRouter } from 'next/navigation';
 
 interface CommentFormProps {
   topicId: string;
-  autoFocus?: boolean;
+  /** Increment to scroll the form into view and focus the textarea on demand. */
+  focusRequest?: number;
   /** Called with the created comment so the parent can update state live
-   *  (e.g. the profile-completion «اولین نظر» stage). */
+   *  and advance the guided tour. */
   onSubmitted?: (comment: {
     id: string;
     body: string;
     status: 'PENDING' | 'APPROVED' | 'REJECTED';
     createdAt: string;
   }) => void;
+  /** Lets the parent pause the tour while the comment textarea is focused. */
+  onFocusChange?: (focused: boolean) => void;
 }
 
-export function CommentForm({ topicId, autoFocus = false, onSubmitted }: CommentFormProps) {
+export function CommentForm({
+  topicId,
+  focusRequest = 0,
+  onSubmitted,
+  onFocusChange,
+}: CommentFormProps) {
   const router = useRouter();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -27,11 +35,10 @@ export function CommentForm({ topicId, autoFocus = false, onSubmitted }: Comment
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (autoFocus && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      textareaRef.current?.focus();
-    }
-  }, [autoFocus]);
+    if (!focusRequest) return;
+    formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    textareaRef.current?.focus();
+  }, [focusRequest]);
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -91,6 +98,8 @@ export function CommentForm({ topicId, autoFocus = false, onSubmitted }: Comment
         createdAt: new Date().toISOString(),
       });
 
+      // Give the page back to the tour after a successful submission.
+      textareaRef.current?.blur();
       router.refresh();
     } catch {
       setError('ارسال نظر ممکن نشد.');
@@ -121,6 +130,8 @@ export function CommentForm({ topicId, autoFocus = false, onSubmitted }: Comment
             setSuccessMessage(null);
           }
         }}
+        onFocus={() => onFocusChange?.(true)}
+        onBlur={() => onFocusChange?.(false)}
         rows={3}
         placeholder="نظر خود را بنویسید..."
         aria-label="متن نظر"
@@ -154,7 +165,7 @@ export function CommentForm({ topicId, autoFocus = false, onSubmitted }: Comment
           disabled={isSubmitting}
           className="rounded-full bg-turquoise-600 px-6 py-2.5 text-[13px] font-bold text-white shadow-[0_10px_24px_-10px_rgba(26,99,93,0.55)] transition-all hover:-translate-y-0.5 hover:bg-turquoise-700 active:translate-y-0 active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40"
         >
-          {isSubmitting ? 'در حال ارسال...' : 'ارسال نظر'}
+          {isSubmitting ? 'در حال ثبت...' : 'ثبت نظر'}
         </button>
       </div>
     </form>
