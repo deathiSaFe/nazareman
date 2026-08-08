@@ -17,8 +17,9 @@ const MAX_NAME_LENGTH = 80;
 const MAX_TYPE_LENGTH = 60;
 const MAX_TYPES = 5;
 const MAX_DESCRIPTION_LENGTH = 500;
-const MAX_PHONE_LENGTH = 30;
+const MAX_WORKING_HOURS_LENGTH = 500;
 const MAX_LINK_LENGTH = 200;
+const MAX_LINK_LABEL_LENGTH = 40;
 const MAX_ADDRESS_LENGTH = 200;
 
 type AllowedStatus = (typeof ALLOWED_STATUSES)[number];
@@ -30,6 +31,7 @@ type SubmittedType = {
 
 type SubmittedLink = {
   platform: ContactPlatform;
+  label?: string;
   value: string;
 };
 
@@ -115,6 +117,7 @@ function parseLinks(raw: unknown): SubmittedLink[] | null {
     const record = item as Record<string, unknown>;
     const platform = record.platform;
     const value = typeof record.value === 'string' ? record.value.trim() : '';
+    const label = typeof record.label === 'string' ? record.label.trim() : '';
 
     if (typeof platform !== 'string') continue;
     if (
@@ -131,14 +134,20 @@ function parseLinks(raw: unknown): SubmittedLink[] | null {
         'FACEBOOK',
         'WEBSITE',
         'OTHER',
+        'PHONE',
       ].includes(platform)
     ) {
       continue;
     }
 
     if (!value || value.length > MAX_LINK_LENGTH) continue;
+    if (label.length > MAX_LINK_LABEL_LENGTH) continue;
 
-    links.push({ platform: platform as ContactPlatform, value });
+    links.push({
+      platform: platform as ContactPlatform,
+      ...(label ? { label } : {}),
+      value,
+    });
   }
 
   return links;
@@ -196,9 +205,9 @@ export async function PATCH(
       ? data.description.trim()
       : ''
     : undefined;
-  const phone = has('phone')
-    ? typeof data.phone === 'string'
-      ? data.phone.trim()
+  const workingHours = has('workingHours')
+    ? typeof data.workingHours === 'string'
+      ? data.workingHours.trim()
       : ''
     : undefined;
   const imageUrl = has('imageUrl')
@@ -261,8 +270,8 @@ export async function PATCH(
   if (description !== undefined && description.length > MAX_DESCRIPTION_LENGTH) {
     errors.push(`description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer.`);
   }
-  if (phone !== undefined && phone.length > MAX_PHONE_LENGTH) {
-    errors.push(`phone must be ${MAX_PHONE_LENGTH} characters or fewer.`);
+  if (workingHours !== undefined && workingHours.length > MAX_WORKING_HOURS_LENGTH) {
+    errors.push(`workingHours must be ${MAX_WORKING_HOURS_LENGTH} characters or fewer.`);
   }
   if (imageUrl !== undefined && imageUrl && !isValidHttpUrl(imageUrl)) {
     errors.push('imageUrl must be a valid http(s) URL.');
@@ -362,7 +371,7 @@ export async function PATCH(
 
       if (has('name') && name) updateData.name = name;
       if (description !== undefined) updateData.description = description || null;
-      if (phone !== undefined) updateData.phone = phone || null;
+      if (workingHours !== undefined) updateData.workingHours = workingHours || null;
       if (imageUrl !== undefined) updateData.imageUrl = imageUrl || null;
       if (address !== undefined) updateData.address = address || null;
 
@@ -395,7 +404,12 @@ export async function PATCH(
 
         for (const link of links) {
           await tx.topicLink.create({
-            data: { topicId: existing.id, platform: link.platform, value: link.value },
+            data: {
+              topicId: existing.id,
+              platform: link.platform,
+              label: link.label ?? null,
+              value: link.value,
+            },
           });
         }
       }

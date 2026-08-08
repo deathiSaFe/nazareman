@@ -9,8 +9,9 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const MAX_DESCRIPTION_LENGTH = 500;
-const MAX_PHONE_LENGTH = 30;
+const MAX_WORKING_HOURS_LENGTH = 500;
 const MAX_LINK_LENGTH = 200;
+const MAX_LINK_LABEL_LENGTH = 40;
 const MAX_ADDRESS_LENGTH = 200;
 
 const PLATFORMS: readonly ContactPlatform[] = [
@@ -26,6 +27,7 @@ const PLATFORMS: readonly ContactPlatform[] = [
   'FACEBOOK',
   'WEBSITE',
   'OTHER',
+  'PHONE',
 ];
 
 function isPlatform(value: unknown): value is ContactPlatform {
@@ -44,7 +46,9 @@ function isValidHttpUrl(value: string): boolean {
   }
 }
 
-function parseLinks(raw: unknown, errors: string[]): Array<{ platform: ContactPlatform; value: string }> {
+type SubmittedLink = { platform: ContactPlatform; label?: string; value: string };
+
+function parseLinks(raw: unknown, errors: string[]): SubmittedLink[] {
   if (raw === undefined) return [];
 
   if (!Array.isArray(raw)) {
@@ -52,7 +56,7 @@ function parseLinks(raw: unknown, errors: string[]): Array<{ platform: ContactPl
     return [];
   }
 
-  const links: Array<{ platform: ContactPlatform; value: string }> = [];
+  const links: SubmittedLink[] = [];
 
   for (const item of raw) {
     if (typeof item !== 'object' || item === null) {
@@ -63,6 +67,7 @@ function parseLinks(raw: unknown, errors: string[]): Array<{ platform: ContactPl
     const record = item as Record<string, unknown>;
     const platform = record.platform;
     const value = typeof record.value === 'string' ? record.value.trim() : '';
+    const label = typeof record.label === 'string' ? record.label.trim() : '';
 
     if (!isPlatform(platform)) {
       errors.push('link platform is invalid.');
@@ -79,7 +84,12 @@ function parseLinks(raw: unknown, errors: string[]): Array<{ platform: ContactPl
       continue;
     }
 
-    links.push({ platform, value });
+    if (label.length > MAX_LINK_LABEL_LENGTH) {
+      errors.push(`link label must be ${MAX_LINK_LABEL_LENGTH} characters or fewer.`);
+      continue;
+    }
+
+    links.push({ platform, ...(label ? { label } : {}), value });
   }
 
   return links;
@@ -121,8 +131,8 @@ export async function GET(
         slug: true,
         name: true,
         description: true,
+        workingHours: true,
         imageUrl: true,
-        phone: true,
         scope: true,
         address: true,
         status: true,
@@ -130,6 +140,7 @@ export async function GET(
           select: {
             id: true,
             platform: true,
+            label: true,
             value: true,
           },
           orderBy: { createdAt: 'asc' },
@@ -222,8 +233,8 @@ export async function GET(
       slug: topic.slug,
       name: topic.name,
       description: topic.description,
+      workingHours: topic.workingHours,
       imageUrl: topic.imageUrl,
-      phone: topic.phone,
       scope: topic.scope,
       address: topic.address,
       status: topic.status,
@@ -237,6 +248,7 @@ export async function GET(
       links: topic.links.map((link) => ({
         id: link.id,
         platform: link.platform,
+        label: link.label,
         value: link.value,
       })),
       comments: mappedComments,
@@ -254,8 +266,8 @@ export async function GET(
 /**
  * PATCH /api/topics/[id]
  * Inline page editors call this endpoint. Accepts any subset of the
- * contribution fields: introduction, primary image, phone, address and the
- * repeatable contact/social links.
+ * contribution fields: introduction, working hours, primary image, address and
+ * the repeatable contact rows (phones / website / social links).
  *
  * FUTURE OWNERSHIP: this endpoint currently lets any visitor edit a page.
  * Once ownership is introduced, gate it behind the page's Creator/Owner.
@@ -288,7 +300,7 @@ export async function PATCH(
     typeof data[key] === 'string' ? (data[key] as string).trim() : '';
 
   const description = text('description');
-  const phone = text('phone');
+  const workingHours = text('workingHours');
   const address = text('address');
   const imageUrl = text('imageUrl');
 
@@ -298,8 +310,8 @@ export async function PATCH(
   if (description.length > MAX_DESCRIPTION_LENGTH) {
     errors.push(`description must be ${MAX_DESCRIPTION_LENGTH} characters or fewer.`);
   }
-  if (phone.length > MAX_PHONE_LENGTH) {
-    errors.push(`phone must be ${MAX_PHONE_LENGTH} characters or fewer.`);
+  if (workingHours.length > MAX_WORKING_HOURS_LENGTH) {
+    errors.push(`workingHours must be ${MAX_WORKING_HOURS_LENGTH} characters or fewer.`);
   }
   if (address.length > MAX_ADDRESS_LENGTH) {
     errors.push(`address must be ${MAX_ADDRESS_LENGTH} characters or fewer.`);
@@ -341,7 +353,7 @@ export async function PATCH(
         where: { id: existing.id },
         data: {
           description: description || null,
-          phone: phone || null,
+          workingHours: workingHours || null,
           address: address || null,
           imageUrl: imageUrl || null,
         },
@@ -353,7 +365,12 @@ export async function PATCH(
 
         for (const link of links) {
           await tx.topicLink.create({
-            data: { topicId: existing.id, platform: link.platform, value: link.value },
+            data: {
+              topicId: existing.id,
+              platform: link.platform,
+              label: link.label ?? null,
+              value: link.value,
+            },
           });
         }
       }

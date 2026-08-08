@@ -60,7 +60,8 @@ export type ContactPlatform =
   | 'YOUTUBE'
   | 'FACEBOOK'
   | 'WEBSITE'
-  | 'OTHER';
+  | 'OTHER'
+  | 'PHONE';
 
 export const CONTACT_PLATFORM_LABELS: Record<ContactPlatform, string> = {
   INSTAGRAM: 'اینستاگرام',
@@ -75,6 +76,7 @@ export const CONTACT_PLATFORM_LABELS: Record<ContactPlatform, string> = {
   FACEBOOK: 'فیسبوک',
   WEBSITE: 'وب‌سایت',
   OTHER: 'سایر',
+  PHONE: 'تلفن',
 };
 
 export const CONTACT_PLATFORMS: readonly ContactPlatform[] = [
@@ -90,12 +92,15 @@ export const CONTACT_PLATFORMS: readonly ContactPlatform[] = [
   'FACEBOOK',
   'WEBSITE',
   'OTHER',
+  'PHONE',
 ];
 
 /** A repeatable contact / social-media row on a page. */
 export interface PageLink {
   id: string;
   platform: ContactPlatform;
+  /** Optional human label — e.g. «دفتر مرکزی», «فکس», «علی» for a phone. */
+  label?: string | null;
   value: string;
 }
 
@@ -125,8 +130,8 @@ export interface PageData {
   slug: string;
   name: string;
   description: string | null;
+  workingHours: string | null;
   imageUrl: string | null;
-  phone: string | null;
   address: string | null;
   scope: LocationScope;
   status: 'PENDING' | 'APPROVED' | 'REJECTED';

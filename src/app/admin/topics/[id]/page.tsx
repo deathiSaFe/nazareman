@@ -33,7 +33,7 @@ export default async function AdminPageReviewPage({
       slug: true,
       name: true,
       description: true,
-      phone: true,
+      workingHours: true,
       imageUrl: true,
       scope: true,
       address: true,
@@ -57,7 +57,7 @@ export default async function AdminPageReviewPage({
         orderBy: { order: 'asc' },
       },
       links: {
-        select: { id: true, platform: true, value: true },
+        select: { id: true, platform: true, label: true, value: true },
         orderBy: { createdAt: 'asc' },
       },
       comments: {
@@ -91,7 +91,7 @@ export default async function AdminPageReviewPage({
     slug: page.slug,
     name: page.name,
     description: page.description,
-    phone: page.phone,
+    workingHours: page.workingHours,
     imageUrl: page.imageUrl,
     address: page.address,
     scope: page.scope,
@@ -112,6 +112,7 @@ export default async function AdminPageReviewPage({
     links: page.links.map((link) => ({
       id: link.id,
       platform: link.platform,
+      label: link.label,
       value: link.value,
     })),
     comments: page.comments.map((comment) => ({

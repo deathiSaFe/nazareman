@@ -1,6 +1,5 @@
 ﻿import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { PageView } from '@/components/page/PageView';
 import type { PageData, PageLink } from '@/types/topic';
 
@@ -74,8 +73,8 @@ export default async function TopicDetailPage({
     slug: String(topic.slug),
     name: String(topic.name),
     description: (topic.description as string | null) ?? null,
+    workingHours: (topic.workingHours as string | null) ?? null,
     imageUrl: (topic.imageUrl as string | null) ?? null,
-    phone: (topic.phone as string | null) ?? null,
     address: (topic.address as string | null) ?? null,
     scope: topic.scope as PageData['scope'],
     status: topic.status as PageData['status'],
@@ -87,6 +86,7 @@ export default async function TopicDetailPage({
     links: ((topic.links as PageLink[]) ?? []).map((link) => ({
       id: link.id,
       platform: link.platform,
+      label: link.label ?? null,
       value: link.value,
     })),
     comments: ((topic.comments as Array<{
@@ -103,18 +103,9 @@ export default async function TopicDetailPage({
   };
 
   return (
-    <main className="min-h-screen bg-paper pb-20">
-      <div className="mx-auto w-full max-w-3xl px-5 py-8">
-        <Link
-          href="/topics"
-          className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-turquoise-700 transition-colors hover:bg-turquoise-600/10"
-        >
-          بازگشت به موضوعات
-        </Link>
-
-        <div className="mt-6">
-          <PageView page={page} />
-        </div>
+    <main className="min-h-screen bg-paper pb-10">
+      <div className="mx-auto w-full max-w-3xl px-4 py-4 sm:px-5 sm:py-6">
+        <PageView page={page} />
       </div>
     </main>
   );

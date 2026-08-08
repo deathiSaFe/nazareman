@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { CheckIcon, PenIcon, PlusIcon, XIcon } from '@/components/icons';
+import { ContactIcon } from '@/components/contact-icons';
 import { ActivityAreaPicker } from '@/components/add-topic/ActivityAreaPicker';
 import { TopicTypesField } from '@/components/add-topic/TopicTypesField';
 import { CommentForm } from '@/components/topic/CommentForm';
@@ -15,7 +16,7 @@ import {
 
 interface PageViewProps {
   page: PageData;
-  /** Show the inline contribution editors (image/intro/contact/social/address).
+  /** Show the inline contribution editors (image/intro/hours/contact/social/address).
    *  True for everyone for now; later gated behind ownership. */
   editable?: boolean;
   /** Admin mode: additionally exposes identity editing, publish controls and
@@ -25,23 +26,9 @@ interface PageViewProps {
 
 const SOCIAL_PLATFORMS = (
   Object.keys(CONTACT_PLATFORM_LABELS) as ContactPlatform[]
-).filter((platform) => platform !== 'WEBSITE');
+).filter((platform) => platform !== 'WEBSITE' && platform !== 'PHONE');
 
-/** A small neutral symbol per contact platform, rendered before the label. */
-const PLATFORM_SYMBOL: Record<ContactPlatform, string> = {
-  INSTAGRAM: '◎',
-  TELEGRAM: '✈',
-  WHATSAPP: '💬',
-  BALE: '🟣',
-  EITAA: '🟢',
-  RUBIKA: '🔵',
-  LINKEDIN: '💼',
-  X: '𝕏',
-  YOUTUBE: '▶',
-  FACEBOOK: '𝔉',
-  WEBSITE: '🌐',
-  OTHER: '▪',
-};
+type DraftLink = { platform: ContactPlatform; label: string | null; value: string };
 
 const inputClass =
   'w-full rounded-2xl bg-white px-4 py-3 text-[15px] font-medium text-ink-900 outline-none ring-1 ring-ink-900/10 transition-all duration-200 placeholder:font-normal placeholder:text-ink-900/30 focus:ring-2 focus:ring-turquoise-600/70';
@@ -68,12 +55,6 @@ function getAdminPassword(): string {
   } catch {
     return cookieValue;
   }
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="mb-2.5 text-[13px] font-bold text-ink-900">{children}</h2>
-  );
 }
 
 /** Compact Persian date for a comment timestamp. */
@@ -141,12 +122,13 @@ function InlineEditor({
   );
 }
 
+/** Compact «ویرایش» trigger, placed on the left (end) of a row. */
 function EditLink({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-turquoise-700 transition-colors hover:text-turquoise-800"
+      className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-semibold text-turquoise-700 transition-colors hover:text-turquoise-800"
     >
       <PenIcon strokeWidth={2.2} className="size-3.5" />
       {label}
@@ -154,25 +136,57 @@ function EditLink({ label, onClick }: { label: string; onClick: () => void }) {
   );
 }
 
+/** One compact information row: label on the right, value, edit action on the left. */
+function InfoRow({
+  label,
+  value,
+  muted = false,
+  edit,
+  onEdit,
+}: {
+  label: string;
+  value: string;
+  muted?: boolean;
+  edit?: boolean;
+  onEdit?: () => void;
+}) {
+  return (
+    <div className="flex items-center justify-between gap-3 py-2.5">
+      <dt className="shrink-0 text-[13px] font-medium text-ink-500">{label}</dt>
+      <dd
+        className={`min-w-0 flex-1 text-end text-[14px] font-semibold ${
+          muted ? 'font-medium text-ink-400' : 'text-ink-900'
+        }`}
+      >
+        {value}
+      </dd>
+      {edit && onEdit && <EditLink label="ویرایش" onClick={onEdit} />}
+    </div>
+  );
+}
+
+/** One compact contact row: icon, label, value, then edit + remove on the left. */
 function ContactRow({
   icon,
   label,
   value,
   href,
+  onEdit,
   onRemove,
 }: {
-  icon: string;
+  icon: React.ReactNode;
   label: string;
   value: string;
   href?: string;
+  onEdit?: () => void;
   onRemove?: () => void;
 }) {
   return (
     <div className="flex items-center gap-3 py-2.5">
-      <span aria-hidden className="w-6 shrink-0 text-center text-[15px]">
+      <span aria-hidden className="grid w-6 shrink-0 place-items-center text-ink-500">
         {icon}
       </span>
-      <span className="shrink-0 text-[13px] font-medium text-ink-500">{label}</span>
+      {label && <span className="shrink-0 text-[13px] font-medium text-ink-500">{label}</span>}
       <span dir="ltr" className="min-w-0 flex-1 truncate text-end text-[14px] font-semibold text-ink-900">
         {href ? (
           <a
@@ -187,11 +201,21 @@ function ContactRow({
           value
         )}
       </span>
+      {onEdit && (
+        <button
+          type="button"
+          onClick={onEdit}
+          aria-label={`ویرایش ${label || 'تماس'}`}
+          className="grid size-7 shrink-0 place-items-center rounded-full text-ink-900/40 transition-colors hover:bg-ink-900/5 hover:text-ink-900/70"
+        >
+          <PenIcon strokeWidth={2.2} className="size-3.5" />
+        </button>
+      )}
       {onRemove && (
         <button
           type="button"
           onClick={onRemove}
-          aria-label={`حذف ${label}`}
+          aria-label={`حذف ${label || 'تماس'}`}
           className="grid size-7 shrink-0 place-items-center rounded-full text-ink-900/40 transition-colors hover:bg-ink-900/5 hover:text-ink-900/70"
         >
           <XIcon strokeWidth={2.4} className="size-3.5" />
@@ -204,7 +228,7 @@ function ContactRow({
 export function PageView({ page, editable = true, admin = false }: PageViewProps) {
   const [name, setName] = useState(page.name);
   const [description, setDescription] = useState(page.description ?? '');
-  const [phone, setPhone] = useState(page.phone ?? '');
+  const [workingHours, setWorkingHours] = useState(page.workingHours ?? '');
   const [imageUrl, setImageUrl] = useState(page.imageUrl ?? '');
   const [address, setAddress] = useState(page.address ?? '');
   const [types, setTypes] = useState<SelectedTopicType[]>(
@@ -218,8 +242,8 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     cityName: page.city?.name,
     address: page.address ?? undefined,
   });
-  const [links, setLinks] = useState<Array<{ platform: ContactPlatform; value: string }>>(
-    page.links.map((link) => ({ platform: link.platform, value: link.value }))
+  const [links, setLinks] = useState<DraftLink[]>(
+    page.links.map((link) => ({ platform: link.platform, label: link.label ?? null, value: link.value }))
   );
   const [comments, setComments] = useState(page.comments);
   const [status, setStatus] = useState(page.status);
@@ -235,15 +259,19 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
   // Editor toggles
   const [imageOpen, setImageOpen] = useState(false);
   const [introOpen, setIntroOpen] = useState(false);
-  const [contactOpen, setContactOpen] = useState(false);
-  const [socialOpen, setSocialOpen] = useState(false);
+  const [hoursOpen, setHoursOpen] = useState(false);
   const [addressOpen, setAddressOpen] = useState(false);
   const [identityOpen, setIdentityOpen] = useState(false);
   const [formOpen, setFormOpen] = useState(false);
 
-  const [newPlatform, setNewPlatform] = useState<ContactPlatform>('INSTAGRAM');
-  const [newLinkValue, setNewLinkValue] = useState('');
-  const [websiteDraft, setWebsiteDraft] = useState('');
+  // Contact editor (add or edit one row)
+  const [contactDraft, setContactDraft] = useState<{ platform: ContactPlatform; label: string; value: string }>({
+    platform: 'PHONE',
+    label: '',
+    value: '',
+  });
+  const [contactEditIndex, setContactEditIndex] = useState<number | null>(null);
+  const [contactAddOpen, setContactAddOpen] = useState(false);
 
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -259,11 +287,8 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     return () => window.clearTimeout(timer);
   }, [message]);
 
-  const websiteLink = links.find((link) => link.platform === 'WEBSITE');
-  const websiteValue = websiteLink?.value ?? '';
-  const socialLinks = links.filter((link) => link.platform !== 'WEBSITE');
-  const showAddressBlock = activity.scope !== 'NATIONAL';
   const secondaryTypes = types.slice(1);
+  const showAddressBlock = activity.scope !== 'NATIONAL';
 
   const serviceAreaLabel = (() => {
     switch (activity.scope) {
@@ -281,6 +306,29 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
   const addressLabel = address
     ? [activity.provinceName, activity.cityName, address].filter(Boolean).join('، ')
     : null;
+
+  // Contact rows ordered for a compact directory: phones → website → social.
+  const orderedLinks = links
+    .map((link, index) => ({ link, index }))
+    .sort((a, b) => {
+      const rank = (platform: ContactPlatform) =>
+        platform === 'PHONE' ? 0 : platform === 'WEBSITE' ? 1 : 2;
+      return rank(a.link.platform) - rank(b.link.platform) || a.index - b.index;
+    });
+
+  const contactLabel = (link: DraftLink): string => {
+    if (link.platform === 'PHONE') return link.label ?? '';
+    if (link.platform === 'WEBSITE') return link.label ?? CONTACT_PLATFORM_LABELS.WEBSITE;
+    return CONTACT_PLATFORM_LABELS[link.platform];
+  };
+
+  const contactHref = (link: DraftLink): string | undefined => {
+    if (link.platform === 'PHONE') return `tel:${link.value}`;
+    if (link.platform === 'WEBSITE') {
+      return /^https?:\/\//i.test(link.value) ? link.value : `https://${link.value}`;
+    }
+    return undefined;
+  };
 
   function clearFeedback() {
     setMessage(null);
@@ -340,9 +388,9 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
       citySlug: activity.citySlug,
       address: address.trim(),
       description: description.trim(),
-      phone: phone.trim(),
+      workingHours: workingHours.trim(),
       imageUrl: imageUrl.trim(),
-      links: links.map((link) => ({ platform: link.platform, value: link.value })),
+      links: links.map((link) => ({ platform: link.platform, label: link.label, value: link.value })),
       ...(nextStatus ? { status: nextStatus } : {}),
     };
 
@@ -456,36 +504,6 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     }
   }
 
-  const saveContact = async () => {
-    const otherLinks = links.filter((link) => link.platform !== 'WEBSITE');
-    const nextLinks = websiteDraft.trim()
-      ? [...otherLinks, { platform: 'WEBSITE' as const, value: websiteDraft.trim() }]
-      : otherLinks;
-
-    setLinks(nextLinks);
-    const ok = await savePage({ phone: phone.trim(), links: nextLinks });
-    if (ok) setContactOpen(false);
-  };
-
-  const saveSocial = async () => {
-    const value = newLinkValue.trim();
-    if (!value) return;
-
-    const nextLinks = [...links, { platform: newPlatform, value }];
-    setLinks(nextLinks);
-    const ok = await savePage({ links: nextLinks });
-    if (ok) {
-      setNewLinkValue('');
-      setSocialOpen(false);
-    }
-  };
-
-  const removeLink = async (index: number) => {
-    const nextLinks = links.filter((_, itemIndex) => itemIndex !== index);
-    setLinks(nextLinks);
-    await savePage({ links: nextLinks });
-  };
-
   const saveImage = async () => {
     const ok = await savePage({ imageUrl: imageUrl.trim() });
     if (ok) setImageOpen(false);
@@ -496,9 +514,64 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
     if (ok) setIntroOpen(false);
   };
 
+  const saveHours = async () => {
+    const ok = await savePage({ workingHours: workingHours.trim() });
+    if (ok) setHoursOpen(false);
+  };
+
   const saveAddress = async () => {
     const ok = await savePage({ address: address.trim() });
     if (ok) setAddressOpen(false);
+  };
+
+  const startContactAdd = () => {
+    setContactDraft({ platform: 'PHONE', label: '', value: '' });
+    setContactEditIndex(null);
+    setContactAddOpen(true);
+    clearFeedback();
+  };
+
+  const startContactEdit = (index: number) => {
+    const link = links[index];
+    if (!link) return;
+    setContactDraft({ platform: link.platform, label: link.label ?? '', value: link.value });
+    setContactEditIndex(index);
+    setContactAddOpen(false);
+    clearFeedback();
+  };
+
+  const cancelContactEditor = () => {
+    setContactEditIndex(null);
+    setContactAddOpen(false);
+  };
+
+  const saveContactDraft = async () => {
+    const value = contactDraft.value.trim();
+    if (!value) {
+      setError('مقدار تماس را وارد کنید.');
+      return;
+    }
+
+    const next: DraftLink = {
+      platform: contactDraft.platform,
+      label: contactDraft.label.trim() || null,
+      value,
+    };
+
+    const nextLinks =
+      contactEditIndex !== null
+        ? links.map((link, index) => (index === contactEditIndex ? next : link))
+        : [...links, next];
+
+    setLinks(nextLinks);
+    const ok = await savePage({ links: nextLinks });
+    if (ok) cancelContactEditor();
+  };
+
+  const removeLink = async (index: number) => {
+    const nextLinks = links.filter((_, itemIndex) => itemIndex !== index);
+    setLinks(nextLinks);
+    await savePage({ links: nextLinks });
   };
 
   const statusLabel =
@@ -551,7 +624,7 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
 
       {/* ————————————————— MAIN PROFILE FRAME ————————————————— */}
       <article className="overflow-hidden rounded-[28px] bg-white ring-1 ring-ink-900/[0.06] shadow-[0_10px_30px_-14px_rgba(21,67,63,0.3)]">
-        {/* ——— Cover: image is the dominant visual ——— */}
+        {/* ——— Cover + identity: image → primary type → name → secondary types ——— */}
         <div className="relative">
           {imageUrl ? (
             <>
@@ -562,18 +635,29 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
                 className="h-52 w-full object-cover md:h-72"
               />
 
-              {/* Readability gradient spans the whole cover so the name stays
+              {/* Readability gradient spans the whole cover so the identity stays
                   legible regardless of the image. */}
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/65 via-black/25 to-transparent" />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/70 via-black/35 to-black/15" />
 
-              {/* Name (dominant) + primary type (small tag above it) */}
-              <div className="absolute inset-x-0 top-0 flex flex-col items-start gap-3 p-5 md:p-7">
+              <div className="absolute inset-x-0 top-0 flex flex-col items-start gap-2.5 p-5 md:p-7">
                 <span className="rounded-full bg-white/95 px-3 py-1 text-[11px] font-bold text-ink-900 shadow-sm md:text-xs">
                   {types[0]?.label ?? 'بدون نوع'}
                 </span>
                 <h1 className="font-display text-[26px] leading-9 text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.55)] md:text-4xl md:leading-[3rem]">
                   {name}
                 </h1>
+                {secondaryTypes.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-1.5">
+                    {secondaryTypes.map((type, index) => (
+                      <span
+                        key={`${type.label}-${index}`}
+                        className="rounded-full bg-white/20 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/25 backdrop-blur"
+                      >
+                        {type.label}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {editable && (
@@ -596,6 +680,19 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
               <h1 className="mt-3 font-display text-[26px] leading-9 text-white md:text-4xl md:leading-[3rem]">
                 {name}
               </h1>
+
+              {secondaryTypes.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-1.5">
+                  {secondaryTypes.map((type, index) => (
+                    <span
+                      key={`${type.label}-${index}`}
+                      className="rounded-full bg-white/15 px-2.5 py-0.5 text-[11px] font-semibold text-white ring-1 ring-white/20 backdrop-blur"
+                    >
+                      {type.label}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <div className="mt-auto flex justify-center pt-6">
                 {editable && !imageOpen && (
@@ -626,20 +723,6 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
                 className={inputClass}
               />
             </InlineEditor>
-          )}
-
-          {/* Secondary types — subtle chips */}
-          {secondaryTypes.length > 0 && (
-            <div className="mb-4 flex flex-wrap gap-1.5">
-              {secondaryTypes.map((type, index) => (
-                <span
-                  key={`${type.label}-${index}`}
-                  className="rounded-full bg-turquoise-600/10 px-3 py-1 text-[12px] font-semibold text-turquoise-700"
-                >
-                  {type.label}
-                </span>
-              ))}
-            </div>
           )}
 
           {/* Admin identity editing */}
@@ -722,43 +805,30 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
             </div>
           )}
 
-          {/* ——— Section 1 · Introduction ——— */}
-          <section className="border-b border-ink-900/[0.08] py-4">
-            <SectionTitle>معرفی</SectionTitle>
-
+          {/* ——— Introduction ——— */}
+          <section className="py-3">
             {description ? (
-              <>
-                <p className="whitespace-pre-line text-[14px] leading-7 text-ink-700">
-                  {description}
-                </p>
-                {editable && (
-                  <div className="mt-2">
-                    <EditLink label="ویرایش معرفی" onClick={() => setIntroOpen(true)} />
-                    {introOpen && (
-                      <InlineEditor
-                        onSave={() => void saveIntro()}
-                        onCancel={() => setIntroOpen(false)}
-                        saving={saving}
-                      >
-                        <textarea
-                          value={description}
-                          onChange={(event) => setDescription(event.target.value)}
-                          rows={5}
-                          maxLength={500}
-                          className={`${inputClass} resize-none leading-7`}
-                        />
-                      </InlineEditor>
-                    )}
-                  </div>
-                )}
-              </>
+              editable && introOpen ? (
+                <InlineEditor onSave={() => void saveIntro()} onCancel={() => setIntroOpen(false)} saving={saving}>
+                  <textarea
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    rows={5}
+                    maxLength={500}
+                    className={`${inputClass} resize-none leading-7`}
+                  />
+                </InlineEditor>
+              ) : (
+                <div className="flex items-start justify-between gap-4">
+                  <p className="min-w-0 flex-1 whitespace-pre-line text-[14px] leading-7 text-ink-700">
+                    {description}
+                  </p>
+                  {editable && <EditLink label="ویرایش" onClick={() => setIntroOpen(true)} />}
+                </div>
+              )
             ) : editable ? (
               introOpen ? (
-                <InlineEditor
-                  onSave={() => void saveIntro()}
-                  onCancel={() => setIntroOpen(false)}
-                  saving={saving}
-                >
+                <InlineEditor onSave={() => void saveIntro()} onCancel={() => setIntroOpen(false)} saving={saving}>
                   <textarea
                     value={description}
                     onChange={(event) => setDescription(event.target.value)}
@@ -776,182 +846,145 @@ export function PageView({ page, editable = true, admin = false }: PageViewProps
             )}
           </section>
 
-          {/* ——— Section 2 · Important information ——— */}
-          <section className="border-b border-ink-900/[0.08] py-4">
-            <SectionTitle>اطلاعات مهم</SectionTitle>
+          {/* ——— Important information: service area · working hours · address ——— */}
+          <section className="border-t border-ink-900/[0.08] py-3">
+            <dl className="divide-y divide-ink-900/[0.06]">
+              <InfoRow
+                label="محدوده خدمات‌دهی"
+                value={serviceAreaLabel}
+                edit={admin}
+                onEdit={admin ? () => setIdentityOpen(true) : undefined}
+              />
 
-            <div className="divide-y divide-ink-900/[0.06]">
-              {/* Service area */}
-              <div className="flex items-baseline justify-between gap-4 py-2.5">
-                <dt className="shrink-0 text-[13px] font-medium text-ink-500">
-                  محدوده خدمات‌دهی
-                </dt>
-                <dd className="text-end text-[14px] font-semibold text-ink-900">
-                  {serviceAreaLabel}
-                </dd>
-              </div>
-
-              {/* Working hours — placeholder for future functionality */}
-              <div className="flex items-baseline justify-between gap-4 py-2.5">
-                <dt className="shrink-0 text-[13px] font-medium text-ink-500">ساعت کاری</dt>
-                <dd className="text-end text-[14px] font-semibold text-ink-400">
-                  ثبت نشده
-                </dd>
-              </div>
-
-              {/* Address */}
-              <div className="py-2.5">
-                <div className="flex items-baseline justify-between gap-4">
-                  <dt className="shrink-0 text-[13px] font-medium text-ink-500">آدرس</dt>
-                  <dd className="text-end text-[14px] font-semibold text-ink-900">
-                    {addressLabel ? (
-                      addressLabel
-                    ) : (
-                      <span className="font-medium text-ink-400">
-                        آدرسی برای این مورد ثبت نشده.
-                      </span>
-                    )}
-                  </dd>
-                </div>
-
-                {editable && !admin && showAddressBlock && (
-                  <div className="mt-2">
-                    {!addressOpen ? (
-                      <EditLink
-                        label={address ? 'ویرایش آدرس' : 'افزودن آدرس'}
-                        onClick={() => setAddressOpen(true)}
-                      />
-                    ) : (
-                      <InlineEditor
-                        onSave={() => void saveAddress()}
-                        onCancel={() => setAddressOpen(false)}
-                        saving={saving}
-                      >
-                        <input
-                          type="text"
-                          value={address}
-                          onChange={(event) => setAddress(event.target.value)}
-                          placeholder="خیابان، کوچه، پلاک"
-                          className={inputClass}
-                        />
-                      </InlineEditor>
-                    )}
-                  </div>
+              <div>
+                <InfoRow
+                  label="ساعت کاری"
+                  value={workingHours || 'ثبت نشده'}
+                  muted={!workingHours}
+                  edit={editable}
+                  onEdit={() => setHoursOpen(true)}
+                />
+                {editable && hoursOpen && (
+                  <InlineEditor onSave={() => void saveHours()} onCancel={() => setHoursOpen(false)} saving={saving}>
+                    <textarea
+                      value={workingHours}
+                      onChange={(event) => setWorkingHours(event.target.value)}
+                      rows={4}
+                      maxLength={500}
+                      placeholder={`شنبه تا چهارشنبه: ۹ تا ۱۸
+پنجشنبه: ۹ تا ۱۳
+جمعه: تعطیل`}
+                      className={`${inputClass} resize-none leading-7`}
+                    />
+                  </InlineEditor>
                 )}
               </div>
-            </div>
+
+              <div>
+                <InfoRow
+                  label="آدرس"
+                  value={addressLabel || 'آدرسی برای این مورد ثبت نشده.'}
+                  muted={!addressLabel}
+                  edit={editable && !admin && showAddressBlock}
+                  onEdit={() => setAddressOpen(true)}
+                />
+                {editable && !admin && showAddressBlock && addressOpen && (
+                  <InlineEditor onSave={() => void saveAddress()} onCancel={() => setAddressOpen(false)} saving={saving}>
+                    <input
+                      type="text"
+                      value={address}
+                      onChange={(event) => setAddress(event.target.value)}
+                      placeholder="خیابان، کوچه، پلاک"
+                      className={inputClass}
+                    />
+                  </InlineEditor>
+                )}
+              </div>
+            </dl>
           </section>
 
-          {/* ——— Section 3 · Contact information ——— */}
-          <section className="pt-4">
-            <SectionTitle>اطلاعات تماس</SectionTitle>
-
-            {phone || websiteLink || socialLinks.length > 0 ? (
+          {/* ——— Contact directory ——— */}
+          <section className="border-t border-ink-900/[0.08] py-3">
+            {orderedLinks.length > 0 && (
               <div className="divide-y divide-ink-900/[0.06]">
-                {phone && <ContactRow icon="☎" label="تلفن" value={phone} href={`tel:${phone}`} />}
-                {websiteLink && (
-                  <ContactRow
-                    icon="🌐"
-                    label="وب‌سایت"
-                    value={websiteLink.value}
-                    href={
-                      /^https?:\/\//i.test(websiteLink.value)
-                        ? websiteLink.value
-                        : `https://${websiteLink.value}`
-                    }
-                  />
-                )}
-                {socialLinks.map((link, index) => (
+                {orderedLinks.map(({ link, index }) => (
                   <ContactRow
                     key={`${link.platform}-${index}`}
-                    icon={PLATFORM_SYMBOL[link.platform]}
-                    label={CONTACT_PLATFORM_LABELS[link.platform]}
+                    icon={<ContactIcon platform={link.platform} className="size-4" />}
+                    label={contactLabel(link)}
                     value={link.value}
+                    href={contactHref(link)}
+                    onEdit={editable ? () => startContactEdit(index) : undefined}
                     onRemove={editable ? () => void removeLink(index) : undefined}
                   />
                 ))}
               </div>
-            ) : editable ? (
-              <CompactInvite
-                label="افزودن اطلاعات تماس"
-                onClick={() => {
-                  setContactOpen(true);
-                  setWebsiteDraft(websiteValue);
-                }}
-              />
-            ) : (
-              <p className="text-[14px] text-ink-400">اطلاعات تماسی ثبت نشده است.</p>
             )}
 
-            {editable && (
-              <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-3">
-                {!contactOpen ? (
-                  <EditLink
-                    label={phone || websiteLink ? 'ویرایش تلفن و وب‌سایت' : 'افزودن تلفن و وب‌سایت'}
-                    onClick={() => {
-                      setContactOpen(true);
-                      setWebsiteDraft(websiteValue);
-                    }}
-                  />
-                ) : (
-                  <InlineEditor
-                    onSave={() => void saveContact()}
-                    onCancel={() => setContactOpen(false)}
-                    saving={saving}
-                  >
-                    <div className="space-y-3">
-                      <input
-                        type="tel"
-                        value={phone}
-                        onChange={(event) => setPhone(event.target.value)}
-                        placeholder="شماره تلفن"
-                        dir="ltr"
-                        className={inputClass}
-                      />
-                      <input
-                        type="text"
-                        value={websiteDraft}
-                        onChange={(event) => setWebsiteDraft(event.target.value)}
-                        placeholder="وب‌سایت"
-                        dir="ltr"
-                        className={inputClass}
-                      />
-                    </div>
-                  </InlineEditor>
-                )}
-
-                {!socialOpen ? (
-                  <EditLink label="افزودن شبکه اجتماعی" onClick={() => setSocialOpen(true)} />
-                ) : (
-                  <InlineEditor
-                    onSave={() => void saveSocial()}
-                    onCancel={() => setSocialOpen(false)}
-                    saving={saving}
-                  >
-                    <div className="space-y-3">
-                      <select
-                        value={newPlatform}
-                        onChange={(event) => setNewPlatform(event.target.value as ContactPlatform)}
-                        aria-label="پلتفرم"
-                        className={`${inputClass} appearance-none`}
-                      >
+            {(contactEditIndex !== null || contactAddOpen) && (
+              <div className="pt-3">
+                <InlineEditor
+                  onSave={() => void saveContactDraft()}
+                  onCancel={cancelContactEditor}
+                  saving={saving}
+                  saveLabel={contactEditIndex !== null ? 'ذخیره' : 'افزودن'}
+                >
+                  <div className="space-y-3">
+                    <select
+                      value={contactDraft.platform}
+                      onChange={(event) =>
+                        setContactDraft((draft) => ({ ...draft, platform: event.target.value as ContactPlatform }))
+                      }
+                      aria-label="نوع تماس"
+                      className={`${inputClass} appearance-none`}
+                    >
+                      <optgroup label="تلفن">
+                        <option value="PHONE">تلفن</option>
+                      </optgroup>
+                      <optgroup label="وب‌سایت">
+                        <option value="WEBSITE">وب‌سایت</option>
+                      </optgroup>
+                      <optgroup label="شبکه‌های اجتماعی">
                         {SOCIAL_PLATFORMS.map((platform) => (
                           <option key={platform} value={platform}>
                             {CONTACT_PLATFORM_LABELS[platform]}
                           </option>
                         ))}
-                      </select>
+                      </optgroup>
+                    </select>
+
+                    {(contactDraft.platform === 'PHONE' || contactDraft.platform === 'WEBSITE') && (
                       <input
                         type="text"
-                        value={newLinkValue}
-                        onChange={(event) => setNewLinkValue(event.target.value)}
-                        placeholder="نام کاربری یا نشانی"
-                        dir="ltr"
+                        value={contactDraft.label}
+                        onChange={(event) => setContactDraft((draft) => ({ ...draft, label: event.target.value }))}
+                        placeholder="برچسب (اختیاری) — مثل: دفتر مرکزی، فکس، پشتیبانی"
                         className={inputClass}
                       />
-                    </div>
-                  </InlineEditor>
-                )}
+                    )}
+
+                    <input
+                      type="text"
+                      value={contactDraft.value}
+                      onChange={(event) => setContactDraft((draft) => ({ ...draft, value: event.target.value }))}
+                      placeholder={
+                        contactDraft.platform === 'PHONE'
+                          ? 'شماره تلفن'
+                          : contactDraft.platform === 'WEBSITE'
+                            ? 'نشانی وب‌سایت'
+                            : 'نام کاربری یا نشانی'
+                      }
+                      dir="ltr"
+                      className={inputClass}
+                    />
+                  </div>
+                </InlineEditor>
+              </div>
+            )}
+
+            {editable && contactEditIndex === null && !contactAddOpen && (
+              <div className="mt-3">
+                <CompactInvite label="افزودن تماس" onClick={startContactAdd} />
               </div>
             )}
           </section>

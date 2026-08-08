@@ -49,6 +49,7 @@ enum ContactPlatform {
   FACEBOOK
   WEBSITE
   OTHER
+  PHONE
 }
 
 model User {
@@ -107,8 +108,8 @@ model Topic {
   slug          String           @unique
   name          String
   description   String?
+  workingHours  String?
   imageUrl      String?
-  phone         String?
   scope         LocationScope    @default(NATIONAL)
   provinceId    String?          @db.Uuid
   cityId        String?          @db.Uuid
@@ -254,14 +255,16 @@ model TopicTypeTag {
 }
 
 /**
- * A repeatable contact / social-media row on a page (e.g. Instagram,
- * Telegram, WhatsApp, a website, ...). One row per platform+value, so pages
- * can support an unlimited number of contact methods.
+ * A repeatable contact / social-media row on a page (e.g. a phone number, an
+ * Instagram account, a website, ...). One row per platform+value, so pages can
+ * support an unlimited number of contact methods. `label` gives a phone (or
+ * any contact) a human name such as «دفتر مرکزی», «فکس» or «علی».
  */
 model TopicLink {
   id        String          @id @default(uuid()) @db.Uuid
   topicId   String          @db.Uuid
   platform  ContactPlatform
+  label     String?
   value     String
   createdAt DateTime        @default(now())
 
